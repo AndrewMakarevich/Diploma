@@ -52,10 +52,7 @@ const CommentLike = sequelize.define('commentLike', {
 });
 const Role = sequelize.define<IRoleInstance>('role', {
     id: { type: DataTypes.INTEGER, primaryKey: true, autoIncrement: true },
-    name: { type: DataTypes.STRING, unique: true, allowNull: false }
-});
-const Permission = sequelize.define<IPermissionsInstance>('permission', {
-    id: { type: DataTypes.INTEGER, primaryKey: true, autoIncrement: true },
+    name: { type: DataTypes.STRING, unique: true, allowNull: false },
     // Guest permissions
     readComment: { type: DataTypes.BOOLEAN, allowNull: false, defaultValue: false },
     // User permissions
@@ -63,6 +60,7 @@ const Permission = sequelize.define<IPermissionsInstance>('permission', {
     addComment: { type: DataTypes.BOOLEAN, allowNull: false, defaultValue: false },
     addLike: { type: DataTypes.BOOLEAN, allowNull: false, defaultValue: false },
     // Admin permissions
+    changeUserRole: { type: DataTypes.BOOLEAN, allowNull: false, defaultValue: false },
     deleteOtherComment: { type: DataTypes.BOOLEAN, allowNull: false, defaultValue: false },
     deleteOtherPicture: { type: DataTypes.BOOLEAN, allowNull: false, defaultValue: false },
     blockPicture: { type: DataTypes.BOOLEAN, allowNull: false, defaultValue: false },
@@ -76,9 +74,6 @@ UserToken.belongsTo(User);
 
 Role.hasMany(User);
 User.belongsTo(Role);
-
-Permission.hasOne(Role);
-Role.belongsTo(Permission);
 
 User.hasMany(Comment);
 Comment.belongsTo(User);
@@ -128,6 +123,5 @@ export default {
     Comment,
     CommentLike,
     Role,
-    Permission
 }
 

@@ -1,15 +1,20 @@
 
 import models from "../models/models";
-import { WhereOptions } from "sequelize";
+import { CreationAttributes, WhereOptions } from "sequelize";
 class RoleService {
   static async checkBaseRoles() {
-    async function createRole(roleName: string, permissionObj: WhereOptions<any>) {
-      const [userPermissions] = await models.Permission.findOrCreate({ where: permissionObj });
-      await models.Role.findOrCreate({
+    async function createRole(roleName: string, permissionObj: WhereOptions<any> | CreationAttributes<any>) {
+      const userRole = await models.Role.findOne({
         where: {
-          name: roleName,
-          permissionId: userPermissions.id
+          name: roleName
         }
+      });
+      if (userRole) {
+        return userRole.update(permissionObj);
+      }
+      await models.Role.create({
+        name: roleName,
+        ...permissionObj as CreationAttributes<any>,
       });
     }
     const userPermissionsObj = {
@@ -23,7 +28,8 @@ class RoleService {
       deleteOtherComment: true,
       deleteOtherPicture: true,
       blockPicture: true,
-      blockAccount: true
+      blockAccount: true,
+      changeUserRole: true
     };
     const superAdminPermissionsObj = {
       ...adminPermissionsObj,
@@ -31,7 +37,7 @@ class RoleService {
     }
     createRole('USER', userPermissionsObj);
     createRole('ADMIN', adminPermissionsObj);
-    createRole('SUPERADMIN', superAdminPermissionsObj);
+    createRole('SUPER_ADMIN', superAdminPermissionsObj);
   }
 };
 export default RoleService;

@@ -13,45 +13,38 @@ import { JwtPayload } from "jsonwebtoken";
 class UserService {
 
   static async registrateUser(nickname: string, email: string, password: string) {
-    try {
-      if (!nickname || !email || !password) {
-        throw ApiError.badRequest('Not enough data');
-      }
-      UserValidator.validateNickname(nickname);
-      UserValidator.validateEmail(email);
-      UserValidator.validatePassword(password);
-
-      if (await models.User.findOne({ where: { nickname } })) {
-        throw ApiError.badRequest('User with such nickname is already exists');
-      }
-      if (await models.User.findOne({ where: { email } })) {
-        throw ApiError.badRequest('User with such email is already exists');
-      }
-      const hashedPassword = await bcrypt.hash(password, 15);
-      const activationKey = v4();
-      let role = await models.Role.findOne({ where: { name: "USER" } });
-      if (!role) {
-        RoleService.checkBaseRoles();
-        role = await models.Role.findOne({ where: { name: "USER" } });
-      }
-      await models.User.create(
-        {
-          nickname,
-          email,
-          password: hashedPassword,
-          activationKey: activationKey,
-          roleId: role!.id
-        }
-      );
-      await MailService.sendMail(email, activationKey);
-      return { message: 'User created successfully' }
-    } catch (e) {
-      console.log(e);
-      throw ApiError.badRequest('Registration error');
+    if (!nickname || !email || !password) {
+      throw ApiError.badRequest('Not enough data');
     }
+    UserValidator.validateNickname(nickname);
+    UserValidator.validateEmail(email);
+    UserValidator.validatePassword(password);
 
-  }
-
+    if (await models.User.findOne({ where: { nickname } })) {
+      throw ApiError.badRequest('User with such nickname is already exists');
+    }
+    if (await models.User.findOne({ where: { email } })) {
+      throw ApiError.badRequest('User with such email is already exists');
+    }
+    const hashedPassword = await bcrypt.hash(password, 15);
+    const activationKey = v4();
+    let role = await models.Role.findOne({ where: { name: "USER" } });
+    if (!role) {
+      RoleService.checkBaseRoles();
+      role = await models.Role.findOne({ where: { name: "USER" } });
+    }
+    await models.User.create(
+      {
+        nickname,
+        email,
+        password: hashedPassword,
+        activationKey: activationKey,
+        roleId: role!.id
+      }
+    );
+    await MailService.sendMail(email, activationKey);
+    return { message: 'User created successfully' }
+  };
   static async activateUserAccount(activationKey: string) {
     if (!activationKey) {
       throw ApiError.badRequest('No activation key');
@@ -83,9 +76,10 @@ class UserService {
     if (!await bcrypt.compare(password, user.password)) {
       throw ApiError.badRequest('Incorrect password');
     }
+    const userData = new UserDto(user);
     const tokens = await TokenService.generateTokens(new UserDto(user));
     await TokenService.saveToken(user.id, userIp, tokens.refreshToken);
-    return tokens;
+    return { ...tokens, userData };
   }
 
   static async logout(userIp: string, refreshToken: string) {

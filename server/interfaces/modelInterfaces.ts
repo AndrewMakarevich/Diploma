@@ -31,7 +31,16 @@ export interface IUserTokenInstance extends IUserToken, Model {
 export interface IRoleInstance extends Model {
     id: number;
     name: string;
-    permissionId?: string;
+    readComment: boolean,
+    loadPicture: boolean,
+    addComment: boolean,
+    addLike: boolean,
+    changeUserRole: boolean,
+    deleteOtherComment: boolean,
+    deleteOtherPicture: boolean,
+    blockPicture: boolean,
+    blockAccount: boolean,
+    deleteOtherAccount: boolean
     createdAt?: Date;
     updatedAt?: Date;
 };
