@@ -49,4 +49,15 @@ export default class UserStore {
       alert(e.response?.data?.message);
     }
   }
+  async autoAuth() {
+    try {
+      const response = await AuthService.refreshTokens();
+      localStorage.setItem('access-token', response.data.accessToken);
+      this.isAuth = true;
+      this.userData = response.data.userData;
+    } catch (e: AxiosError | any) {
+      localStorage.removeItem('access-token');
+      alert(e.response?.data?.message);
+    }
+  }
 }

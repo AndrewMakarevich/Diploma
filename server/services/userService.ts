@@ -92,9 +92,10 @@ class UserService {
     if (!validationResult || !refreshTokenRecord) {
       throw ApiError.unauthorized('Unauthorized user');
     };
-    const tokens = TokenService.generateTokens(new UserDto(validationResult as IUser));
+    const userData = new UserDto(validationResult as IUser);
+    const tokens = TokenService.generateTokens(userData);
     TokenService.saveToken(validationResult.id, userIp, tokens.refreshToken);
-    return tokens;
+    return { ...tokens, userData };
   }
 }
 export default UserService;

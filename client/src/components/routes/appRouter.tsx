@@ -10,23 +10,13 @@ const AppRouter = () => {
     <Routes>
       <Route path='/*' element={<Navigate to='/' />} />
       {
-        userStore.isAuth && userPaths.map(({ path, component }) => {
-          return (
-            <Route path={path} element={component()} />
-          )
-
-        })
+        userStore.isAuth && userPaths.map(({ path, component: Component }) => <Route path={path} element={<Component />} />)
       }
       {
-        userStore.isAuth && adminPaths.map(({ path, component }) => {
-          return (
-            <Route path={path} element={component()} />
-          )
-
-        })
+        userStore.isAuth && adminPaths.map(({ path, component: Component }) => <Route path={path} element={<Component />} />)
       }
       {
-        guestPaths.map(({ path, component }) => <Route path={path} element={component()} />)
+        guestPaths.map(({ path, component: Component }) => <Route path={path} element={<Component />} />)
       }
     </Routes>
   )

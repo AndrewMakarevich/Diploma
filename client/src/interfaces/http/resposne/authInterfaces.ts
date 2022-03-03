@@ -13,5 +13,6 @@ export interface logoutSuccessObj {
 };
 export interface refreshTokensSuccessObj {
   accessToken: string,
-  refreshToken: string
+  refreshToken: string,
+  userData: IUserData
 }
