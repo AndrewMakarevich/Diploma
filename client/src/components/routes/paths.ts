@@ -13,13 +13,20 @@ export const userPaths = [
     {
         name: 'Personal cabinet',
         path: '/personalCabinet',
-        component: UserCabinet
+        component: UserCabinet,
+        subPaths: [
+            {
+                name: 'Admin panel',
+                path: 'adminPanel',
+                component: AdminCabinet
+            }
+        ]
     }
 ];
-export const adminPaths = [
-    {
-        name: 'Admin cabinet',
-        path: '/adminCabinet',
-        component: AdminCabinet
-    }
-];
+// export const adminPaths = [
+//     {
+//         name: 'Admin cabinet',
+//         path: '/adminCabinet',
+//         component: AdminCabinet
+//     }
+// ];

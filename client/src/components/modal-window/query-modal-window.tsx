@@ -3,7 +3,7 @@ import { useContext } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { Context } from '../..';
 import modalStyles from './modal-window.module.css';
-const QueryModalWindow = ({ children }: { children: JSX.Element }) => {
+const QueryModalWindow = ({ stylesById, children }: { stylesById: string, children: JSX.Element }) => {
     const { modalStore } = useContext(Context);
     const [searchParams, setSearchParams] = useSearchParams();
     function closeModal() {
@@ -16,11 +16,9 @@ const QueryModalWindow = ({ children }: { children: JSX.Element }) => {
         <div className={modalStyles['modal-wrapper']} onClick={(e) => {
             closeModal();
         }}>
-            <div className={modalStyles['modal-window']} onClick={(e) => e.stopPropagation()}>
-                <button onClick={() => closeModal()}>&#215;</button>
-                {/* <button onClick={()=> window.history.go('?foo=faf')}/> */}
-                MODAL
-                <section>
+            <div id={stylesById} className={`${modalStyles['modal-window']}`} onClick={(e) => e.stopPropagation()}>
+                <button className={modalStyles['close-modal__btn']} onClick={() => closeModal()}>&#215;</button>
+                <section className={modalStyles['modal-window__content']}>
                     {children}
                 </section>
             </div>

@@ -1,7 +1,7 @@
 import axios, { AxiosRequestConfig } from "axios";
 
 export const $authHost = axios.create({
-  baseURL: 'http://localhost:5000',
+  baseURL: process.env.REACT_APP_BACK_LINK,
   withCredentials: true
 });
 function tokenInterceptor(config: AxiosRequestConfig) {
@@ -21,6 +21,6 @@ $authHost.interceptors.request.use(tokenInterceptor);
 //   }
 // );
 export const $host = axios.create({
-  baseURL: 'http://localhost:5000',
+  baseURL: process.env.REACT_APP_BACK_LINK,
   withCredentials: true
 });

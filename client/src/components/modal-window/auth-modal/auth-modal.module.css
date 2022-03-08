@@ -1,0 +1,102 @@
+#auth-modal{
+  z-index: 1;
+  position:relative;
+  overflow: hidden;
+  background-color: var(--extra-dark);
+}
+#auth-modal:before{
+  z-index: -1;
+  content:'';
+  position: absolute;
+  width: 250px;
+  height: 250px;
+  background-color:var(--medium-brown);
+  border-radius: 50%;
+  top:0;
+  left:0;
+  transform: translateX(-40%) translateY(-30%);
+}
+#auth-modal:after{
+  z-index: -1;
+  content:'';
+  position: absolute;
+  width: 200px;
+  height: 200px;
+  background-color:var(--dark-brown);
+  border-radius: 50%;
+  top:0;
+  left:100%;
+  transform: translateX(-60%) translateY(-40%);
+}
+.auth__header{
+  color: var(--extra-light);
+  font-weight: 500;
+}
+.auth-input__list{
+  display: flex;
+  flex-direction: column;
+  list-style: none;
+  row-gap: 1rem;
+  padding: 15px;
+}
+.auth-input__item{
+  
+}
+.auth-input__label{
+  display: flex;
+  align-items: center;
+  position:relative;
+}
+.auth-input{
+  border-radius: 15px;
+  border:none;
+  padding: 5px;
+  outline: none;
+  transition: box-shadow .2s;
+}
+.auth-input:focus{
+  -webkit-box-shadow: 4px 4px 12px 0px rgba(34, 60, 80, 0.49) inset;
+-moz-box-shadow: 4px 4px 12px 0px rgba(34, 60, 80, 0.49) inset;
+box-shadow: 4px 4px 12px 0px rgba(34, 60, 80, 0.49) inset;
+}
+.auth-label__span{
+  position: absolute;
+  left:5px; 
+  transition: transform .2s, color .2s;
+  pointer-events: none;
+  font-size: .7rem;
+}
+.auth-input:not(:placeholder-shown)~.auth-label__span,
+.auth-input:focus~.auth-label__span
+{
+  color:white;
+  transform: translateY(-140%);
+}
+#registration-btn,
+#login-btn{
+  margin: auto;
+  padding: 5px 10px;
+  border: 1px solid var(--extra-light);
+  border-radius:15px;
+  background-color:transparent;
+  cursor:pointer;
+  color:var(--extra-light);
+  transition: color .2s, background-color .2s;
+}
+#registration-btn:hover,
+#login-btn:hover{
+  color: var(--extra-dark);
+  background-color: var(--extra-light);
+}
+.auth__change-form-header{
+  color:var(--extra-light);
+  font-weight: 100;
+}
+.auth__change-form-btn{
+  border: none;
+  border-bottom: 1px solid var(--extra-light);
+  background-color:transparent;
+  color:white;
+  cursor:pointer;
+  font-size: 1rem;
+}

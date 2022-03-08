@@ -1,12 +1,14 @@
-import { useContext } from "react";
-import { Context } from "../..";
+
+import { Link, Outlet } from "react-router-dom";
+import LogoutBtn from "../../components/btns/logout-btn/logout-btn";
 
 const UserCabinet = () => {
-    const { userStore } = useContext(Context);
     return (
         <div>
             User cabinet
-            <button onClick={() => userStore.logout()}>logout</button>
+            <LogoutBtn stylesById="" />
+            <Link to='adminPanel'>Test</Link>
+            <Outlet />
         </div>
     )
 };

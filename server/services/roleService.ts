@@ -2,6 +2,10 @@
 import models from "../models/models";
 import { CreationAttributes, WhereOptions } from "sequelize";
 class RoleService {
+  static async findRole(roleId: number) {
+    const role = await models.Role.findOne({ where: { id: roleId } });
+    return role;
+  }
   static async checkBaseRoles() {
     async function createRole(roleName: string, permissionObj: WhereOptions<any> | CreationAttributes<any>) {
       const userRole = await models.Role.findOne({

@@ -8,9 +8,9 @@ import AppRouter from './components/routes/appRouter';
 
 function App() {
   const { userStore } = useContext(Context);
-  // useEffect(() => {
-  //   userStore.autoAuth();
-  // }, []);
+  useEffect(() => {
+    userStore.autoAuth();
+  }, []);
   return (
     <div className="App">
       <NavBar />
