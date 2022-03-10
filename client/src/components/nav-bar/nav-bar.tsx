@@ -1,6 +1,6 @@
 import navBarStyles from './nav-bar.module.css';
 import { observer } from "mobx-react-lite";
-import { useContext } from "react";
+import { useContext, useState } from "react";
 import { Link, useSearchParams } from "react-router-dom";
 import { Context } from "../..";
 import { getParams, getParamsEnums } from "../../consts/popup-routes";
@@ -25,28 +25,50 @@ const NavBar = () => {
     { param: getParams.type, value: getParamsEnums.type.signup }
   ]);
 
+  const [burgerState, setBurgerState] = useState(false);
+
   return (
     <nav className={navBarStyles["nav-bar"]}>
-      <ul className={navBarStyles["nav-bar__list"]}>
+
+      <button
+        className={
+          `
+         ${navBarStyles["nav-bar__burger-btn"]}
+         ${burgerState ? navBarStyles["burger-btn__active"] : ''}
+         `}
+        onClick={() => setBurgerState(!burgerState)}>
+        <span className={navBarStyles["burger-btn__line"]}></span>
+        <span className={navBarStyles["burger-btn__line"]}></span>
+        <span className={navBarStyles["burger-btn__line"]}></span>
+      </button>
+      <span
+        className={`${navBarStyles["burger-menu__background"]} ${burgerState ? navBarStyles["burger-menu__background-active"] : ''}`}
+        onClick={() => setBurgerState(false)}>
+      </span>
+
+      <ul className={
+        `
+        ${navBarStyles["nav-bar__list"]} 
+        ${navBarStyles["nav-bar__main-links-list"]}
+        ${burgerState ? "" : navBarStyles["nav-bar__list-unactive"]}`
+      }>
         <li className={navBarStyles["nav-bar__list-item"]}>
-          <ul className={navBarStyles["nav-bar__sub-list"]}>
-            <li className={navBarStyles["nav-bar__sub-list-item"]}>
-              {
-                guestPaths.map(({ path, name }) => <Link className={navBarStyles['nav-bar__link']} to={path}>{name}</Link>)
-              }
-            </li>
-            <li className={navBarStyles["nav-bar__sub-list-item"]}>
-              {
-                userStore.isAuth && userPaths.map(({ path, name }) => <Link className={navBarStyles['nav-bar__link']} to={path}>{name}</Link>)
-              }
-            </li>
-            {/* <li className={navBarStyles["nav-bar__sub-list-item"]}>
-              {
-                userStore.isAuth && adminPaths.map(({ path, name }) => <Link className={navBarStyles['nav-bar__link']} to={path}>{name}</Link>)
-              }
-            </li> */}
-          </ul>
+          {
+            guestPaths.map(({ path, name }) => <Link className={navBarStyles['nav-bar__link']} to={path}>{name}</Link>)
+          }
         </li>
+        {
+          userStore.isAuth ?
+            <li className={navBarStyles["nav-bar__list-item"]}>
+              {
+                userPaths.map(({ path, name }) => <Link className={navBarStyles['nav-bar__link']} to={path}>{name}</Link>)
+              }
+            </li>
+            :
+            null
+        }
+      </ul>
+      <ul className={navBarStyles["nav-bar__list"]}>
         <li className={navBarStyles["nav-bar__list-item"]}>
           {
             userStore.isAuth ?
@@ -55,7 +77,6 @@ const NavBar = () => {
               <Link className={navBarStyles['nav-bar__link']} to={authPopupLink}>SignUp</Link>
           }
         </li>
-
       </ul>
     </nav>
   )
