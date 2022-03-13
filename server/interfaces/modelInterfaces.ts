@@ -8,12 +8,13 @@ export interface IUser {
     firstName: string,
     surname: string,
     avatar: string,
+    profileBackground: string,
     isActivated: boolean,
     activationKey: string,
     isBanned: boolean,
-    roleId?: number,
-    createdAt?: Date,
-    updatedAt?: Date
+    roleId: number,
+    createdAt: string,
+    updatedAt: string
 }
 export interface IUserInstance extends IUser, Model {
 }

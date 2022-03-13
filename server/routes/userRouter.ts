@@ -6,9 +6,10 @@ import roleMiddleware from "../middlewares/roleMiddleware";
 const userRouter = Router();
 
 userRouter.get('/get', authMiddleware, roleMiddleware(rolePermissions.blockPicture), UserController.getUsers);
+userRouter.get('/myself', authMiddleware, UserController.getMyself);
 userRouter.post('/registration', UserController.registration);
 userRouter.post('/login', UserController.login);
-userRouter.put('/edit/:id');
+userRouter.put('/edit', authMiddleware, UserController.editUser);
 userRouter.put('/refresh', UserController.refreshSession);
 userRouter.get('/activate/:activationKey', UserController.accountActivation);
 userRouter.delete('/logout', UserController.logout);

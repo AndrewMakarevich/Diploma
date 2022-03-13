@@ -1,9 +1,10 @@
 .nav-bar{
+  z-index:10;
   display:flex;
-  position: relative;
+  position: fixed;
+  width: 100%;
   justify-content: space-between;
   background-color:var(--extra-dark);
-  padding: 0 10px;
 }
 .nav-bar__burger-btn{
   position: relative;
@@ -33,7 +34,7 @@
   transform: translateY(-100%);
 }
 .burger-menu__background{
-
+  display: none;
 }
 .nav-bar__list{
   display: flex;
@@ -41,7 +42,7 @@
   list-style: none;
 }
 .nav-bar__list-item{
-  padding: 10px 0 10px 0;
+  padding: 10px 5px;
 }
 .nav-bar__link{
   display: block;
@@ -80,12 +81,11 @@
   .burger-menu__background-active{
     display: block;
     position: absolute;
-    top: 0;
+    top: 100%;
     left: 0;
     width: 100vw;
     height: 100vh;
     background-color: rgba(0, 0, 0, 0.5); 
-    z-index: -1;  
   }
   .nav-bar__main-links-list{
     flex-direction: column;

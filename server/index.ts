@@ -2,6 +2,7 @@ require('dotenv').config();
 import express from 'express';
 import cors from 'cors';
 import cookieParser from 'cookie-parser';
+import fileUpload from 'express-fileupload'
 import models from './models/models';
 import sequelize from './db';
 import mainRouter from './routes';
@@ -20,6 +21,7 @@ app.use(cors(
         credentials: true
     }
 ));
+app.use(fileUpload({}));
 app.use(express.json());
 app.use(cookieParser());
 app.use('/api', mainRouter);

@@ -30,12 +30,7 @@ const NavBar = () => {
   return (
     <nav className={navBarStyles["nav-bar"]}>
 
-      <button
-        className={
-          `
-         ${navBarStyles["nav-bar__burger-btn"]}
-         ${burgerState ? navBarStyles["burger-btn__active"] : ''}
-         `}
+      <button className={`${navBarStyles["nav-bar__burger-btn"]} ${burgerState ? navBarStyles["burger-btn__active"] : ''}`}
         onClick={() => setBurgerState(!burgerState)}>
         <span className={navBarStyles["burger-btn__line"]}></span>
         <span className={navBarStyles["burger-btn__line"]}></span>

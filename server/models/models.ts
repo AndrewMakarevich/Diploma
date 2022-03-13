@@ -10,6 +10,7 @@ const User = sequelize.define<IUserInstance>('user', {
     firstName: { type: DataTypes.STRING },
     surname: { type: DataTypes.STRING },
     avatar: { type: DataTypes.STRING },
+    profileBackground: { type: DataTypes.STRING },
     isActivated: { type: DataTypes.BOOLEAN, defaultValue: false },
     activationKey: { type: DataTypes.STRING, allowNull: false },
     isBanned: { type: DataTypes.BOOLEAN, defaultValue: false }

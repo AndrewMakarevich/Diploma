@@ -32,6 +32,10 @@
   color: var(--extra-light);
   font-weight: 500;
 }
+.auth-form{
+  display: flex;
+  flex-direction: column;
+}
 .auth-input__list{
   display: flex;
   flex-direction: column;
@@ -53,6 +57,9 @@
   padding: 5px;
   outline: none;
   transition: box-shadow .2s;
+}
+.auth-input:invalid{
+  background-color:rgb(243, 177, 177);
 }
 .auth-input:focus{
   -webkit-box-shadow: 4px 4px 12px 0px rgba(34, 60, 80, 0.49) inset;

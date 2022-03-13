@@ -1,4 +1,5 @@
 import { NextFunction, Request, Response } from "express";
+import fileUpload from "express-fileupload";
 import UserService from "../services/userService";
 
 class UserController {
@@ -55,9 +56,26 @@ class UserController {
       next(e);
     }
   }
-
   static async getUsers(req: Request, res: Response, next: NextFunction) {
     return res.json({ message: "users" });
+  }
+  static async editUser(req: Request, res: Response, next: NextFunction) {
+    try {
+      const { id: userId } = (req as any).user;
+      const { nickname, firstName, surname } = req.body;
+      const avatar = req.files?.avatar as fileUpload.UploadedFile;
+      const profileBackground = req.files?.profileBackground as fileUpload.UploadedFile;
+      const response = await UserService.editUser(userId, firstName, surname, nickname, avatar, profileBackground);
+      return res.json(response);
+    } catch (e) {
+      next(e);
+    }
+
+  }
+  static async getMyself(req: Request, res: Response, next: NextFunction) {
+    const { id } = (req as any).user;
+    const infoAboutMyself = await UserService.getUser(id);
+    return res.json(infoAboutMyself);
   }
 }
 export default UserController;

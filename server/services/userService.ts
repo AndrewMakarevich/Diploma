@@ -2,13 +2,15 @@ import ApiError from "../apiError/apiError";
 import models from "../models/models";
 import bcrypt from 'bcrypt';
 import { v4 } from 'uuid';
+import path from 'path';
+import fs from 'fs';
 import MailService from "./mailService";
 import RoleService from "./roleService";
 import TokenService from "./tokenService";
-import UserDto from "../dtos/userDto";
+import UserDto, { ExtendedUserDto } from "../dtos/userDto";
 import UserValidator from "../validator/userValidator";
 import { IUser } from "../interfaces/modelInterfaces";
-import { JwtPayload } from "jsonwebtoken";
+import fileUpload from "express-fileupload";
 
 class UserService {
 
@@ -16,6 +18,7 @@ class UserService {
     if (!nickname || !email || !password) {
       throw ApiError.badRequest('Not enough data');
     }
+
     UserValidator.validateNickname(nickname);
     UserValidator.validateEmail(email);
     UserValidator.validatePassword(password);
@@ -23,16 +26,20 @@ class UserService {
     if (await models.User.findOne({ where: { nickname } })) {
       throw ApiError.badRequest('User with such nickname is already exists');
     }
+
     if (await models.User.findOne({ where: { email } })) {
       throw ApiError.badRequest('User with such email is already exists');
     }
+
     const hashedPassword = await bcrypt.hash(password, 15);
     const activationKey = v4();
     let role = await models.Role.findOne({ where: { name: "USER" } });
+
     if (!role) {
       RoleService.checkBaseRoles();
       role = await models.Role.findOne({ where: { name: "USER" } });
     }
+
     await models.User.create(
       {
         nickname,
@@ -43,30 +50,40 @@ class UserService {
       }
     );
     await MailService.sendMail(email, activationKey);
+
     return { message: 'User created successfully' }
   };
+
   static async activateUserAccount(activationKey: string) {
     if (!activationKey) {
       throw ApiError.badRequest('No activation key');
     }
+
     const user = await models.User.findOne({ where: { activationKey } });
+
     if (!user) {
       throw ApiError.badRequest('Activation key is not valid');
     }
+
     if (user.isActivated === true) {
       throw ApiError.badRequest('Account is already activated');
     }
+
     user.update({ isActivated: true });
+
     return { message: 'Account activated successfully' };
-  }
+  };
 
   static async login(userIp: string, email: string, password: string) {
     if (!email || !password) {
       throw ApiError.badRequest('Not enough data');
     }
+
     UserValidator.validatePassword(password);
     UserValidator.validateEmail(email);
+
     const user = await models.User.findOne({ where: { email } });
+
     if (!user) {
       throw ApiError.badRequest('Incorrect email');
     }
@@ -76,26 +93,118 @@ class UserService {
     if (!await bcrypt.compare(password, user.password)) {
       throw ApiError.badRequest('Incorrect password');
     }
+
     const userData = new UserDto(user);
     const tokens = await TokenService.generateTokens(new UserDto(user));
+
     await TokenService.saveToken(user.id, userIp, tokens.refreshToken);
+
     return { ...tokens, userData };
-  }
+  };
 
   static async logout(userIp: string, refreshToken: string) {
     await TokenService.deleteToken(userIp, refreshToken);
+
     return { message: 'logout successfully' };
-  }
+  };
+
   static async refresh(userIp: string, refreshToken: string) {
     const validationResult = await TokenService.validateRefreshToken(refreshToken);
     const refreshTokenRecord = await TokenService.findToken(userIp, refreshToken);
+
     if (!validationResult || !refreshTokenRecord) {
       throw ApiError.unauthorized('Unauthorized user');
     };
+
     const userData = new UserDto(validationResult as IUser);
     const tokens = TokenService.generateTokens(userData);
+
     TokenService.saveToken(validationResult.id, userIp, tokens.refreshToken);
+
     return { ...tokens, userData };
+  };
+
+  static async editUser(id: number, firstName: string, surname: string, nickname: string, avatar: fileUpload.UploadedFile, profileBackground: fileUpload.UploadedFile) {
+
+    if (!id) {
+      throw ApiError.badRequest('Id of the user to edit is lost');
+    }
+
+    UserValidator.validateFirstName(firstName);
+    UserValidator.validateSurname(surname);
+    UserValidator.validateNickname(nickname);
+
+    // Creating file name for the avatar picture, if it's exists
+    let avatarFileName = undefined;
+    let profileBackgroundFileName = undefined;
+
+    function generateImageName(image: fileUpload.UploadedFile) {
+      const fileExtension = `${image.name.match(/.[a-z]{1,6}$/)}`;
+
+      if (!fileExtension ||
+        (fileExtension?.split('.')[1] !== 'jpg' &&
+          fileExtension?.split('.')[1] !== 'jpeg' &&
+          fileExtension?.split('.')[1] !== 'png' &&
+          fileExtension?.split('.')[1] !== 'webm')
+      ) {
+        throw ApiError.badRequest('File you uploaded doesn\'t match required extensions. Extensions .jpg, .jpeg, .png, .webm required');
+      }
+      return `${v4()}${fileExtension}`;
+    }
+
+    if (avatar) {
+      avatarFileName = generateImageName(avatar);
+    }
+
+    if (profileBackground) {
+      profileBackgroundFileName = generateImageName(profileBackground)
+    }
+
+    const userToEdit = await models.User.findOne({ where: { id } });
+
+    if (!userToEdit) {
+      throw ApiError.badRequest('User you want to edit doesn\'t exists');
+    }
+
+    //Uploading avatar picture to the server if edited user exists
+    if (avatarFileName) {
+      avatar.mv(path.resolve(__dirname, '..', 'static', 'avatar', avatarFileName));
+      // deleting previous avatar if it exists
+      if (userToEdit.avatar) {
+        fs.unlink(path.resolve(__dirname, '..', 'static', 'avatar', userToEdit.avatar), () => { });
+      }
+    }
+
+    //Uploading profile background picture to the server if edited user exists
+    if (profileBackgroundFileName) {
+      profileBackground.mv(path.resolve(__dirname, '..', 'static', 'profile-background', profileBackgroundFileName));
+      // deleting profile background  if it exists
+      if (userToEdit.profileBackground) {
+        fs.unlink(path.resolve(__dirname, '..', 'static', 'profile-background', userToEdit.profileBackground), () => { });
+      }
+    }
+
+    await userToEdit.update({
+      firstName,
+      surname,
+      nickname,
+      avatar: avatarFileName,
+      profileBackground: profileBackgroundFileName
+    });
+
+    return { message: 'User updated succesfully' }
+
+  };
+
+  static async getUser(id: number) {
+    if (!id) {
+      throw ApiError.badRequest('User\'s id is not defined');
+    }
+    const user = await models.User.findOne({ where: { id } });
+    if (!user) {
+      return false;
+    }
+    return new ExtendedUserDto(user);
   }
 }
 export default UserService;
