@@ -12,11 +12,11 @@ const AppRouter = () => {
       <Routes>
         <Route path='/*' element={<Navigate to='/' />} />
         {
-          userStore.isAuth && userPaths.map(({ path, component: Component, subPaths }) => {
+          userStore.isAuth && userPaths.map(({ id, path, component: Component, subPaths }) => {
             return (
-              <Route path={path} element={<Component />}>
+              <Route key={id} path={path} element={<Component />}>
                 {
-                  subPaths.length && subPaths.map(({ path, component: Component }) => <Route path={path} element={<Component />} />)
+                  subPaths.length && subPaths.map(({ id, path, component: Component }) => <Route key={id} path={path} element={<Component />} />)
                 }
               </Route>
             )
@@ -26,7 +26,7 @@ const AppRouter = () => {
         userStore.isAuth && adminPaths.map(({ path, component: Component }) => <Route path={path} element={<Component />} />)
       } */}
         {
-          guestPaths.map(({ path, component: Component }) => <Route path={path} element={<Component />} />)
+          guestPaths.map(({ id, path, component: Component }) => <Route key={id} path={path} element={<Component />} />)
         }
       </Routes>
     </div>

@@ -93,13 +93,11 @@ class UserService {
     if (!await bcrypt.compare(password, user.password)) {
       throw ApiError.badRequest('Incorrect password');
     }
-
-    const userData = new UserDto(user);
     const tokens = await TokenService.generateTokens(new UserDto(user));
 
     await TokenService.saveToken(user.id, userIp, tokens.refreshToken);
 
-    return { ...tokens, userData };
+    return { ...tokens };
   };
 
   static async logout(userIp: string, refreshToken: string) {
@@ -121,10 +119,17 @@ class UserService {
 
     TokenService.saveToken(validationResult.id, userIp, tokens.refreshToken);
 
-    return { ...tokens, userData };
+    return { ...tokens };
   };
 
-  static async editUser(id: number, firstName: string, surname: string, nickname: string, avatar: fileUpload.UploadedFile, profileBackground: fileUpload.UploadedFile) {
+  static async editUser(
+    id: number,
+    firstName: string,
+    surname: string,
+    nickname: string,
+    avatar: fileUpload.UploadedFile,
+    profileBackground: fileUpload.UploadedFile,
+    country: string, city: string) {
 
     if (!id) {
       throw ApiError.badRequest('Id of the user to edit is lost');
@@ -133,6 +138,7 @@ class UserService {
     UserValidator.validateFirstName(firstName);
     UserValidator.validateSurname(surname);
     UserValidator.validateNickname(nickname);
+    UserValidator.validateUsersCountryAndCity(country, city);
 
     // Creating file name for the avatar picture, if it's exists
     let avatarFileName = undefined;
@@ -189,7 +195,9 @@ class UserService {
       surname,
       nickname,
       avatar: avatarFileName,
-      profileBackground: profileBackgroundFileName
+      profileBackground: profileBackgroundFileName,
+      country,
+      city
     });
 
     return { message: 'User updated succesfully' }

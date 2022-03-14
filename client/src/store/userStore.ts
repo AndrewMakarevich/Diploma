@@ -1,13 +1,15 @@
 import { AxiosError } from "axios";
 import { makeAutoObservable } from "mobx";
+import { userResObject } from "../interfaces/http/resposne/userInterfaces";
 import { IUserData } from "../interfaces/storeInterfaces"
 import AuthService from "../services/auth-service";
+import UserService from "../services/user-service";
 
 export default class UserStore {
-  userData: {};
+  userData: userResObject;
   _isAuth: boolean;
   constructor() {
-    this.userData = {} as IUserData;
+    this.userData = {} as userResObject;
     this._isAuth = false;
     makeAutoObservable(this);
   };
@@ -32,7 +34,7 @@ export default class UserStore {
       const response = await AuthService.login(email, password);
       localStorage.setItem('access-token', response.data.accessToken);
       this.isAuth = true;
-      this.userData = response.data.userData;
+      await this.getMyself();
       alert('Login success');
     } catch (e: AxiosError | any) {
       alert(e.response?.data?.message);
@@ -43,7 +45,7 @@ export default class UserStore {
       const response = await AuthService.logout();
       localStorage.removeItem('access-token');
       this.isAuth = false;
-      this.userData = {};
+      this.userData = {} as userResObject;
       alert(response.data.message);
     } catch (e: AxiosError | any) {
       alert(e.response?.data?.message);
@@ -54,9 +56,17 @@ export default class UserStore {
       const response = await AuthService.refreshTokens();
       localStorage.setItem('access-token', response.data.accessToken);
       this.isAuth = true;
-      this.userData = response.data.userData;
+      await this.getMyself();
     } catch (e: AxiosError | any) {
       localStorage.removeItem('access-token');
+      // alert(e.response?.data?.message);
+    }
+  }
+  async getMyself() {
+    try {
+      const response = await UserService.getInfoAboutMyself();
+      this.userData = response.data;
+    } catch (e: AxiosError | any) {
       alert(e.response?.data?.message);
     }
   }

@@ -19,7 +19,7 @@ class UserDto implements IUserDto {
     this.email = user.email;
   }
 }
-export class ExtendedUserDto implements IUserDto {
+export class ExtendedUserDto {
   id: number
   roleId: number;
   nickname: string;
@@ -28,6 +28,8 @@ export class ExtendedUserDto implements IUserDto {
   surname: string;
   avatar: string;
   profileBackground: string;
+  country: string;
+  city: string;
   isActivated: boolean;
   isBanned: boolean;
   createdAt: string;
@@ -41,6 +43,8 @@ export class ExtendedUserDto implements IUserDto {
     this.surname = user.surname;
     this.avatar = user.avatar;
     this.profileBackground = user.profileBackground;
+    this.country = user.country;
+    this.city = user.city;
     this.isActivated = user.isActivated;
     this.isBanned = user.isBanned;
     this.createdAt = user.createdAt;

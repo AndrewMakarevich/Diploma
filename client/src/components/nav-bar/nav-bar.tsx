@@ -49,14 +49,14 @@ const NavBar = () => {
       }>
         <li className={navBarStyles["nav-bar__list-item"]}>
           {
-            guestPaths.map(({ path, name }) => <Link className={navBarStyles['nav-bar__link']} to={path}>{name}</Link>)
+            guestPaths.map(({ id, path, name }) => <Link key={id} className={navBarStyles['nav-bar__link']} to={path}>{name}</Link>)
           }
         </li>
         {
           userStore.isAuth ?
             <li className={navBarStyles["nav-bar__list-item"]}>
               {
-                userPaths.map(({ path, name }) => <Link className={navBarStyles['nav-bar__link']} to={path}>{name}</Link>)
+                userPaths.map(({ id, path, name }) => <Link key={id} className={navBarStyles['nav-bar__link']} to={path}>{name}</Link>)
               }
             </li>
             :

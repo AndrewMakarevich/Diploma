@@ -1,4 +1,7 @@
 import ApiError from "../apiError/apiError";
+import fs from 'fs';
+import path from 'path';
+import countries from '../consts/countires/countries';
 
 class UserValidator {
     private static validateNameParam(min: number, max: number, paramName: string, paramValue: string) {
@@ -42,6 +45,17 @@ class UserValidator {
         if (!regEx.test(value)) {
             throw ApiError.badRequest('Password does not match the specified pattern');
         }
+        return;
+    }
+
+    static validateUsersCountryAndCity(country: string, city: string) {
+        if (!countries[country]) {
+            throw ApiError.badRequest('Incorrect country chosen');
+        }
+        const chosenCity = countries[country].find(cityItem => cityItem === city);
+        if (!chosenCity) {
+            throw ApiError.badRequest('Incorrect city chosen');
+        };
         return;
     }
 

@@ -6,7 +6,6 @@ export interface registrationSuccessObj {
 export interface loginSuccessObj {
   accessToken: string,
   refreshToken: string,
-  userData: IUserData
 };
 export interface logoutSuccessObj {
   message: string;
@@ -14,5 +13,4 @@ export interface logoutSuccessObj {
 export interface refreshTokensSuccessObj {
   accessToken: string,
   refreshToken: string,
-  userData: IUserData
 }

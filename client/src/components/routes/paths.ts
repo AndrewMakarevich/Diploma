@@ -4,6 +4,7 @@ import UserCabinet from "../../pages/user-cabinet/user-cabinet";
 
 export const guestPaths = [
     {
+        id: 1,
         name: 'Home',
         path: '/',
         component: HomePage
@@ -11,11 +12,13 @@ export const guestPaths = [
 ];
 export const userPaths = [
     {
+        id: 2,
         name: 'Personal cabinet',
         path: '/personalCabinet',
         component: UserCabinet,
         subPaths: [
             {
+                id: 1,
                 name: 'Admin panel',
                 path: 'adminPanel',
                 component: AdminCabinet

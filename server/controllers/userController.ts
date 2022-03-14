@@ -29,7 +29,6 @@ class UserController {
       res.cookie('refreshToken', response.refreshToken, { maxAge: 30 * 24 * 68 * 60 * 1000, httpOnly: true })
       return res.json(response);
     } catch (e) {
-      console.log(e);
       next(e);
     }
   }
@@ -52,7 +51,6 @@ class UserController {
       res.cookie('refreshToken', response.refreshToken, { maxAge: 30 * 24 * 68 * 60 * 1000, httpOnly: true });
       return res.json(response);
     } catch (e) {
-      console.log(e);
       next(e);
     }
   }
@@ -61,11 +59,13 @@ class UserController {
   }
   static async editUser(req: Request, res: Response, next: NextFunction) {
     try {
+
       const { id: userId } = (req as any).user;
-      const { nickname, firstName, surname } = req.body;
+      const { nickname, firstName, surname, city, country } = req.body;
       const avatar = req.files?.avatar as fileUpload.UploadedFile;
       const profileBackground = req.files?.profileBackground as fileUpload.UploadedFile;
-      const response = await UserService.editUser(userId, firstName, surname, nickname, avatar, profileBackground);
+      const response = await UserService.editUser(userId, firstName, surname, nickname, avatar, profileBackground, country, city);
+
       return res.json(response);
     } catch (e) {
       next(e);

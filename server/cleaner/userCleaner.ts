@@ -57,21 +57,21 @@ export default class UserCleaner {
   }
   static async checkUnlinkedAvatars() {
     function deleteUnlinkedAvatars() {
-      fs.readdir(path.resolve(__dirname, '..', 'static', 'avatar'), (err, files) => {
+      fs.readdir(path.resolve(__dirname, '..', 'static', 'img', 'avatar'), (err, files) => {
         files.forEach(async (fileName) => {
           const userProfile = await models.User.findOne({ where: { avatar: fileName } });
           if (!userProfile) {
-            fs.unlink(path.resolve(__dirname, '..', 'static', 'avatar', fileName), () => { });
+            fs.unlink(path.resolve(__dirname, '..', 'static', 'img', 'avatar', fileName), () => { });
           }
         });
       });
     }
     function deleteUnlinkedProfileBackgrounds() {
-      fs.readdir(path.resolve(__dirname, '..', 'static', 'profile-background'), (err, files) => {
+      fs.readdir(path.resolve(__dirname, '..', 'static', 'img', 'profile-background'), (err, files) => {
         files.forEach(async (fileName) => {
           const userProfile = await models.User.findOne({ where: { profileBackground: fileName } });
           if (!userProfile) {
-            fs.unlink(path.resolve(__dirname, '..', 'static', 'profile-background', fileName), () => { });
+            fs.unlink(path.resolve(__dirname, '..', 'static', 'img', 'profile-background', fileName), () => { });
           }
         });
       });

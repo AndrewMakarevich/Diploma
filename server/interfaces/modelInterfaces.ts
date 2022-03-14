@@ -9,6 +9,8 @@ export interface IUser {
     surname: string,
     avatar: string,
     profileBackground: string,
+    country: string,
+    city: string,
     isActivated: boolean,
     activationKey: string,
     isBanned: boolean,
