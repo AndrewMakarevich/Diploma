@@ -131,6 +131,8 @@ class UserService {
     profileBackground: fileUpload.UploadedFile,
     country: string, city: string) {
 
+    console.log('AVATAR', avatar);
+
     if (!id) {
       throw ApiError.badRequest('Id of the user to edit is lost');
     }
@@ -174,19 +176,23 @@ class UserService {
 
     //Uploading avatar picture to the server if edited user exists
     if (avatarFileName) {
-      avatar.mv(path.resolve(__dirname, '..', 'static', 'avatar', avatarFileName));
+      await avatar.mv(path.resolve(__dirname, '..', 'static', 'img', 'avatar', avatarFileName)).catch(() => {
+        throw ApiError.badRequest('Loading avatar photo failed, user editing interrupted')
+      });
       // deleting previous avatar if it exists
       if (userToEdit.avatar) {
-        fs.unlink(path.resolve(__dirname, '..', 'static', 'avatar', userToEdit.avatar), () => { });
+        fs.unlink(path.resolve(__dirname, '..', 'static', 'img', 'avatar', userToEdit.avatar), () => { })
       }
     }
 
     //Uploading profile background picture to the server if edited user exists
     if (profileBackgroundFileName) {
-      profileBackground.mv(path.resolve(__dirname, '..', 'static', 'profile-background', profileBackgroundFileName));
+      await profileBackground.mv(path.resolve(__dirname, '..', 'static', 'img', 'profile-background', profileBackgroundFileName)).catch(() => {
+        throw ApiError.badRequest('Loading profile background photo failed, user editing interrupted');
+      })
       // deleting profile background  if it exists
       if (userToEdit.profileBackground) {
-        fs.unlink(path.resolve(__dirname, '..', 'static', 'profile-background', userToEdit.profileBackground), () => { });
+        fs.unlink(path.resolve(__dirname, '..', 'static', 'img', 'profile-background', userToEdit.profileBackground), () => { });
       }
     }
 

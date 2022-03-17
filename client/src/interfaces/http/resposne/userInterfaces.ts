@@ -15,3 +15,6 @@ export interface userResObject {
   createdAt: string;
   updatedAt: string;
 }
+export interface editUserSuccesObj {
+  message: string;
+}

@@ -70,4 +70,15 @@ export default class UserStore {
       alert(e.response?.data?.message);
     }
   }
+  async editMyself(data: FormData) {
+    try {
+      const response = await UserService.editInfoAboutMyself(data);
+      await this.getMyself();
+      console.log(response);
+      alert(response.data.message);
+    } catch (e: AxiosError | any) {
+      console.log(e);
+      alert(e.response?.data?.message);
+    }
+  }
 }

@@ -5,6 +5,9 @@ import countries from '../consts/countires/countries';
 
 class UserValidator {
     private static validateNameParam(min: number, max: number, paramName: string, paramValue: string) {
+        if (!paramValue) {
+            return;
+        }
         const regEx = new RegExp(`\^\[a-zA-Zа-яА-ЯёЁ\]\{${min},${max}\}\$`);
         if (!regEx.test(paramValue)) {
             throw ApiError.badRequest(`${paramName} does not match the specified pattern`);
@@ -16,11 +19,14 @@ class UserValidator {
         this.validateNameParam(2, 25, 'First name', firstName);
     }
 
-    static validateSurname(firstName: string) {
-        this.validateNameParam(2, 25, 'Surname', firstName);
+    static validateSurname(surname: string) {
+        this.validateNameParam(2, 25, 'Surname', surname);
     }
 
     static validateNickname(nickname: string) {
+        if (!nickname) {
+            return;
+        }
         const min = 2;
         const max = 25;
         const regEx = new RegExp(`\^\[a-zA-Zа-яА-ЯёЁ0-9!@$*_-\]\{${min},${max}\}\$`);
@@ -31,6 +37,9 @@ class UserValidator {
     }
 
     static validateEmail(email: string) {
+        if (!email) {
+            return;
+        }
         const regEx = /^[a-z0-9.\-_]{5,31}@([a-z]{2,10}.)?[a-z]{3,6}.[a-z]{2,10}$/;
         if (!regEx.test(email)) {
             throw ApiError.badRequest('Email does not match the specified pattern');
@@ -49,6 +58,12 @@ class UserValidator {
     }
 
     static validateUsersCountryAndCity(country: string, city: string) {
+        if (!country) {
+            return;
+        }
+        if (!country && !city) {
+            return;
+        }
         if (!countries[country]) {
             throw ApiError.badRequest('Incorrect country chosen');
         }

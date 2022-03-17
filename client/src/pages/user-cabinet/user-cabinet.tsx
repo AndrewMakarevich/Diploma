@@ -1,18 +1,22 @@
 import userCabinetStyles from "./user-cabinet.module.css";
 import { observer } from "mobx-react-lite";
-import { useContext } from "react";
+import { useContext, useState } from "react";
 import { Link, Outlet } from "react-router-dom";
 import { Context } from "../..";
 import LogoutBtn from "../../components/btns/logout-btn/logout-btn";
 import LocationIcon from "../../assets/img/icons/location-icon/location-icon";
+import EditUserModal from "../../components/modal-window/edit-user-modal/edit-user-modal";
 
 const UserCabinet = () => {
   const { userStore } = useContext(Context);
+  const [isOpen, setIsOpen] = useState(false);
   return (
     <div className={userCabinetStyles["user-cabinet__wrapper"]}>
       <article className={userCabinetStyles["user-cabinet__main-info"]}>
 
         <p>{userStore.userData.isBanned ? "Account banned" : ""}</p>
+
+        <button onClick={() => setIsOpen(true)}>Edit</button>
 
         <img className={userCabinetStyles["user-cabinet__profile-avatar"]}
           alt="Profile avatar"
@@ -38,12 +42,7 @@ const UserCabinet = () => {
         <p className={userCabinetStyles["user-cabinet__user-creation-date"]}>
           {new Date(userStore.userData.createdAt).toLocaleString('en-EN', { year: 'numeric', month: 'long', day: 'numeric' })}</p>
       </article>
-      {/* User cabinet
-            {
-                Object.keys(userStore.userData).map(key => {
-                    return <li>{`${key}: ${userStore.userData[key]}`}</li>
-                })
-            } */}
+      <EditUserModal isOpen={isOpen} setIsOpen={setIsOpen} />
       <LogoutBtn stylesById="" />
       <Link to='adminPanel'>Test</Link>
       <Outlet />

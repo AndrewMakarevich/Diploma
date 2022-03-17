@@ -68,6 +68,7 @@ class UserController {
 
       return res.json(response);
     } catch (e) {
+      console.log('ERROR', e);
       next(e);
     }
 
