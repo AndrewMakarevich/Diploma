@@ -130,12 +130,26 @@ class UserService {
     avatar: fileUpload.UploadedFile,
     profileBackground: fileUpload.UploadedFile,
     country: string, city: string) {
-
-    console.log('AVATAR', avatar);
-
     if (!id) {
       throw ApiError.badRequest('Id of the user to edit is lost');
     }
+
+    let nothingToChange = true;
+
+    for (let key in arguments) {
+      if (key === "0") {
+        continue;
+      }
+
+      if (arguments[key] !== undefined) {
+        nothingToChange = false;
+        break;
+      }
+    }
+    if (nothingToChange) {
+      throw ApiError.badRequest('Nothing to change');
+    }
+
 
     UserValidator.validateFirstName(firstName);
     UserValidator.validateSurname(surname);
@@ -214,10 +228,13 @@ class UserService {
     if (!id) {
       throw ApiError.badRequest('User\'s id is not defined');
     }
+
     const user = await models.User.findOne({ where: { id } });
+
     if (!user) {
       return false;
     }
+
     return new ExtendedUserDto(user);
   }
 }
