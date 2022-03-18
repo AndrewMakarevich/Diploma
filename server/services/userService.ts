@@ -150,13 +150,13 @@ class UserService {
       throw ApiError.badRequest('Nothing to change');
     }
 
-
+    // validation of the key params
     UserValidator.validateFirstName(firstName);
     UserValidator.validateSurname(surname);
     UserValidator.validateNickname(nickname);
     UserValidator.validateUsersCountryAndCity(country, city);
 
-    // Creating file name for the avatar picture, if it's exists
+    // Creating file name for the avatar and background pictures, if they'r exists
     let avatarFileName = undefined;
     let profileBackgroundFileName = undefined;
 
