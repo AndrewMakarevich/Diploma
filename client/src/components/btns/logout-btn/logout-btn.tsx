@@ -5,6 +5,7 @@ import btnStyles from "./logout-btn.module.css";
 const LogoutBtn = ({ stylesById }: { stylesById?: string }) => {
   const { userStore } = useContext(Context);
   const [isLoading, setIsLoading] = useState(false);
+
   return (
     <button
       className={btnStyles["logout-btn"]}

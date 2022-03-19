@@ -31,6 +31,7 @@ const EditUserForm = () => {
   const avatarInputRef = useRef<HTMLInputElement>(null);
   const profileBackgroundInputRef = useRef<HTMLInputElement>(null);
   const formRef = useRef<HTMLFormElement>(null);
+
   function clearChanges() {
     setUserDataToEdit({
       avatar: undefined,
@@ -43,6 +44,7 @@ const EditUserForm = () => {
     });
     formRef.current?.reset();
   }
+
   function groupData() {
     const infoToEdit = new FormData();
     for (let key in userDataToEdit) {
@@ -55,19 +57,22 @@ const EditUserForm = () => {
     }
     return infoToEdit;
   }
+
   useEffect(() => {
     console.log(userDataToEdit);
   }, [userDataToEdit])
+
   return (
     <>
       <form ref={formRef} className={formStyles['form']}>
-        <label>
-          Avatar
+        <label className={formStyles['form__file-input-label']}>
           <input
             ref={avatarInputRef}
+            className={formStyles['form__file-input']}
             type="file"
             accept='image/jpeg, image/jpg, image/png, image/webm'
             onChange={(e) => setUserDataToEdit({ ...userDataToEdit, avatar: e.target.files?.[0] })} />
+          <span className={formStyles['label__header']}>Avatar</span>
         </label>
         <label>
           ProfileBackground

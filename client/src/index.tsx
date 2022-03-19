@@ -9,7 +9,6 @@ import { IGlobalContext } from './interfaces/storeInterfaces';
 import UserStore from './store/userStore';
 
 export const Context: React.Context<IGlobalContext> = createContext({} as IGlobalContext);
-console.log(process.env.REACT_APP_BACK_LINK)
 
 ReactDOM.render(
   <Context.Provider value={

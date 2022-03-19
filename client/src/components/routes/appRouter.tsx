@@ -22,9 +22,6 @@ const AppRouter = () => {
             )
           })
         }
-        {/* {
-        userStore.isAuth && adminPaths.map(({ path, component: Component }) => <Route path={path} element={<Component />} />)
-      } */}
         {
           guestPaths.map(({ id, path, component: Component }) => <Route key={id} path={path} element={<Component />} />)
         }

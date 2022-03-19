@@ -3,9 +3,11 @@ import modalStyles from './modal-window.module.css';
 
 const ModalWindow = ({ id, children, isOpen, setIsOpen }:
   { id?: string, children?: JSX.Element | string, isOpen: boolean, setIsOpen: React.Dispatch<React.SetStateAction<boolean>> }) => {
+
   if (!isOpen) {
     return null;
   }
+
   return (
     <div className={modalStyles['modal-wrapper']} onClick={() => setIsOpen(false)}>
       <div id={id} className={modalStyles['modal-window']} onClick={(e) => e.stopPropagation()}>

@@ -10,6 +10,7 @@ import EditUserModal from "../../components/modal-window/edit-user-modal/edit-us
 const UserCabinet = () => {
   const { userStore } = useContext(Context);
   const [isOpen, setIsOpen] = useState(false);
+
   return (
     <div className={userCabinetStyles["user-cabinet__wrapper"]}>
       <article className={userCabinetStyles["user-cabinet__main-info"]}>

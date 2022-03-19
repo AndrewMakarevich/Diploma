@@ -10,16 +10,20 @@ import LogoutBtn from '../btns/logout-btn/logout-btn';
 const NavBar = () => {
   const { userStore } = useContext(Context);
   const [searchParams] = useSearchParams();
+
   interface getParamObj {
     param: string,
     value: string
   }
+
   function createLinkWithGetParams(getParamObjs: getParamObj[]) {
     getParamObjs.forEach(getParamObj => {
       searchParams.set(getParamObj.param, getParamObj.value);
     });
+
     return "?" + searchParams.toString();
   }
+
   const authPopupLink = createLinkWithGetParams([
     { param: getParams.popup, value: getParamsEnums.popup.auth },
     { param: getParams.type, value: getParamsEnums.type.signup }

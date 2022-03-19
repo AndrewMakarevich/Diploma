@@ -8,6 +8,7 @@ const RegistrationBtn = (
     { email: string, nickname: string, password: string, repPassword: string, stylesById?: string }) => {
   const { userStore } = useContext(Context);
   const [isLoading, setIsLoading] = useState(false);
+
   return (
     <button
       className={btnStyles['reg-btn']}

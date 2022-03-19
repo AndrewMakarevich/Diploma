@@ -6,12 +6,14 @@ import modalStyles from './modal-window.module.css';
 const QueryModalWindow = ({ stylesById, children }: { stylesById: string, children: JSX.Element }) => {
     const { modalStore } = useContext(Context);
     const [searchParams, setSearchParams] = useSearchParams();
+
     function closeModal() {
         modalStore.modalSearchParams.forEach(searchParam => {
             searchParams.delete(searchParam);
         });
         setSearchParams(searchParams);
     }
+
     return (
         <div className={modalStyles['modal-wrapper']} onClick={(e) => {
             closeModal();

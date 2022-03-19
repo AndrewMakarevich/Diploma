@@ -18,15 +18,19 @@ const AuthModal = () => {
     password: '',
     repPassword: ''
   });
+
   function changeSearchParam(paramName: string, paramValue: string, searchParams: URLSearchParams, setSearchParams: Function) {
     searchParams.set(paramName, paramValue);
     setSearchParams(searchParams);
   }
+
   const popup = useQueryParam(getParams.popup);
   const type = useQueryParam(getParams.type);
+
   if (popup === getParamsEnums.popup.auth) {
     modalStore.modalSearchParams.push(getParams.popup);
     modalStore.modalSearchParams.push(getParams.type);
+
     return (
       <QueryModalWindow stylesById={authModalStyles['auth-modal']}>
         {

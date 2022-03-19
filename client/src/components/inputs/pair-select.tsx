@@ -9,12 +9,15 @@ interface IGroupSelectProps<stateType> {
 
 function MySelect<stateType>({ valuesObj, state, setState, firstOptName, secOptName }: IGroupSelectProps<stateType>) {
   const [chosenOptGroup, setChosenOptGroup] = useState<string[]>([]);
+
   useEffect(() => {
     const userDefValue = (state as any)[firstOptName]
+
     if (userDefValue) {
       setChosenOptGroup(valuesObj[userDefValue]);
     }
   }, []);
+
   return (
     <div className="pair-select__wrapper">
       <select value={(state as any)[firstOptName]} onChange={(e) => {
