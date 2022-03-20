@@ -95,7 +95,6 @@ export default class UserStore {
 
       alert(response.data.message);
     } catch (e: AxiosError | any) {
-      console.log(e);
       alert(e.response?.data?.message);
     }
   };

@@ -10,11 +10,14 @@
   background-color: rgba(0, 0, 0, 0.527);
 }
 .modal-window{
+  position: relative;
   display:flex;
   flex-direction: column;
+  overflow:hidden;
   padding: 20px;
   border-radius: 15px;
   background-color: white;
+  max-width: 90%;
 }
 .close-modal__btn{
   /* width:25px; */
@@ -24,9 +27,11 @@
   cursor: pointer;
   font-size: 2rem;
   align-self:flex-end;
+  z-index: 2;
 }
 .modal-window__content{
   display: flex;
   flex-direction: column;
   row-gap: 15px;
+  z-index: 2;
 }

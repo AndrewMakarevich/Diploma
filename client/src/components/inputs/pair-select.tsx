@@ -1,5 +1,8 @@
 import { useEffect, useState } from "react";
 interface IGroupSelectProps<stateType> {
+  wrapperClassName?: string,
+  firstOptStyles?: string,
+  secOptStyles?: string,
   valuesObj: { [key: string]: string[] },
   state: stateType,
   setState: React.Dispatch<React.SetStateAction<stateType>>,
@@ -7,7 +10,7 @@ interface IGroupSelectProps<stateType> {
   secOptName: string,
 }
 
-function MySelect<stateType>({ valuesObj, state, setState, firstOptName, secOptName }: IGroupSelectProps<stateType>) {
+function PairSelects<stateType>({ wrapperClassName, firstOptStyles, secOptStyles, valuesObj, state, setState, firstOptName, secOptName }: IGroupSelectProps<stateType>) {
   const [chosenOptGroup, setChosenOptGroup] = useState<string[]>([]);
 
   useEffect(() => {
@@ -19,8 +22,8 @@ function MySelect<stateType>({ valuesObj, state, setState, firstOptName, secOptN
   }, []);
 
   return (
-    <div className="pair-select__wrapper">
-      <select value={(state as any)[firstOptName]} onChange={(e) => {
+    <div className={wrapperClassName}>
+      <select className={firstOptStyles} value={(state as any)[firstOptName]} onChange={(e) => {
         setChosenOptGroup(valuesObj[e.target.value]);
         setState({ ...state, [firstOptName]: e.target.value })
       }
@@ -31,7 +34,7 @@ function MySelect<stateType>({ valuesObj, state, setState, firstOptName, secOptN
           })
         }
       </select>
-      <select value={(state as any)[secOptName]} onChange={(e) => setState({ ...state, [secOptName]: e.target.value })}>
+      <select className={secOptStyles} value={(state as any)[secOptName]} onChange={(e) => setState({ ...state, [secOptName]: e.target.value })}>
         {
           chosenOptGroup.map((optValue, index) => {
             return <option
@@ -45,4 +48,4 @@ function MySelect<stateType>({ valuesObj, state, setState, firstOptName, secOptN
 
   )
 };
-export default MySelect;
+export default PairSelects;

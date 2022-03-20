@@ -25,7 +25,7 @@ export default async (req: Request, res: Response, next: NextFunction) => {
         (req as any).user = validationResult;
         next();
     } catch (e) {
-        return next(ApiError.badRequest('Checking of user authorization failed'));
+        return next(ApiError.unauthorized('Checking of user authorization failed'));
     }
 
 }

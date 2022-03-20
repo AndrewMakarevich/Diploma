@@ -5,7 +5,7 @@ import models from '../models/models';
 class TokenService {
     static generateTokens(payload: Object) {
         console.log(payload);
-        const accessToken = jwt.sign({ ...payload }, process.env.JWT_ATOKEN_KEY!, { expiresIn: '15m' });
+        const accessToken = jwt.sign({ ...payload }, process.env.JWT_ATOKEN_KEY!, { expiresIn: '15s' });
         const refreshToken = jwt.sign({ ...payload }, process.env.JWT_RTOKEN_KEY!, { expiresIn: '30d' });
         return { accessToken, refreshToken }
     }
