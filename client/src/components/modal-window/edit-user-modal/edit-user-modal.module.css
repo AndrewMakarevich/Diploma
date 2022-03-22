@@ -1,6 +1,5 @@
 #modal-window{
   background-color: var(--extra-dark);
-  overflow: hidden;
 }
 #modal-window:before{
   content: "";

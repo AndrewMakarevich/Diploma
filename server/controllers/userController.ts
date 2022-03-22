@@ -57,6 +57,11 @@ class UserController {
   static async getUsers(req: Request, res: Response, next: NextFunction) {
     return res.json({ message: "users" });
   }
+  static async getMyself(req: Request, res: Response, next: NextFunction) {
+    const { id } = (req as any).user;
+    const infoAboutMyself = await UserService.getUser(id);
+    return res.json(infoAboutMyself);
+  }
   static async editUser(req: Request, res: Response, next: NextFunction) {
     try {
 
@@ -73,10 +78,17 @@ class UserController {
     }
 
   }
-  static async getMyself(req: Request, res: Response, next: NextFunction) {
-    const { id } = (req as any).user;
-    const infoAboutMyself = await UserService.getUser(id);
-    return res.json(infoAboutMyself);
+  static async resetPassword(req: Request, res: Response, next: NextFunction) {
+    try {
+      const { id } = (req as any).user;
+      const { oldPassword, newPassword } = req.body;
+      const result = await UserService.resetPassword(oldPassword, newPassword, id);
+      return res.json(result);
+    } catch (e) {
+      next(e);
+    }
+
   }
+
 }
 export default UserController;

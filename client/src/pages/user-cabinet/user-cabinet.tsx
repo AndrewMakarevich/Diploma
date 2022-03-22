@@ -6,6 +6,7 @@ import { Context } from "../..";
 import LogoutBtn from "../../components/btns/logout-btn/logout-btn";
 import LocationIcon from "../../assets/img/icons/location-icon/location-icon";
 import EditUserModal from "../../components/modal-window/edit-user-modal/edit-user-modal";
+import EditIcon from "../../assets/img/icons/edit-icon/edit-icon";
 
 const UserCabinet = () => {
   const { userStore } = useContext(Context);
@@ -17,9 +18,11 @@ const UserCabinet = () => {
 
         <p>{userStore.userData.isBanned ? "Account banned" : ""}</p>
 
-        <button onClick={() => setIsOpen(true)}>Edit</button>
+        <button title="Edit info about myself" className={userCabinetStyles["edit-user__btn"]} onClick={() => setIsOpen(true)}>
+          <EditIcon id={userCabinetStyles["edit-icon"]} />
+        </button>
 
-        <img className={userCabinetStyles["user-cabinet__profile-avatar"]}
+        <img title="Your avatar" className={userCabinetStyles["user-cabinet__profile-avatar"]}
           alt="Profile avatar"
           src={`${process.env.REACT_APP_BACK_LINK}/img/avatar/${userStore.userData.avatar}`} />
         <img className={userCabinetStyles["user-cabinet__profile-background"]}
@@ -27,11 +30,11 @@ const UserCabinet = () => {
           src={`${process.env.REACT_APP_BACK_LINK}/img/profile-background/${userStore.userData.profileBackground}`} />
         <span className={userCabinetStyles["user-cabinet__profile-background_fogging"]}></span>
 
-        <p className={userCabinetStyles["user-cabinet__user-nickname"]}>
+        <p title="Your nickname" className={userCabinetStyles["user-cabinet__user-nickname"]}>
           {userStore.userData.nickname}</p>
-        <p className={userCabinetStyles["user-cabinet__user-fullname"]}>
+        <p title="Your full name" className={userCabinetStyles["user-cabinet__user-fullname"]}>
           {`${userStore.userData.firstName || ''} ${userStore.userData.surname || ''}`}</p>
-        <p className={userCabinetStyles["user-cabinet__user-location"]}>
+        <p title="Your location" className={userCabinetStyles["user-cabinet__user-location"]}>
           {userStore.userData.country && userStore.userData.city ?
             <>
               <LocationIcon />{`${userStore.userData.country}, ${userStore.userData.city}`}
@@ -40,7 +43,7 @@ const UserCabinet = () => {
             null
           }
         </p>
-        <p className={userCabinetStyles["user-cabinet__user-creation-date"]}>
+        <p title="Account's date of creation" className={userCabinetStyles["user-cabinet__user-creation-date"]}>
           {new Date(userStore.userData.createdAt).toLocaleString('en-EN', { year: 'numeric', month: 'long', day: 'numeric' })}</p>
       </article>
       <EditUserModal isOpen={isOpen} setIsOpen={setIsOpen} />

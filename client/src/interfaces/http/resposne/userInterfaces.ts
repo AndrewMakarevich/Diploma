@@ -18,3 +18,6 @@ export interface userResObject {
 export interface editUserSuccesObj {
   message: string;
 }
+export interface resetPassSuccesObj {
+  message: string;
+}

@@ -224,6 +224,29 @@ class UserService {
 
   };
 
+  static async resetPassword(oldPassword: string, newPassword: string, userId: number) {
+    const user = await models.User.findOne({ where: { id: userId } });
+
+    if (!user) {
+      throw ApiError.badRequest("Can't find user, to change password");
+    }
+
+    const passwordComparisonResult = await bcrypt.compare(oldPassword, user.password);
+
+    if (!passwordComparisonResult) {
+      throw ApiError.badRequest("Incorrect password");
+    }
+
+    UserValidator.validatePassword(newPassword);
+
+    const hashedNewPassword = await bcrypt.hash(newPassword, 15);
+    user.update({
+      password: hashedNewPassword
+    });
+
+    return { message: "Password updated successfully" }
+  }
+
   static async getUser(id: number) {
     if (!id) {
       throw ApiError.badRequest('User\'s id is not defined');

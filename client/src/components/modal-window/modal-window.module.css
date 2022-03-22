@@ -13,11 +13,14 @@
   position: relative;
   display:flex;
   flex-direction: column;
-  overflow:hidden;
   padding: 20px;
   border-radius: 15px;
   background-color: white;
+  min-width: 40%;
   max-width: 90%;
+  max-height: 70%;
+  overflow-y: scroll;
+  overflow-x:hidden;
 }
 .close-modal__btn{
   /* width:25px; */

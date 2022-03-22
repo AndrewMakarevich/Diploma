@@ -23,8 +23,6 @@ const EditUserForm = () => {
   });
   const { executeCallback: sendDataToEdit, isLoading: isEditLoading } = useFetching(() => userStore.editMyself(groupData()))
 
-
-
   const formRef = useRef<HTMLFormElement>(null);
   const avatarInputRef = useRef<HTMLInputElement>(null);
   const currentAvatarInputImgRef = useRef<HTMLImageElement>(null);
@@ -80,7 +78,6 @@ const EditUserForm = () => {
       <form ref={formRef} className={formStyles['form']}>
 
         <label className={`${formStyles['img-input-label']} ${formStyles['avatar-input-label']}`}>
-
           <input
             ref={avatarInputRef}
             className={formStyles['avatar-input']}
@@ -97,11 +94,9 @@ const EditUserForm = () => {
             alt="Avatar"
             src={userAvatarImgLink} />
           <span className={formStyles['avatar-header']}>AVATAR</span>
-
         </label>
 
         <label className={`${formStyles['img-input-label']} ${formStyles['profileBg-input-label']}`}>
-
           <input
             ref={profileBackgroundInputRef}
             className={formStyles['profileBg-input']}
@@ -117,39 +112,32 @@ const EditUserForm = () => {
             alt="Profile background"
             src={profileBgImgLink} />
           <span className={formStyles['profileBg-header']}>PROFILE BACKGROUND</span>
-
         </label>
 
         <hr className={formStyles['split-line']}></hr>
 
         <label className={formStyles['input__label']}>
-
-          <span className={formStyles['input__header']}>Nickname:</span>
+          Nickname:
           <input className={formStyles['input']}
             value={userDataToEdit.nickname}
             onChange={(e) => setUserDataToEdit({ ...userDataToEdit, nickname: e.target.value })} />
           <span className={formStyles['input__span']}></span>
-
         </label>
 
         <label className={formStyles['input__label']}>
-
           First name:
           <input className={formStyles['input']}
             value={userDataToEdit.firstName}
             onChange={(e) => setUserDataToEdit({ ...userDataToEdit, firstName: e.target.value })} />
           <span className={formStyles['input__span']}></span>
-
         </label>
 
         <label className={formStyles['input__label']}>
-
           Surname:
           <input className={formStyles['input']}
             value={userDataToEdit.surname}
             onChange={(e) => setUserDataToEdit({ ...userDataToEdit, surname: e.target.value })} />
           <span className={formStyles['input__span']}></span>
-
         </label>
 
         <label className={formStyles['input__label']}>

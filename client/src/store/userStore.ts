@@ -98,4 +98,13 @@ export default class UserStore {
       alert(e.response?.data?.message);
     }
   };
+
+  async resetMyPassword(oldPassword: string, newPassword: string) {
+    try {
+      const response = await UserService.resetAccountPassword(oldPassword, newPassword);
+      alert(response.data.message);
+    } catch (e: AxiosError | any) {
+      alert(e.response?.data?.message);
+    }
+  }
 }
