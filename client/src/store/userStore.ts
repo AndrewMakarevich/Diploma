@@ -99,9 +99,9 @@ export default class UserStore {
     }
   };
 
-  async resetMyPassword(oldPassword: string, newPassword: string) {
+  async resetMyPassword(newPassword: string) {
     try {
-      const response = await UserService.resetAccountPassword(oldPassword, newPassword);
+      const response = await UserService.resetAccountPassword(newPassword);
       alert(response.data.message);
     } catch (e: AxiosError | any) {
       alert(e.response?.data?.message);

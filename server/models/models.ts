@@ -1,6 +1,6 @@
 import { DataTypes } from 'sequelize';
 import sequelize from '../db';
-import { IPermissionsInstance, IRoleInstance, IUserInstance, IUserTokenInstance } from '../interfaces/modelInterfaces';
+import { IPermissionsInstance, IResetEmailBundleInstance, IResetPasswordBundleInstance, IRoleInstance, IUserInstance, IUserTokenInstance } from '../interfaces/modelInterfaces';
 
 const User = sequelize.define<IUserInstance>('user', {
     id: { type: DataTypes.INTEGER, primaryKey: true, autoIncrement: true },
@@ -17,42 +17,58 @@ const User = sequelize.define<IUserInstance>('user', {
     activationKey: { type: DataTypes.STRING, allowNull: false },
     isBanned: { type: DataTypes.BOOLEAN, defaultValue: false }
 });
+
 const UserToken = sequelize.define<IUserTokenInstance>('userToken', {
     id: { type: DataTypes.INTEGER, primaryKey: true, autoIncrement: true },
     userIp: { type: DataTypes.STRING, allowNull: false },
     refreshToken: { type: DataTypes.TEXT }
 });
+
+const ResetPasswordBundle = sequelize.define<IResetPasswordBundleInstance>('resetPasswordBundle', {
+    id: { type: DataTypes.INTEGER, primaryKey: true, autoIncrement: true },
+    emailApproveKey: { type: DataTypes.STRING, allowNull: false },
+    newPassword: { type: DataTypes.STRING, allowNull: true }
+});
+
 const Picture = sequelize.define('picture', {
     id: { type: DataTypes.INTEGER, primaryKey: true, autoIncrement: true },
     img: { type: DataTypes.STRING, allowNull: false },
     description: { type: DataTypes.TEXT }
 });
+
 const PictureInfo = sequelize.define('pictureInfo', {
     id: { type: DataTypes.INTEGER, primaryKey: true, autoIncrement: true },
     title: { type: DataTypes.STRING, allowNull: false },
     description: { type: DataTypes.STRING, allowNull: false }
 });
+
 const PictureType = sequelize.define('pictureType', {
     id: { type: DataTypes.INTEGER, primaryKey: true, autoIncrement: true },
     name: { type: DataTypes.STRING }
 });
+
 const PictureTag = sequelize.define('pictureTag', {
     id: { type: DataTypes.INTEGER, primaryKey: true, autoIncrement: true },
     text: { type: DataTypes.TEXT, allowNull: false }
 });
+
 const PicturesTags = sequelize.define('picturesTags', {
     id: { type: DataTypes.INTEGER, primaryKey: true, autoIncrement: true }
 });
+
 const PictureLike = sequelize.define('pictureLike', {
     id: { type: DataTypes.INTEGER, primaryKey: true, autoIncrement: true }
-})
+});
+
 const Comment = sequelize.define('comment', {
     id: { type: DataTypes.INTEGER, primaryKey: true, autoIncrement: true },
     text: { type: DataTypes.TEXT, allowNull: true }
 });
+
 const CommentLike = sequelize.define('commentLike', {
     id: { type: DataTypes.INTEGER, primaryKey: true, autoIncrement: true }
 });
+
 const Role = sequelize.define<IRoleInstance>('role', {
     id: { type: DataTypes.INTEGER, primaryKey: true, autoIncrement: true },
     name: { type: DataTypes.STRING, unique: true, allowNull: false },
@@ -77,6 +93,9 @@ UserToken.belongsTo(User);
 
 Role.hasMany(User);
 User.belongsTo(Role);
+
+User.hasOne(ResetPasswordBundle);
+ResetPasswordBundle.belongsTo(User);
 
 User.hasMany(Comment);
 Comment.belongsTo(User);
@@ -117,6 +136,7 @@ PictureType.belongsTo(User);
 export default {
     User,
     UserToken,
+    ResetPasswordBundle,
     Picture,
     PictureInfo,
     PictureType,

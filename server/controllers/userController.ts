@@ -12,6 +12,7 @@ class UserController {
       next(e);
     }
   }
+
   static async accountActivation(req: Request, res: Response, next: NextFunction) {
     try {
       const { activationKey } = req.params;
@@ -21,6 +22,7 @@ class UserController {
       next(e);
     }
   }
+
   static async login(req: Request, res: Response, next: NextFunction) {
     try {
       const userIp = req.ip;
@@ -32,6 +34,7 @@ class UserController {
       next(e);
     }
   }
+
   static async logout(req: Request, res: Response, next: NextFunction) {
     try {
       const userIp = req.ip;
@@ -43,6 +46,7 @@ class UserController {
       next(e);
     }
   }
+
   static async refreshSession(req: Request, res: Response, next: NextFunction) {
     try {
       const userIp = req.ip;
@@ -54,14 +58,21 @@ class UserController {
       next(e);
     }
   }
+
   static async getUsers(req: Request, res: Response, next: NextFunction) {
     return res.json({ message: "users" });
   }
+
   static async getMyself(req: Request, res: Response, next: NextFunction) {
-    const { id } = (req as any).user;
-    const infoAboutMyself = await UserService.getUser(id);
-    return res.json(infoAboutMyself);
+    try {
+      const { id } = (req as any).user;
+      const infoAboutMyself = await UserService.getUser(id);
+      return res.json(infoAboutMyself);
+    } catch (e) {
+      next(e);
+    }
   }
+
   static async editUser(req: Request, res: Response, next: NextFunction) {
     try {
 
@@ -78,17 +89,26 @@ class UserController {
     }
 
   }
+
   static async resetPassword(req: Request, res: Response, next: NextFunction) {
     try {
       const { id } = (req as any).user;
-      const { oldPassword, newPassword } = req.body;
-      const result = await UserService.resetPassword(oldPassword, newPassword, id);
+      const { newPassword } = req.body;
+      const result = await UserService.resetPassword(newPassword, id);
       return res.json(result);
     } catch (e) {
       next(e);
     }
-
   }
 
+  static async approvePasswordReset(req: Request, res: Response, next: NextFunction) {
+    try {
+      const { emailApproveKey } = req.params;
+      const response = await UserService.approvePasswordReset(emailApproveKey);
+      return res.json(response);
+    } catch (e) {
+      next(e);
+    }
+  }
 }
 export default UserController;

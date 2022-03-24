@@ -2,7 +2,7 @@ import nodemailer from 'nodemailer';
 import ApiError from '../apiError/apiError';
 
 class MailService {
-  static async sendMail(to: string, verificationCode: string) {
+  static async sendMail(to: string, letterHeader: string, messageHeader: string, verificationLink: string) {
     try {
       const mailTransporter = nodemailer.createTransport(
         {
@@ -13,16 +13,15 @@ class MailService {
           }
         }
       );
-      const verificationLink = `${process.env.BACK_LINK}/api/user/activate/${verificationCode}`;
       await mailTransporter.sendMail({
         from: process.env.MAIL_USER,
         to,
-        subject: 'Verificate email',
+        subject: letterHeader,
         text: '',
         html:
           `
       <div>
-          <h1>Для активации аккаунта перейдите по ссылке</h1>
+          <h1>${messageHeader}</h1>
           <a href=${verificationLink}>${verificationLink}</a>
           <h2>Время отправки сообщения: ${new Date()}</h2>
       </div>

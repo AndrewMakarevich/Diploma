@@ -3,4 +3,5 @@ export default () => {
   UserCleaner.checkUnlinkedAvatars();
   UserCleaner.checkForOutdateUsersAccounts();
   UserCleaner.checkForOutdateRefreshTokens();
+  UserCleaner.ResetPasswordBundles();
 };

@@ -14,8 +14,8 @@ export default class UserService {
     return response;
   };
 
-  static async resetAccountPassword(oldPassword: string, newPassword: string): Promise<AxiosResponse<resetPassSuccesObj>> {
-    const response = await $authHost.put<resetPassSuccesObj>('/api/user/resetPass', { oldPassword, newPassword });
+  static async resetAccountPassword(newPassword: string): Promise<AxiosResponse<resetPassSuccesObj>> {
+    const response = await $authHost.put<resetPassSuccesObj>('/api/user/resetPass', { newPassword });
     return response;
   }
 }

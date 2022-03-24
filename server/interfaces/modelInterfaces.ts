@@ -20,15 +20,34 @@ export interface IUser {
 }
 export interface IUserInstance extends IUser, Model {
 }
+
 export interface IUserToken {
     id: number;
     userIp: string;
     refreshToken: string;
     userId: number
-
 }
 export interface IUserTokenInstance extends IUserToken, Model {
+}
 
+export interface IResetEmailBundle {
+    id: number,
+    oldEmailApproveKey: string,
+    oldEmailIsApproved: boolean,
+    newEmail: string,
+    newEmailApproveKey: string,
+    newEmailIsApproved: boolean
+}
+export interface IResetEmailBundleInstance extends IResetEmailBundle, Model { }
+
+export interface IResetPasswordBundleInstance extends Model {
+    id: number,
+    emailIsApproved: boolean,
+    emailApproveKey: string,
+    userId: number,
+    newPassword: string,
+    createdAt: string,
+    updatedAt: string
 }
 
 export interface IRoleInstance extends Model {

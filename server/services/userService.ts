@@ -49,7 +49,9 @@ class UserService {
         roleId: role!.id
       }
     );
-    await MailService.sendMail(email, activationKey);
+
+    const verificationLink = `${process.env.BACK_LINK}/api/user/activate/${activationKey}`;
+    await MailService.sendMail(email, 'Account activation', 'Follow the link below to activate account', verificationLink);
 
     return { message: 'User created successfully' }
   };
@@ -65,11 +67,27 @@ class UserService {
       throw ApiError.badRequest('Activation key is not valid');
     }
 
-    if (user.isActivated === true) {
-      throw ApiError.badRequest('Account is already activated');
-    }
+    // if (user.isActivated === true) {
+    //   throw ApiError.badRequest('Account is already activated');
+    // }
 
     user.update({ isActivated: true });
+
+    // Creating bundle for the future password changing
+    const resetPasswordEmailApproveKey = v4();
+    const resetPasswordBundle = await models.ResetPasswordBundle.findOne({ where: { userId: user.id } });
+
+    if (resetPasswordBundle) {
+      resetPasswordBundle.update({
+        emailApproveKey: resetPasswordEmailApproveKey
+      });
+    } else {
+      await models.ResetPasswordBundle.create({
+        userId: user.id,
+        emailApproveKey: resetPasswordEmailApproveKey
+      })
+    }
+
 
     return { message: 'Account activated successfully' };
   };
@@ -224,27 +242,62 @@ class UserService {
 
   };
 
-  static async resetPassword(oldPassword: string, newPassword: string, userId: number) {
+  static async resetPassword(newPassword: string, userId: number) {
+    UserValidator.validatePassword(newPassword);
+
     const user = await models.User.findOne({ where: { id: userId } });
 
     if (!user) {
       throw ApiError.badRequest("Can't find user, to change password");
     }
 
-    const passwordComparisonResult = await bcrypt.compare(oldPassword, user.password);
+    const usersResetPasswordBundle = await models.ResetPasswordBundle.findOne({ where: { userId: user.id } });
 
-    if (!passwordComparisonResult) {
-      throw ApiError.badRequest("Incorrect password");
+    if (!usersResetPasswordBundle) {
+      throw ApiError.badRequest("Can't find you reset password bundle in database, try to follow your activation account link, that was sent when you registered")
     }
 
-    UserValidator.validatePassword(newPassword);
+    const passwordComparisonResult = await bcrypt.compare(newPassword, user.password);
 
-    const hashedNewPassword = await bcrypt.hash(newPassword, 15);
-    user.update({
-      password: hashedNewPassword
+    if (!passwordComparisonResult) {
+
+      const hashedNewPassword = await bcrypt.hash(newPassword, 15);
+
+      usersResetPasswordBundle.update({
+        newPassword: hashedNewPassword
+      });
+
+      const submitPasswordChangingLink = `${process.env.BACK_LINK}/api/user/approvePassReset/${usersResetPasswordBundle.emailApproveKey}`;
+      await MailService.sendMail(user.email, "Reset password submition", "To submit password change, follow the link below", submitPasswordChangingLink);
+    }
+
+    return { message: "New password added to the bundle, to finish password reset, follow the link, we send to your email" }
+  }
+
+  static async approvePasswordReset(emailApproveKey: string) {
+    const resetPasswordBundle = await models.ResetPasswordBundle.findOne({ where: { emailApproveKey } });
+
+    if (!resetPasswordBundle) {
+      throw ApiError.badRequest("Invalid approve password reset link");
+    }
+
+    const userToResetPass = await models.User.findOne({ where: { id: resetPasswordBundle.userId } });
+
+    if (!userToResetPass) {
+      throw ApiError.badRequest("Can't find user to reset password");
+    }
+
+    if (!resetPasswordBundle.newPassword) {
+      throw ApiError.badRequest("Nothing to reset");
+    }
+    userToResetPass.update({ password: resetPasswordBundle.newPassword });
+
+    const newApproveEmailKey = v4();
+    resetPasswordBundle.update({
+      newPassword: null,
+      emailApproveKey: newApproveEmailKey
     });
-
-    return { message: "Password updated successfully" }
+    return { message: "Password changed successfully" };
   }
 
   static async getUser(id: number) {

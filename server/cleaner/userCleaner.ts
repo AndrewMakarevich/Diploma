@@ -4,6 +4,7 @@ import models from "../models/models";
 import fs from 'fs';
 import path from 'path';
 import TokenService from "../services/tokenService";
+import { v4 } from "uuid";
 
 export default class UserCleaner {
   static async checkForOutdateUsersAccounts() {
@@ -82,4 +83,33 @@ export default class UserCleaner {
     setInterval(() => { deleteUnlinkedAvatars(); deleteUnlinkedProfileBackgrounds() }, 1000 * 60 * 60 * 24);
 
   }
+  static async ResetPasswordBundles() {
+    async function updateOutdatedBundles() {
+      try {
+        const resetPasswordBundlesBundles = await models.ResetPasswordBundle.findAll({
+          where: {
+            updatedAt: { [Op.lte]: Date.now() - 1000 * 60 * 10 },
+            newPassword: { [Op.ne]: null }
+          }
+        });
+        console.log(resetPasswordBundlesBundles);
+        resetPasswordBundlesBundles.forEach(bundle => {
+
+          const newEmailApproveKey = v4();
+
+          bundle.update({
+            newPassword: null,
+            emailApproveKey: newEmailApproveKey
+          });
+        })
+      } catch (e) {
+        console.log(e);
+      }
+
+    };
+
+    updateOutdatedBundles();
+    setInterval(updateOutdatedBundles, 1000 * 60 * 10);
+
+  };
 }
