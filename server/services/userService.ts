@@ -153,6 +153,12 @@ class UserService {
       throw ApiError.badRequest('Id of the user to edit is lost');
     }
 
+    const userToEdit = await models.User.findOne({ where: { id } });
+
+    if (!userToEdit) {
+      throw ApiError.badRequest('User you want to edit doesn\'t exists');
+    }
+
     let nothingToChange = true;
 
     for (let key in arguments) {
@@ -177,14 +183,7 @@ class UserService {
 
     // Creating file name for the avatar and background pictures, if they'r exists
     let avatarFileName = ImageService.generateImageName(avatar);
-    console.log('AVATAR', avatarFileName);
     let profileBackgroundFileName = ImageService.generateImageName(profileBackground);
-
-    const userToEdit = await models.User.findOne({ where: { id } });
-
-    if (!userToEdit) {
-      throw ApiError.badRequest('User you want to edit doesn\'t exists');
-    }
 
     //Uploading avatar picture to the server if edited user exists
     if (avatarFileName) {

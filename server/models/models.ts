@@ -1,6 +1,8 @@
 import { DataTypes } from 'sequelize';
 import sequelize from '../db';
-import { IPermissionsInstance, IResetEmailBundleInstance, IResetPasswordBundleInstance, IRoleInstance, IUserInstance, IUserTokenInstance } from '../interfaces/modelInterfaces';
+import { IResetPasswordBundleInstance, IRoleInstance, IUserInstance, IUserTokenInstance } from '../interfaces/modelInterfaces';
+import { IPictureInfoInstance, IPictureInstance } from '../interfaces/pictureInterfaces';
+import { IPicturesTagsInstance, IPictureTagInstance } from '../interfaces/tagInterfaces';
 
 const User = sequelize.define<IUserInstance>('user', {
     id: { type: DataTypes.INTEGER, primaryKey: true, autoIncrement: true },
@@ -30,14 +32,14 @@ const ResetPasswordBundle = sequelize.define<IResetPasswordBundleInstance>('rese
     newPassword: { type: DataTypes.STRING, allowNull: true }
 });
 
-const Picture = sequelize.define('picture', {
+const Picture = sequelize.define<IPictureInstance>('picture', {
     id: { type: DataTypes.INTEGER, primaryKey: true, autoIncrement: true },
     img: { type: DataTypes.STRING, allowNull: false },
     mainTitle: { type: DataTypes.STRING, allowNull: false },
     description: { type: DataTypes.TEXT }
 });
 
-const PictureInfo = sequelize.define('pictureInfo', {
+const PictureInfo = sequelize.define<IPictureInfoInstance>('pictureInfo', {
     id: { type: DataTypes.INTEGER, primaryKey: true, autoIncrement: true },
     title: { type: DataTypes.STRING, allowNull: false },
     description: { type: DataTypes.STRING, allowNull: false }
@@ -48,12 +50,12 @@ const PictureType = sequelize.define('pictureType', {
     name: { type: DataTypes.STRING }
 });
 
-const PictureTag = sequelize.define('pictureTag', {
+const PictureTag = sequelize.define<IPictureTagInstance>('pictureTag', {
     id: { type: DataTypes.INTEGER, primaryKey: true, autoIncrement: true },
     text: { type: DataTypes.TEXT, allowNull: false }
 });
 
-const PicturesTags = sequelize.define('picturesTags', {
+const PicturesTags = sequelize.define<IPicturesTagsInstance>('picturesTags', {
     id: { type: DataTypes.INTEGER, primaryKey: true, autoIncrement: true }
 });
 
