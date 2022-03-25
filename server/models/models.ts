@@ -33,6 +33,7 @@ const ResetPasswordBundle = sequelize.define<IResetPasswordBundleInstance>('rese
 const Picture = sequelize.define('picture', {
     id: { type: DataTypes.INTEGER, primaryKey: true, autoIncrement: true },
     img: { type: DataTypes.STRING, allowNull: false },
+    mainTitle: { type: DataTypes.STRING, allowNull: false },
     description: { type: DataTypes.TEXT }
 });
 

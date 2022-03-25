@@ -10,7 +10,6 @@ userRouter.get('/myself', authMiddleware, UserController.getMyself);
 
 userRouter.post('/registration', UserController.registration);
 userRouter.post('/login', UserController.login);
-// userRouter.put('resetEmail', )
 
 userRouter.put('/edit', authMiddleware, UserController.editUser);
 userRouter.put('/resetPass', authMiddleware, UserController.resetPassword);

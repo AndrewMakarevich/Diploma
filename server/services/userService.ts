@@ -11,6 +11,7 @@ import UserDto, { ExtendedUserDto } from "../dtos/userDto";
 import UserValidator from "../validator/userValidator";
 import { IUser } from "../interfaces/modelInterfaces";
 import fileUpload from "express-fileupload";
+import ImageService from "./imageService";
 
 class UserService {
 
@@ -175,30 +176,8 @@ class UserService {
     UserValidator.validateUsersCountryAndCity(country, city);
 
     // Creating file name for the avatar and background pictures, if they'r exists
-    let avatarFileName = undefined;
-    let profileBackgroundFileName = undefined;
-
-    function generateImageName(image: fileUpload.UploadedFile) {
-      const fileExtension = `${image.name.match(/.[a-z]{1,6}$/)}`;
-
-      if (!fileExtension ||
-        (fileExtension?.split('.')[1] !== 'jpg' &&
-          fileExtension?.split('.')[1] !== 'jpeg' &&
-          fileExtension?.split('.')[1] !== 'png' &&
-          fileExtension?.split('.')[1] !== 'webm')
-      ) {
-        throw ApiError.badRequest('File you uploaded doesn\'t match required extensions. Extensions .jpg, .jpeg, .png, .webm required');
-      }
-      return `${v4()}${fileExtension}`;
-    }
-
-    if (avatar) {
-      avatarFileName = generateImageName(avatar);
-    }
-
-    if (profileBackground) {
-      profileBackgroundFileName = generateImageName(profileBackground)
-    }
+    let avatarFileName = ImageService.generateImageName(avatar);
+    let profileBackgroundFileName = ImageService.generateImageName(profileBackground);
 
     const userToEdit = await models.User.findOne({ where: { id } });
 
