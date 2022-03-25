@@ -4,12 +4,17 @@ import ApiError from "../apiError/apiError";
 
 class ImageService {
   static generateImageName(image: fileUpload.UploadedFile) {
-    const fileExtension = `${image.name.match(/\.(jpg|jpeg|png|webm)$/)}`;
+    if (!image) {
+      return undefined;
+    }
+    console.log(String(image.name));
+    const fileExtension = image.name.match(/\.(jpg|jpeg|png|webm)$/);
+    console.log(fileExtension);
 
     if (!fileExtension) {
       return undefined;
     }
-    return `${v4()}${fileExtension}`;
+    return `${v4()}${fileExtension[0]}`;
   }
 }
 export default ImageService;

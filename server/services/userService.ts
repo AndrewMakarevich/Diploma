@@ -177,6 +177,7 @@ class UserService {
 
     // Creating file name for the avatar and background pictures, if they'r exists
     let avatarFileName = ImageService.generateImageName(avatar);
+    console.log('AVATAR', avatarFileName);
     let profileBackgroundFileName = ImageService.generateImageName(profileBackground);
 
     const userToEdit = await models.User.findOne({ where: { id } });
