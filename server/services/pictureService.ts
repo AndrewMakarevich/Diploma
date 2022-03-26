@@ -80,6 +80,23 @@ class PictureService {
     pictureInfos: IPictureInfo[],
     pictureTags: IPictureTag[]
   ) {
+    let nothingToChange = true;
+
+    for (let key in arguments) {
+      if (key === "0" || key === "1") {
+        continue
+      }
+
+      if (arguments[key] !== undefined) {
+        nothingToChange = false;
+        break;
+      }
+    }
+
+    if (nothingToChange) {
+      throw ApiError.badRequest('Nothing to change');
+    }
+
     const pictureToEdit = await models.Picture.findOne({ where: { id: pictureId, userId } });
 
     if (!pictureToEdit) {
@@ -115,6 +132,8 @@ class PictureService {
     pictureTags && Array.isArray(pictureTags) && pictureTags.forEach(async (pictureTag) => {
       await PictureTagService.createPictureTagConnection(pictureToEdit.id, pictureTag.text);
     });
+
+    return { message: "Picture edited succesfully" };
   }
 
 }
@@ -152,3 +171,5 @@ export default PictureService;
 //     "text":"art",
 //   },
 // ]
+// [{"id": 1234,"text":"cat"},{"id": 21454,"text":"furious"},{"id": 124124,"text":"anime"}];
+// [{"id": 21454, "title":"About my cat","description":"She's name is Anfisa"}, {"id": 23, "title":"Year of creation:","description":"2022"}]

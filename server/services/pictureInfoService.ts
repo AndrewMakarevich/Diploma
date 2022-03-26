@@ -47,7 +47,14 @@ class PictureInfoService {
         title: pictureInfoObj.title,
         description: pictureInfoObj.description
       });
+      return;
     }
+
+    await models.PictureInfo.create({
+      pictureId: picture.id,
+      title: pictureInfoObj.title,
+      description: pictureInfoObj.description
+    });
 
     return;
   }

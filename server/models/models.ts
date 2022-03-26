@@ -118,10 +118,10 @@ Picture.belongsTo(User);
 Picture.belongsToMany(PictureTag, { through: PicturesTags, as: "tags", onDelete: 'cascade' });
 PictureTag.belongsToMany(Picture, { through: PicturesTags, as: "pictures", onDelete: 'cascade' });
 
-Picture.hasMany(PictureInfo);
+Picture.hasMany(PictureInfo, { onDelete: "cascade" });
 PictureInfo.belongsTo(Picture);
 
-Picture.hasMany(PictureLike);
+Picture.hasMany(PictureLike, { onDelete: "cascade" });
 PictureLike.belongsTo(Picture);
 
 User.hasMany(PictureLike);

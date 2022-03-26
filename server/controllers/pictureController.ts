@@ -39,8 +39,20 @@ class PictureController {
       const userId = (req as any).user.id;
       const img = req.files?.img as fileUpload.UploadedFile;
       const { description, mainTitle } = req.body;
-      const pictureInfos: IPictureInfo[] = JSON.parse(req.body.pictureInfos) || undefined;
-      const pictureTags: IPictureTag[] = JSON.parse(req.body.pictureTags) || undefined;
+      let pictureInfos: IPictureInfo[] = req.body.pictureInfos;
+      let pictureTags: IPictureTag[] = req.body.pictureTags;
+
+      try {
+        pictureInfos = JSON.parse(req.body.pictureInfos);
+      } catch (e) {
+
+      }
+
+      try {
+        pictureTags = JSON.parse(req.body.pictureTags);
+      } catch (e) {
+
+      }
 
       const response = await PictureService.editPicture(userId, pictureId, img, mainTitle, description, pictureInfos, pictureTags);
 

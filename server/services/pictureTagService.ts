@@ -6,7 +6,7 @@ class PictureTagService {
   static async addTag(tagText: string) {
     const alreadyExTag = await models.PictureTag.findOne({
       where: {
-        text: tagText
+        text: tagText.split(" ").join("").toLowerCase()
       }
     });
 
@@ -38,7 +38,9 @@ class PictureTagService {
       return;
     }
 
-    let tag = await models.PictureTag.findOne({ where: { text: tagText } });
+    const processedTagText = tagText.split(" ").join("").toLowerCase();
+
+    let tag = await models.PictureTag.findOne({ where: { text: processedTagText } });
 
     // if tag is already exists, trying to find connection between them and picture
     if (tag) {
@@ -60,7 +62,7 @@ class PictureTagService {
     }
 
     // If tag with such text doesn't exists, create them and connect with the picture
-    tag = await models.PictureTag.create({ text: tagText });
+    tag = await models.PictureTag.create({ text: processedTagText });
 
     await models.PicturesTags.create({
       pictureId: pictureId,
