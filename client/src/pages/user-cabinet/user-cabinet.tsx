@@ -7,6 +7,7 @@ import LogoutBtn from "../../components/btns/logout-btn/logout-btn";
 import LocationIcon from "../../assets/img/icons/location-icon/location-icon";
 import EditUserModal from "../../components/modal-window/edit-user-modal/edit-user-modal";
 import EditIcon from "../../assets/img/icons/edit-icon/edit-icon";
+import { routePaths } from "../../components/routes/paths";
 
 const UserCabinet = () => {
   const { userStore } = useContext(Context);
@@ -48,7 +49,8 @@ const UserCabinet = () => {
       </article>
       <EditUserModal isOpen={isOpen} setIsOpen={setIsOpen} />
       <LogoutBtn stylesById="" />
-      <Link to='adminPanel'>Test</Link>
+      <Link to={routePaths.personalCabinet.adminPanel}>Admin panel</Link>
+      <Link to={routePaths.personalCabinet.myGallery}>My Gallery</Link>
       <Outlet />
     </div>
   )

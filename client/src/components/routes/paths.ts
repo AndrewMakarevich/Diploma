@@ -1,14 +1,14 @@
 import AdminCabinet from "../../pages/admin-cabinet/admin-cabinet";
 import HomePage from "../../pages/home-page/home-page";
 import UserCabinet from "../../pages/user-cabinet/user-cabinet";
-import EditUserModal from "../modal-window/edit-user-modal/edit-user-modal";
+import MyGallery from "../my-gallery/my-gallery";
 
 export const routePaths = {
     mainPage: '/',
     personalCabinet: {
         main: '/personalCabinet',
         adminPanel: 'adminPanel',
-        editor: 'editor'
+        myGallery: 'myGallery'
     },
 
 }
@@ -34,12 +34,12 @@ export const userPaths = [
                 path: routePaths.personalCabinet.adminPanel,
                 component: AdminCabinet
             },
-            // {
-            //     id: 2,
-            //     name: 'Editor',
-            //     path: routePaths.personalCabinet.editor,
-            //     component: EditUserModal
-            // }
+            {
+                id: 2,
+                name: 'My gallery',
+                path: routePaths.personalCabinet.myGallery,
+                component: MyGallery
+            }
         ]
     }
 ];

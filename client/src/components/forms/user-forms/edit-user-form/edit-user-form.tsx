@@ -6,6 +6,7 @@ import PairSelects from '../../../inputs/pair-select';
 import countriesList from '../../../../consts/countries-list/countries-list';
 import { IUserDataToEdit } from '../../../../interfaces/forms/edit-user-interfaces';
 import useFetching from '../../../../hooks/useFetching';
+import setFileInputCurrentImg from '../../../../utils/file-input-utils/setFileInputCurrentImg';
 
 const EditUserForm = () => {
   const { userStore } = useContext(Context);
@@ -58,19 +59,6 @@ const EditUserForm = () => {
       }
     }
     return infoToEdit;
-  }
-
-  function setFileInputCurrentImg(inputImgRef: React.RefObject<HTMLImageElement>, inputFile: File | undefined, standartImgLink: string) {
-    if (inputFile && inputImgRef.current) {
-      const fr = new FileReader();
-      fr.readAsDataURL(inputFile);
-      fr.addEventListener('load', () => {
-        inputImgRef.current!.src = String(fr.result)
-      });
-      return;
-    }
-    inputImgRef.current!.src = standartImgLink;
-    return;
   }
 
   return (
