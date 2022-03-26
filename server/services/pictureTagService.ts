@@ -34,12 +34,6 @@ class PictureTagService {
   }
 
   static async createPictureTagConnection(pictureId: number, tagText: string) {
-    const picture = await models.Picture.findOne({ where: { id: pictureId } });
-
-    if (!picture) {
-      return;
-    }
-
     if (!PictureValidator.validatePictureTag(tagText, false)) {
       return;
     }
@@ -50,14 +44,14 @@ class PictureTagService {
     if (tag) {
       const pictureTagConnection = await models.PicturesTags.findOne({
         where: {
-          pictureId: picture.id,
+          pictureId: pictureId,
           pictureTagId: tag.id
         }
       });
       // if connection between them doesn't exists, create it
       if (!pictureTagConnection) {
         await models.PicturesTags.create({
-          pictureId: picture.id,
+          pictureId: pictureId,
           pictureTagId: tag.id
         });
       }
@@ -69,7 +63,7 @@ class PictureTagService {
     tag = await models.PictureTag.create({ text: tagText });
 
     await models.PicturesTags.create({
-      pictureId: picture.id,
+      pictureId: pictureId,
       pictureTagId: tag.id
     });
 

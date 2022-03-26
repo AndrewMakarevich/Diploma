@@ -13,6 +13,19 @@ import PictureValidator from "../validator/pictureValidator";
 
 
 class PictureService {
+  static async getPictureById(pictureId: number) {
+    const picture = await models.Picture.findOne({
+      where:
+        { id: pictureId },
+      include: [
+        {
+          model: models.PictureTag,
+          as: "tags"
+        }]
+    });
+    return picture;
+  }
+
   static async createPicture(
     userId: number,
     img: fileUpload.UploadedFile,
@@ -47,11 +60,11 @@ class PictureService {
       description
     });
 
-    pictureInfos.forEach(async (pictureInfo) => {
+    pictureInfos && Array.isArray(pictureInfos) && pictureInfos.forEach(async (pictureInfo) => {
       await PictureInfoService.createPictureInfo(createdPicture.id, pictureInfo);
     });
 
-    pictureTags.forEach(async (pictureTag) => {
+    pictureTags && Array.isArray(pictureTags) && pictureTags.forEach(async (pictureTag) => {
       await PictureTagService.createPictureTagConnection(createdPicture.id, pictureTag.text);
     });
 
@@ -95,14 +108,47 @@ class PictureService {
       description
     });
 
-    pictureInfos.forEach(async (pictureInfo) => {
+    pictureInfos && Array.isArray(pictureInfos) && pictureInfos.forEach(async (pictureInfo) => {
       await PictureInfoService.editPictureInfo(pictureToEdit.id, pictureInfo);
     });
 
-    pictureTags.forEach(async (pictureTag) => {
+    pictureTags && Array.isArray(pictureTags) && pictureTags.forEach(async (pictureTag) => {
       await PictureTagService.createPictureTagConnection(pictureToEdit.id, pictureTag.text);
     });
   }
 
 }
 export default PictureService;
+
+
+// [
+//   {
+//     "id": 1234,
+//     "title":"Author",
+//     "description":"Andrew Makarevich"
+//   },
+//   {
+//     "id": 21454,
+//     "title":"Year of creation",
+//     "description":"2021"
+//   },
+//   {
+//     "id": 124124,
+//     "title":"About me",
+//     "description":"I'm 20 years old!!"
+//   },
+// ]
+// [
+//   {
+//     "id": 1234,
+//     "text":"barbarian"
+//   },
+//   {
+//     "id": 21454,
+//     "text":"furious",
+//   },
+//   {
+//     "id": 124124,
+//     "text":"art",
+//   },
+// ]

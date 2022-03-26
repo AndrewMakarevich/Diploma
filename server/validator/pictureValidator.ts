@@ -2,7 +2,8 @@ import ApiError from "../apiError/apiError";
 
 class PictureValidator {
   private static validateText(minLength: number, maxLength: number, paramName: string, paramValue: string, throwError: boolean) {
-    const regEx = new RegExp(`\^\[a-zA-Z0-9\s-&!?(){}\/\"'<>,~@\]\{${minLength}, ${maxLength || ''}\}\$`);
+    const regEx = new RegExp(`\^\[a-zA-Z0-9\\s-&!?(){}\/\"'<>,~@\]\{${minLength},${maxLength || ''}\}\$`);
+    console.log('REGEXP', regEx);
 
     if (!regEx.test(paramValue)) {
 

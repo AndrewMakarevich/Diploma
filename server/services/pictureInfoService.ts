@@ -20,6 +20,7 @@ class PictureInfoService {
 
     if (pictureInfoObj.title && pictureInfoObj.description) {
       await models.PictureInfo.create({
+        pictureId: picture.id,
         title: pictureInfoObj.title,
         description: pictureInfoObj.description
       });

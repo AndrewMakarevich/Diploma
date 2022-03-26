@@ -115,8 +115,8 @@ Comment.belongsTo(Comment);
 User.hasMany(Picture);
 Picture.belongsTo(User);
 
-Picture.belongsToMany(PictureTag, { through: PicturesTags, as: "tags" });
-PictureTag.belongsToMany(PictureTag, { through: PicturesTags, as: "pictures" });
+Picture.belongsToMany(PictureTag, { through: PicturesTags, as: "tags", onDelete: 'cascade' });
+PictureTag.belongsToMany(Picture, { through: PicturesTags, as: "pictures", onDelete: 'cascade' });
 
 Picture.hasMany(PictureInfo);
 PictureInfo.belongsTo(Picture);
