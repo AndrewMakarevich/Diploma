@@ -22,8 +22,20 @@ class PictureController {
       const img = req.files?.img as fileUpload.UploadedFile;
       const userId = (req as any).user.id;
       const { description, mainTitle } = req.body;
-      const pictureInfos: IPictureInfo[] = JSON.parse(req.body.pictureInfos) || undefined;
-      const pictureTags: IPictureTag[] = JSON.parse(req.body.pictureTags) || undefined;
+      let pictureInfos: IPictureInfo[] = req.body.pictureInfos;
+      let pictureTags: IPictureTag[] = req.body.pictureTags;
+
+      try {
+        pictureInfos = JSON.parse(req.body.pictureInfos);
+      } catch (e) {
+
+      }
+
+      try {
+        pictureTags = JSON.parse(req.body.pictureTags);
+      } catch (e) {
+
+      }
 
       const response = await PictureService.createPicture(userId, img, mainTitle, description, pictureInfos, pictureTags);
 
@@ -55,6 +67,19 @@ class PictureController {
       }
 
       const response = await PictureService.editPicture(userId, pictureId, img, mainTitle, description, pictureInfos, pictureTags);
+
+      return res.json(response);
+    } catch (e) {
+      next(e);
+    }
+  }
+
+  static async deletePicture(req: Request, res: Response, next: NextFunction) {
+    try {
+      const { id: pictureId } = req.params;
+      const userId = (req as any).user.id;
+
+      const response = await PictureService.deletePicture(userId, Number(pictureId));
 
       return res.json(response);
     } catch (e) {

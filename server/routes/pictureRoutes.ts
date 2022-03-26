@@ -8,6 +8,8 @@ pictureRouter.get('/get/:id', PictureController.getPictureById);
 
 pictureRouter.post('/create', authMiddleware, PictureController.createPicture);
 
-pictureRouter.put('/edit/:id', authMiddleware, PictureController.editPicture)
+pictureRouter.put('/edit/:id', authMiddleware, PictureController.editPicture);
+
+pictureRouter.delete('/delete/:id', authMiddleware, PictureController.deletePicture);
 
 export default pictureRouter;

@@ -136,6 +136,20 @@ class PictureService {
     return { message: "Picture edited succesfully" };
   }
 
+  static async deletePicture(userId: number, pictureId: number) {
+    const pictureToDelete = await models.Picture.findOne({ where: { id: pictureId, userId } });
+
+    if (!pictureToDelete) {
+      throw ApiError.badRequest("Picture you want to delete doesnt exists or you are not the owner of it");
+    }
+
+    fs.unlink(path.resolve(__dirname, "..", "static", "img", "picture", pictureToDelete.img), () => { });
+
+    await pictureToDelete.destroy();
+
+    return { message: "Picture deleted succesfully" };
+  }
+
 }
 export default PictureService;
 
