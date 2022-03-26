@@ -6,8 +6,8 @@ import useQueryParam from "../../../hooks/useQueryParam";
 import QueryModalWindow from "../query-modal-window"
 import { getParams, getParamsEnums } from "../../../consts/popup-routes";
 import { useSearchParams } from "react-router-dom";
-import SignInForm from '../../forms/sign-in-form/sign-in-form';
-import SignUpForm from '../../forms/sign-up-form/sign-up-form';
+import SignInForm from '../../forms/auth-forms/sign-in-form/sign-in-form';
+import SignUpForm from '../../forms/auth-forms/sign-up-form/sign-up-form';
 
 const AuthModal = () => {
   const { modalStore } = useContext(Context);

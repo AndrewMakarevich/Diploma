@@ -1,11 +1,11 @@
 import { observer } from 'mobx-react-lite';
 import { useContext, useRef, useState } from 'react';
 import formStyles from './edit-user-form.module.css';
-import { Context } from '../../..';
-import PairSelects from '../../inputs/pair-select';
-import countriesList from '../../../consts/countries-list/countries-list';
-import { IUserDataToEdit } from '../../../interfaces/forms/edit-user-interfaces';
-import useFetching from '../../../hooks/useFetching';
+import { Context } from '../../../..';
+import PairSelects from '../../../inputs/pair-select';
+import countriesList from '../../../../consts/countries-list/countries-list';
+import { IUserDataToEdit } from '../../../../interfaces/forms/edit-user-interfaces';
+import useFetching from '../../../../hooks/useFetching';
 
 const EditUserForm = () => {
   const { userStore } = useContext(Context);

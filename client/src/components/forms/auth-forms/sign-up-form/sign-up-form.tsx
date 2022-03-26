@@ -1,6 +1,6 @@
 import formStyles from '../common-form-styles.module.css';
-import LoginBtn from '../../btns/login-btn/login-btn';
-import { IuserAuthData } from '../../../interfaces/authentificateInterfaces';
+import LoginBtn from '../../../btns/login-btn/login-btn';
+import { IuserAuthData } from '../../../../interfaces/authentificateInterfaces';
 
 const SignUpForm = (
   { authData, setAuthData }:

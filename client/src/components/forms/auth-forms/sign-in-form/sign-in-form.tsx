@@ -1,7 +1,7 @@
 import React from 'react';
 import formStyles from '../common-form-styles.module.css';
-import { IuserAuthData } from '../../../interfaces/authentificateInterfaces';
-import RegistrationBtn from '../../btns/registration-btn/registration-btn';
+import { IuserAuthData } from '../../../../interfaces/authentificateInterfaces';
+import RegistrationBtn from '../../../btns/registration-btn/registration-btn';
 
 const SignInForm = (
   { authData, setAuthData }:

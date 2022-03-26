@@ -1,6 +1,6 @@
 import formStyles from "./reset-pass-form.module.css";
 import { useState } from "react";
-import ResetPassBtn from "../../btns/reset-pass-btn/reset-pass-btn";
+import ResetPassBtn from "../../../btns/reset-pass-btn/reset-pass-btn";
 
 const ResetPassForm = () => {
   const [resetPassData, setResetPassData] = useState({
