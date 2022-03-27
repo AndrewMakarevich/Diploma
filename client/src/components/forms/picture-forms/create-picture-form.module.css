@@ -1,11 +1,52 @@
 .create-picture-form{
-  display: flex;
+  position: relative;
+  overflow: hidden;
+  width: 100%;
+  height: 100%;
+  border-radius: 15px;
+  background-color: var(--extra-dark);
 }
+
+.create-picture-btn{
+  position: absolute;
+  top:0;
+  left:0;
+  z-index:3;
+}
+
 .set-img__section{
-  flex: 3;
 }
+
 .info-about-img__section{
-  flex: 1;
+  position: absolute;
+  top:0;
+  right:0;
+    height: 100%;
+  min-width: 50%;
+  max-width: 100%;
+  z-index:2;
+  display:flex;
+  background-color: var(--extra-dark);
+  transition: transform .3s;
+}
+
+.info-section-false{
+  transform: translateX(100%);
+}
+
+.info-about-img__close-btn{
+  transition: transform .3s;
+}
+
+.info-section-false .info-about-img__close-btn{
+  transform: translateX(-100%);
+}
+
+.info-about-img__inputs-section{
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  padding: 15px;
 }
 
 .img-input{
@@ -17,7 +58,9 @@
 }
 
 .img-input__label{
-  position:relative;
+  position:absolute;
+  top:0;
+  left:0;
   display: flex;
   width: 100%;
   height: 100%;
@@ -45,4 +88,26 @@
 .img-input:focus ~ .img-input__span,
 .img-input:hover ~ .img-input__span{
   opacity: 0.6;
+}
+
+.main-title input{
+  width: 100%;
+}
+
+.main-description textarea{
+  width: 100%;
+  resize: vertical;
+}
+
+.new-section{
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  padding-bottom: 15px;
+}
+.new-section label{
+  width: 100%;
+}
+.new-section label input{
+  width: 100%;
 }
