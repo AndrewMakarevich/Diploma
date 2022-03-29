@@ -1,0 +1,34 @@
+.standart-btn{
+  display:flex;
+  justify-content: center;
+  align-items: center;
+  padding: 5px 8px;
+  border: 2px solid var(--extra-light);
+  border-radius:15px;
+  background-color: transparent;
+  color:var(--extra-light);
+  cursor: pointer;
+  transition: background-color .2s, color .3s;
+}
+
+.standart-btn:hover,
+.standart-btn:focus{
+  background-color: var(--extra-light);
+  color: var(--extra-dark);
+}
+
+.remove-btn{
+  cursor: pointer;
+  padding: 4px 7px;
+  background-color:transparent;
+  color: var(--extra-light);
+  border: 2px solid var(--extra-light);
+  transition: background-color .2s, color .3s, border-color .4s;
+}
+
+.remove-btn:focus,
+.remove-btn:hover{
+  background-color: var(--remove-color);
+  color: var(--extra-dark);
+  border-color: var(--extra-dark);
+}

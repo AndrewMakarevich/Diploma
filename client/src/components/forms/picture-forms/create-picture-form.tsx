@@ -1,8 +1,10 @@
-import { useEffect, useRef, useState } from "react";
+import { useRef, useState } from "react";
 import formStyles from "./create-picture-form.module.css";
+import commonBtnStyles from "../../../common-styles/btn.module.css";
 import setFileInputCurrentImg from "../../../utils/file-input-utils/setFileInputCurrentImg";
 import { IPictureMainData } from "../../../interfaces/forms/create-picture-interfaces";
 import PictureService from "../../../services/picture-service";
+import ArrowIcon from "../../../assets/img/icons/arrow-icon/arrow-icon";
 
 interface newSectionObj {
   [key: string]: any,
@@ -89,9 +91,6 @@ const CreatePictureForm = () => {
     sectionsToSend.length && formData.append('pictureInfos', JSON.stringify(sectionsToSend));
     tagsToSend.length && formData.append('pictureTags', JSON.stringify(tagsToSend));
 
-    console.log('SECTIONS', sectionsToSend);
-    console.log('TAGS', tagsToSend);
-
     return formData;
   }
 
@@ -133,7 +132,7 @@ const CreatePictureForm = () => {
             e.preventDefault();
             setInfoSectionIsOpen(!infoSectionIsOpen);
           }
-          }>hide</button>
+          }><ArrowIcon id={formStyles["close-icon"]} /></button>
 
         <div className={formStyles["info-about-img__inputs-section"]}>
           <label className={formStyles["main-title"]}>
@@ -150,7 +149,7 @@ const CreatePictureForm = () => {
               onChange={(e) => setMainData({ ...mainData, description: e.target.value })} ></textarea>
           </label>
 
-          <p>Additional sections</p>
+          <p className={formStyles["new-sections__header"]}>Additional sections</p>
 
           {
             newSections.map(newSection =>
@@ -162,12 +161,13 @@ const CreatePictureForm = () => {
                     onChange={(e) => editNewSection('title', e.target.value, newSection.id)}></input>
                 </label>
                 <label>
-                  <input
+                  <textarea
                     placeholder="Description"
                     value={newSection.description}
-                    onChange={(e) => editNewSection('description', e.target.value, newSection.id)}></input>
+                    onChange={(e) => editNewSection('description', e.target.value, newSection.id)}></textarea>
                 </label>
                 <button
+                  className={formStyles["delete-new-section-btn"]}
                   onClick={(e) => {
                     e.preventDefault();
                     deleteNewSection(newSection);
@@ -176,35 +176,43 @@ const CreatePictureForm = () => {
             )
           }
 
-          <button onClick={(e) => {
-            e.preventDefault();
-            addNewSection();
-          }}>add new section</button>
+          <button
+            className={commonBtnStyles["standart-btn"]}
+            onClick={(e) => {
+              e.preventDefault();
+              addNewSection();
+            }}>add new section</button>
 
-          <p>Tags</p>
+          <p className={formStyles["new-tags__section__header"]}>Tags</p>
 
-          {
-            newTags.map(newTag =>
-              <div key={newTag.id}>
+          <section className={formStyles["new-tags__section"]}>
+            {
+              newTags.map(newTag =>
+                <div className={formStyles["new-tag__block"]} key={newTag.id}>
 
-                <input
-                  value={newTag.text}
-                  onChange={(e) => {
-                    editNewTag(e.target.value, newTag.id)
-                  }}></input>
-                <button onClick={(e) => {
-                  e.preventDefault();
-                  deleteNewTag(newTag);
-                }}>delete</button>
+                  <input
+                    value={newTag.text}
+                    onChange={(e) => {
+                      editNewTag(e.target.value, newTag.id)
+                    }}></input>
+                  <button
+                    className={commonBtnStyles["remove-btn"]}
+                    onClick={(e) => {
+                      e.preventDefault();
+                      deleteNewTag(newTag);
+                    }}>delete</button>
 
-              </div>
-            )
-          }
+                </div>
+              )
+            }
+          </section>
 
-          <button onClick={(e) => {
-            e.preventDefault();
-            addNewTag();
-          }}>
+          <button
+            className={commonBtnStyles["standart-btn"]}
+            onClick={(e) => {
+              e.preventDefault();
+              addNewTag();
+            }}>
             add new tag
           </button>
         </div>

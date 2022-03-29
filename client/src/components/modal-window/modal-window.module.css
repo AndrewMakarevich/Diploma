@@ -19,7 +19,7 @@
   min-width: 40%;
   max-width: 90%;
   max-height: 70%;
-  overflow-y: scroll;
+  overflow-y: auto;
   overflow-x:hidden;
 }
 .close-modal__btn{

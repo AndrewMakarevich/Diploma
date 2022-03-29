@@ -163,8 +163,8 @@
 
 .clear-changes-btn:hover,
 .clear-changes-btn:focus{
-  background-color: rgb(231, 164, 164);
-  border-color: rgb(231, 164, 164);
+  background-color: var(--remove-color);
+  border-color: var(--remove-color);
   color: var(--extra-dark);
 }
 

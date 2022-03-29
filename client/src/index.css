@@ -24,6 +24,8 @@ code {
   --medium-brown: #b3814e;
   --dark-brown: #4d2f18;
 
+  --remove-color: rgb(231, 164, 164);
+
 }
 @font-face {
   font-family: Spartan;
