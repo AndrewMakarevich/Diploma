@@ -27,6 +27,7 @@ class PictureTagService {
       }
     );
 
+    //process each tag in result array
     tags = await Promise.all(tags.map((tag) => {
       const tagToEdit = tag.get();
       tagToEdit.pictures = tagToEdit.pictures.length;
