@@ -31,7 +31,7 @@ const CreatePictureForm = () => {
   const addPictureInputBackgroundRef = useRef<HTMLImageElement>(null);
 
   function setBackgroundImg(imgFile: File | undefined) {
-    setFileInputCurrentImg(addPictureInputBackgroundRef, imgFile, '')
+    setFileInputCurrentImg(addPictureInputBackgroundRef, imgFile, null)
   }
 
   // NEW SECTION METHODS
@@ -120,9 +120,9 @@ const CreatePictureForm = () => {
             }}></input>
           <img
             className={formStyles["img-input__background-img"]}
-            alt="Current img"
+            alt=""
             ref={addPictureInputBackgroundRef}></img>
-          <span className={formStyles["img-input__span"]}></span>
+          <span className={formStyles["img-input__span"]}>Choose image</span>
         </label>
       </section>
 
@@ -218,10 +218,13 @@ const CreatePictureForm = () => {
         </div>
       </section>
 
-      <button className={formStyles["create-picture-btn"]} type="submit" onClick={(e) => {
-        e.preventDefault();
-        createPicture();
-      }}>Create picture</button>
+      <button className={formStyles["create-picture-btn"]}
+        type="submit"
+        disabled={mainData.mainTitle && mainData.img ? false : true}
+        onClick={(e) => {
+          e.preventDefault();
+          createPicture();
+        }}>Create picture</button>
 
     </form>
 

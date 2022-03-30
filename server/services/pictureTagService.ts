@@ -1,12 +1,47 @@
+import sequelize from "sequelize";
+import { Op, Sequelize } from "sequelize";
 import ApiError from "../apiError/apiError";
 import models from "../models/models";
 import PictureValidator from "../validator/pictureValidator";
 
 class PictureTagService {
+  static async getTagsByText(tagText: string) {
+    if (!tagText) {
+      return null;
+    }
+
+    if (!tagText.split(' ').join('')) {
+      return null;
+    }
+
+    const processedTagText = tagText.split(' ').join('').toLowerCase();
+    let tags = await models.PictureTag.findAll(
+      {
+        where: { text: { [Op.regexp]: processedTagText } },
+        include: [{
+          model: models.Picture,
+          as: "pictures",
+        }],
+        attributes: ["id", "text"],
+        limit: 5
+      }
+    );
+
+    tags = await Promise.all(tags.map((tag) => {
+      const tagToEdit = tag.get();
+      tagToEdit.pictures = tagToEdit.pictures.length;
+
+      return tagToEdit;
+    }));
+
+    return tags;
+  }
+
   static async addTag(tagText: string) {
+    const processedTagText = tagText.split(" ").join("").toLowerCase();
     const alreadyExTag = await models.PictureTag.findOne({
       where: {
-        text: tagText.split(" ").join("").toLowerCase()
+        text: processedTagText
       }
     });
 
@@ -15,7 +50,7 @@ class PictureTagService {
     }
 
     await models.PictureTag.create({
-      text: tagText
+      text: processedTagText
     });
 
     return { message: "Tag created succesfully" };

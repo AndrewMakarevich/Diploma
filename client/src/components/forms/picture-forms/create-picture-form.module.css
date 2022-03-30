@@ -108,6 +108,10 @@
 }
 
 .img-input__span{
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--extra-light);
   position: absolute;
   top:0;
   left:0;
