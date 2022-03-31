@@ -1,16 +1,41 @@
-.tags-list{
+.tags-list {
   position: absolute;
   bottom: 100%;
   border-radius: 10px;
   padding: 10px;
   background-color: white;
+  animation: smoothOpacity .4s forwards;
 }
 
-.tag-item{
+.tags-list__closed {
+  animation: smoothOpacityReverse .4s forwards;
+}
+
+.tag-item {
   display: flex;
-  align-items:center;
+  align-items: center;
 }
 
-.tag-item button{
+.tag-item button {
   cursor: pointer;
+}
+
+@keyframes smoothOpacity {
+  0% {
+    opacity: 0;
+  }
+
+  100% {
+    opacity: 1;
+  }
+}
+
+@keyframes smoothOpacityReverse {
+  0% {
+    opacity: 1;
+  }
+
+  100% {
+    opacity: 0;
+  }
 }

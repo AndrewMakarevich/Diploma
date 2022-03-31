@@ -71,11 +71,8 @@ const CreatePictureForm = () => {
   }
 
   function deleteNewTag(tagToDelete: newTagObj) {
-    delete tagsInputsRefs.current[tagToDelete.id];
-    setNewTags(newTags.filter(newTag => newTag.id !== tagToDelete.id));
-    // console.log('DELETED TAG ID', tagToDelete.id)
 
-    // console.log(tagsInputsRefs.current);
+    setNewTags(newTags.filter(newTag => newTag.id !== tagToDelete.id));
   }
 
   // GROUP DATA TO SEND
@@ -109,10 +106,6 @@ const CreatePictureForm = () => {
     }
 
   }
-
-  useEffect(() => {
-
-  }, [newTags]);
 
   return (
     <form className={formStyles["create-picture-form"]}>
@@ -205,7 +198,6 @@ const CreatePictureForm = () => {
                     value={newTag.text}
                     onChange={(e) => {
                       editNewTag(e.target.value, newTag.id);
-                      console.log(tagsInputsRefs.current);
                     }}></input>
                   <MatchingTagsList tagInputRef={tagsInputsRefs.current[newTag.id]} tagObj={newTag} setTagValue={editNewTag} />
                   <button
@@ -213,6 +205,7 @@ const CreatePictureForm = () => {
                     onClick={(e) => {
                       e.preventDefault();
                       deleteNewTag(newTag);
+                      delete tagsInputsRefs.current[newTag.id];
                     }}>delete</button>
 
                 </div>
