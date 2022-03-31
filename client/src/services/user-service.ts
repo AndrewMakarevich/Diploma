@@ -1,6 +1,6 @@
 import { AxiosResponse } from "axios";
 import { $authHost } from "../http";
-import { editUserSuccesObj, resetPassSuccesObj, userResObject } from "../interfaces/http/resposne/userInterfaces";
+import { editUserSuccesObj, resetPassSuccesObj, userResObject } from "../interfaces/http/response/userInterfaces";
 
 export default class UserService {
   static async getInfoAboutMyself(): Promise<AxiosResponse<userResObject>> {
@@ -9,7 +9,7 @@ export default class UserService {
     return response;
   };
 
-  static async editInfoAboutMyself(infoToEdit: FormData) {
+  static async editInfoAboutMyself(infoToEdit: FormData): Promise<AxiosResponse<editUserSuccesObj>> {
     const response = await $authHost.put<editUserSuccesObj>('/api/user/edit', infoToEdit);
     return response;
   };

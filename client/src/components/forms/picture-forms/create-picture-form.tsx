@@ -1,10 +1,11 @@
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import formStyles from "./create-picture-form.module.css";
 import commonBtnStyles from "../../../common-styles/btn.module.css";
 import setFileInputCurrentImg from "../../../utils/file-input-utils/setFileInputCurrentImg";
 import { IPictureMainData } from "../../../interfaces/forms/create-picture-interfaces";
 import PictureService from "../../../services/picture-service";
 import ArrowIcon from "../../../assets/img/icons/arrow-icon/arrow-icon";
+import MatchingTagsList from "../../lists/picture-lists/matching-tags-list/matching-tags-list";
 
 interface newSectionObj {
   [key: string]: any,
@@ -12,7 +13,7 @@ interface newSectionObj {
   title: string,
   description: string
 }
-interface newTagObj {
+export interface newTagObj {
   id: number,
   text: string
 }
@@ -29,6 +30,7 @@ const CreatePictureForm = () => {
 
   const addPictureInputRef = useRef<HTMLInputElement>(null);
   const addPictureInputBackgroundRef = useRef<HTMLImageElement>(null);
+  const tagsInputsRefs = useRef<{ [key: string]: HTMLInputElement | null }>({});
 
   function setBackgroundImg(imgFile: File | undefined) {
     setFileInputCurrentImg(addPictureInputBackgroundRef, imgFile, null)
@@ -69,7 +71,11 @@ const CreatePictureForm = () => {
   }
 
   function deleteNewTag(tagToDelete: newTagObj) {
+    delete tagsInputsRefs.current[tagToDelete.id];
     setNewTags(newTags.filter(newTag => newTag.id !== tagToDelete.id));
+    // console.log('DELETED TAG ID', tagToDelete.id)
+
+    // console.log(tagsInputsRefs.current);
   }
 
   // GROUP DATA TO SEND
@@ -103,6 +109,10 @@ const CreatePictureForm = () => {
     }
 
   }
+
+  useEffect(() => {
+
+  }, [newTags]);
 
   return (
     <form className={formStyles["create-picture-form"]}>
@@ -191,10 +201,13 @@ const CreatePictureForm = () => {
                 <div className={formStyles["new-tag__block"]} key={newTag.id}>
 
                   <input
+                    ref={el => { if (el) tagsInputsRefs.current[newTag.id] = el; }}
                     value={newTag.text}
                     onChange={(e) => {
-                      editNewTag(e.target.value, newTag.id)
+                      editNewTag(e.target.value, newTag.id);
+                      console.log(tagsInputsRefs.current);
                     }}></input>
+                  <MatchingTagsList tagInputRef={tagsInputsRefs.current[newTag.id]} tagObj={newTag} setTagValue={editNewTag} />
                   <button
                     className={commonBtnStyles["remove-btn"]}
                     onClick={(e) => {
@@ -225,6 +238,8 @@ const CreatePictureForm = () => {
           e.preventDefault();
           createPicture();
         }}>Create picture</button>
+
+
 
     </form>
 

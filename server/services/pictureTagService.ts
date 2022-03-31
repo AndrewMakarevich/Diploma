@@ -1,5 +1,4 @@
-import sequelize from "sequelize";
-import { Op, Sequelize } from "sequelize";
+import { Op } from "sequelize";
 import ApiError from "../apiError/apiError";
 import models from "../models/models";
 import PictureValidator from "../validator/pictureValidator";

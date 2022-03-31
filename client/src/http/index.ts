@@ -1,5 +1,5 @@
 import axios, { AxiosRequestConfig } from "axios";
-import { refreshTokensSuccessObj } from '../interfaces/http/resposne/authInterfaces';
+import { refreshTokensSuccessObj } from '../interfaces/http/response/authInterfaces';
 import AuthService from "../services/auth-service";
 
 export const $authHost = axios.create({
@@ -23,7 +23,6 @@ $authHost.interceptors.response.use(
   (config) => { return config },
   async (error) => {
     const originalReq = error.config;
-    console.log(originalReq);
 
     if (error.response.status === 401 && error.config && !originalReq._isRetry) {
       originalReq._isRetry = true;

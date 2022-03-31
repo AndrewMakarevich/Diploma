@@ -217,6 +217,7 @@
 }
 
 .new-tag__block{
+  position: relative;
   display: flex;
   justify-content: center;
   flex:1;

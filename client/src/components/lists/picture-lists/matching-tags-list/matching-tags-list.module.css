@@ -1,0 +1,16 @@
+.tags-list{
+  position: absolute;
+  bottom: 100%;
+  border-radius: 10px;
+  padding: 10px;
+  background-color: white;
+}
+
+.tag-item{
+  display: flex;
+  align-items:center;
+}
+
+.tag-item button{
+  cursor: pointer;
+}

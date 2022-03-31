@@ -1,6 +1,6 @@
 import { AxiosResponse } from "axios";
 import { $authHost, $host } from "../http";
-import { loginSuccessObj, logoutSuccessObj, refreshTokensSuccessObj, registrationSuccessObj } from "../interfaces/http/resposne/authInterfaces";
+import { loginSuccessObj, logoutSuccessObj, refreshTokensSuccessObj, registrationSuccessObj } from "../interfaces/http/response/authInterfaces";
 const mainUserApiPath = 'api/user';
 
 export default class AuthService {

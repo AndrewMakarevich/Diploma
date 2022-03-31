@@ -1,6 +1,6 @@
 import { AxiosError } from "axios";
 import { makeAutoObservable } from "mobx";
-import { userResObject } from "../interfaces/http/resposne/userInterfaces";
+import { userResObject } from "../interfaces/http/response/userInterfaces";
 import { IUserData } from "../interfaces/storeInterfaces"
 import AuthService from "../services/auth-service";
 import UserService from "../services/user-service";
