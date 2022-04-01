@@ -1,17 +1,17 @@
 import ApiError from "../apiError/apiError";
 
 class PictureValidator {
-  private static validateText(minLength: number, maxLength: number, paramName: string, paramValue: string, throwError: boolean) {
+  private static validateText(regExp: string, minLength: number, maxLength: number, paramName: string, paramValue: string, throwError: boolean) {
     if (paramValue === undefined || paramValue === null) {
       return;
     }
 
-    const regEx = new RegExp(`\^\[a-zA-Z0-9\\s-&!?(){}\/\"'<>,~@\]\{${minLength},${maxLength || ''}\}\$`);
+    const regEx = new RegExp(`\^${regExp}\{${minLength},${maxLength || ''}\}\$`);
 
     if (!regEx.test(paramValue)) {
 
       if (throwError) {
-        throw ApiError.badRequest(`${paramName} doesn't match the specified pattern: a-zA-Z0-9&!?(){}/"'<>,~@ symbols available, with length from ${minLength} to ${maxLength || "infinite"} symbols`)
+        throw ApiError.badRequest(`${paramName} doesn't match the specified pattern: ${regExp} symbols available, with length from ${minLength} to ${maxLength || "infinite"} symbols`)
       }
 
       return false;
@@ -21,11 +21,11 @@ class PictureValidator {
   }
 
   static validatePictureMainTitle(titleValue: string, throwError: boolean) {
-    return this.validateText(2, 65, "Main title", titleValue, throwError);
+    return this.validateText("\[a-zA-Z0-9\\s-&!?(){}\/\"'<>,~@\]", 2, 65, "Main title", titleValue, throwError);
   }
 
   static validatePictureMainDescription(descriptionValue: string, throwError: boolean) {
-    return this.validateText(0, 0, "Picture main description", descriptionValue, throwError);
+    return this.validateText("\[a-zA-Z0-9\\s-&!?(){}\/\"'<>,~@\]", 0, 0, "Picture main description", descriptionValue, throwError);
   }
 
 
@@ -42,6 +42,10 @@ class PictureValidator {
     }
 
     return true;
+  }
+
+  static validatePictureType(typeName: string, throwError: boolean) {
+    return this.validateText("\[a-zA-Z0-9\\s\]", 3, 25, "Picture type", typeName, throwError);
   }
 }
 

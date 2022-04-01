@@ -6,6 +6,7 @@ import roleMiddleware from '../middlewares/roleMiddleware';
 
 const pictureTypeRouter = Router();
 
+pictureTypeRouter.get('/get-all', PictureTypeController.getPictureTypes);
 pictureTypeRouter.post('/create', authMiddleware, roleMiddleware(rolePermissions.createPictureType), PictureTypeController.createPictureType);
 pictureTypeRouter.put('/edit', authMiddleware, roleMiddleware(rolePermissions.createPictureType), PictureTypeController.editPictureType);
 pictureTypeRouter.delete('/delete/:id', authMiddleware, roleMiddleware(rolePermissions.createPictureType), PictureTypeController.deletePictureType);

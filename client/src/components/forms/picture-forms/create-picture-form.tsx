@@ -6,6 +6,7 @@ import { IPictureMainData } from "../../../interfaces/forms/create-picture-inter
 import PictureService from "../../../services/picture-service";
 import ArrowIcon from "../../../assets/img/icons/arrow-icon/arrow-icon";
 import MatchingTagsList from "../../lists/picture-lists/matching-tags-list/matching-tags-list";
+import PicturesTypesSelect from "../../inputs/pictures-types-select";
 
 interface newSectionObj {
   [key: string]: any,
@@ -22,7 +23,8 @@ const CreatePictureForm = () => {
   const [mainData, setMainData] = useState<IPictureMainData>({
     img: undefined,
     mainTitle: '',
-    description: ''
+    description: '',
+    pictureTypeId: undefined,
   });
   const [newSections, setNewSections] = useState<newSectionObj[]>([]);
   const [newTags, setNewTags] = useState<newTagObj[]>([]);
@@ -107,6 +109,10 @@ const CreatePictureForm = () => {
 
   }
 
+  useEffect(() => {
+    console.log(mainData);
+  }, [mainData])
+
   return (
     <form className={formStyles["create-picture-form"]}>
 
@@ -138,6 +144,7 @@ const CreatePictureForm = () => {
           }><ArrowIcon id={formStyles["close-icon"]} /></button>
 
         <div className={formStyles["info-about-img__inputs-section"]}>
+          <PicturesTypesSelect onChange={(e: React.ChangeEvent<HTMLInputElement>) => setMainData({ ...mainData, pictureTypeId: e.target.value })} />
           <label className={formStyles["main-title"]}>
             <input
               placeholder="Main title"

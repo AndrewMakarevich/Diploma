@@ -9,6 +9,7 @@ import { IPictureTag } from "../interfaces/tagInterfaces";
 import PictureTagService from "./pictureTagService";
 import PictureInfoService from "./pictureInfoService";
 import PictureValidator from "../validator/pictureValidator";
+import PictureTypeService from "./pictureTypeService";
 
 
 
@@ -31,6 +32,7 @@ class PictureService {
     img: fileUpload.UploadedFile,
     mainTitle: string,
     description: string,
+    pictureTypeId: number,
     pictureInfos: IPictureInfo[],
     pictureTags: IPictureTag[]) {
 
@@ -40,6 +42,7 @@ class PictureService {
 
     PictureValidator.validatePictureMainTitle(mainTitle, true);
     PictureValidator.validatePictureMainDescription(description, true);
+    await PictureTypeService.checkPictureTypeExistence(pictureTypeId);
 
     const creator = await models.User.findOne({ where: { id: userId } });
 
@@ -57,7 +60,8 @@ class PictureService {
       userId: creator.id,
       img: imgName,
       mainTitle,
-      description
+      description,
+      pictureTypeId
     });
 
     pictureInfos && Array.isArray(pictureInfos) && pictureInfos.forEach(async (pictureInfo) => {
@@ -77,6 +81,7 @@ class PictureService {
     img: fileUpload.UploadedFile,
     mainTitle: string,
     description: string,
+    pictureTypeId: number,
     pictureInfos: IPictureInfo[],
     pictureTags: IPictureTag[]
   ) {
@@ -105,6 +110,7 @@ class PictureService {
 
     PictureValidator.validatePictureMainTitle(mainTitle, true);
     PictureValidator.validatePictureMainDescription(description, true);
+    await PictureTypeService.checkPictureTypeExistence(pictureTypeId);
 
     const imgName = ImageService.generateImageName(img);
 
@@ -122,7 +128,8 @@ class PictureService {
     pictureToEdit.update({
       img: imgName,
       mainTitle,
-      description
+      description,
+      pictureTypeId
     });
 
     pictureInfos && Array.isArray(pictureInfos) && pictureInfos.forEach(async (pictureInfo) => {
@@ -152,38 +159,3 @@ class PictureService {
 
 }
 export default PictureService;
-
-
-// [
-//   {
-//     "id": 1234,
-//     "title":"Author",
-//     "description":"Andrew Makarevich"
-//   },
-//   {
-//     "id": 21454,
-//     "title":"Year of creation",
-//     "description":"2021"
-//   },
-//   {
-//     "id": 124124,
-//     "title":"About me",
-//     "description":"I'm 20 years old!!"
-//   },
-// ]
-// [
-//   {
-//     "id": 1234,
-//     "text":"barbarian"
-//   },
-//   {
-//     "id": 21454,
-//     "text":"furious",
-//   },
-//   {
-//     "id": 124124,
-//     "text":"art",
-//   },
-// ]
-// [{"id": 1234,"text":"cat"},{"id": 21454,"text":"furious"},{"id": 124124,"text":"anime"}];
-// [{"id": 21454, "title":"About my cat","description":"She's name is Anfisa"}, {"id": 23, "title":"Year of creation:","description":"2022"}]

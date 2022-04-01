@@ -9,6 +9,7 @@ export default (permissionToCheck: rolePermissions) => {
     try {
       const userData = (req as any).user as IUserDto;
       const userRole = await RoleService.findRole(userData.roleId);
+
       if (!userRole || !userRole[permissionToCheck]) {
         return next(ApiError.forbidden('You have no access to this function due to your permissions'));
       }
