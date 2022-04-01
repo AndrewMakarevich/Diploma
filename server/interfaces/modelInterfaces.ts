@@ -57,6 +57,7 @@ export interface IRoleInstance extends Model {
     loadPicture: boolean,
     addComment: boolean,
     addLike: boolean,
+    createPictureType: boolean,
     changeUserRole: boolean,
     deleteOtherComment: boolean,
     deleteOtherPicture: boolean,

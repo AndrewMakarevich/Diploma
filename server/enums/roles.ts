@@ -3,6 +3,7 @@ export enum rolePermissions {
   loadPicture = "loadPicture",
   addComment = "addComment",
   addLike = "addLike",
+  createPictureType = "createPictureType",
   changeUserRole = "changeUserRole",
   deleteOtherComment = "deleteOtherComment",
   deleteOtherPicture = "deleteOtherPicture",

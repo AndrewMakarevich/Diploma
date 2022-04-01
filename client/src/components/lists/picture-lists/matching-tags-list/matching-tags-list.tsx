@@ -44,11 +44,15 @@ const MatchingTagsList = ({ tagInputRef, tagObj, setTagValue }: IMatchingTagsLis
   }
 
   useEffect(() => {
+    //Each time user press key or clicks, listener execute this callback, 
+    //where a conditional operator checks if it was keyboard event, and was it the Tab key and ...
     document.addEventListener('keyup', decideToShowList);
+    //where a conditional operator checks, if this click or key press was on tag input or on one of the tags list button, 
+    //don't reject list to be shown
     document.addEventListener('mouseup', decideToShowList);
 
     return () => {
-      console.log('UNMOUNT');
+      //Remove listeners when the component unmounts
       document.removeEventListener('keyup', decideToShowList);
       document.removeEventListener('mouseup', decideToShowList);
     }
