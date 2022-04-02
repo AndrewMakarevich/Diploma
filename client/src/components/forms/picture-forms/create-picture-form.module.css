@@ -1,4 +1,4 @@
-.create-picture-form{
+.create-picture-form {
   position: relative;
   overflow: hidden;
   overflow-y: auto;
@@ -8,81 +8,84 @@
   background-color: var(--extra-dark);
 }
 
-.create-picture-btn{
+.create-picture-btn {
   position: absolute;
-  top:10px;
-  left:10px;
-  z-index:3;
+  top: 10px;
+  left: 10px;
+  z-index: 3;
   padding: 5px;
-  border-radius:15px;
-  border:2px solid var(--extra-light);
+  border-radius: 15px;
+  border: 2px solid var(--extra-light);
   background-color: rgba(0, 0, 0, 0.637);
   color: var(--extra-light);
-  cursor:pointer;
+  cursor: pointer;
   transition: background-color .2s, color .3s;
 }
 
+.create-picture-btn:disabled {
+  opacity: 0.7;
+}
+
 .create-picture-btn:focus,
-.create-picture-btn:hover{
+.create-picture-btn:hover {
   background-color: var(--extra-light);
   color: var(--extra-dark);
 }
 
-.set-img__section{
-}
+.set-img__section {}
 
-.info-about-img__section{
+.info-about-img__section {
   position: absolute;
-  top:0;
-  right:0;
+  top: 0;
+  right: 0;
   width: 50%;
   height: 100%;
-  z-index:2;
-  display:flex;
+  z-index: 2;
+  display: flex;
   background-color: rgba(0, 0, 0, 0.6);
   transition: transform .3s;
 }
 
-.info-section-false{
+.info-section-false {
   transform: translateX(100%);
 }
 
-.info-about-img__close-btn{
+.info-about-img__close-btn {
   transition: transform .3s;
   border: none;
-  background-color:inherit;
-  cursor:pointer;
+  background-color: inherit;
+  cursor: pointer;
 }
 
 /* .info-about-img__close-btn:focus{
   border-color: var(--extra-light);
 } */
 
-#close-icon{
+#close-icon {
   color: white;
   width: 20px;
   height: 20px;
   transition: transform .5s;
 }
 
-.info-section-false .info-about-img__close-btn{
+.info-section-false .info-about-img__close-btn {
   transform: translateX(-100%);
 }
 
-.info-section-false #close-icon{
+.info-section-false #close-icon {
   transform: rotate(180deg);
 }
 
-.info-about-img__inputs-section{
+.info-about-img__inputs-section {
   display: flex;
-  overflow-y:auto;
+  overflow-y: auto;
   flex-direction: column;
   row-gap: 10px;
   width: 100%;
   padding: 15px;
 }
 
-.img-input{
+.img-input {
   opacity: 0;
   width: 0;
   height: 0;
@@ -90,31 +93,31 @@
   margin: 0;
 }
 
-.img-input__label{
-  position:absolute;
-  top:0;
-  left:0;
+.img-input__label {
+  position: absolute;
+  top: 0;
+  left: 0;
   display: flex;
   width: 100%;
   height: 100%;
   cursor: pointer;
 }
 
-.img-input__background-img{
+.img-input__background-img {
   position: absolute;
   width: 100%;
   height: 100%;
   object-fit: contain;
 }
 
-.img-input__span{
+.img-input__span {
   display: flex;
   align-items: center;
   justify-content: center;
   color: var(--extra-light);
   position: absolute;
-  top:0;
-  left:0;
+  top: 0;
+  left: 0;
   width: 100%;
   height: 100%;
   background-color: var(--extra-dark);
@@ -122,39 +125,37 @@
   transition: opacity .2s;
 }
 
-.img-input:focus ~ .img-input__span,
-.img-input:hover ~ .img-input__span{
+.img-input:focus~.img-input__span,
+.img-input:hover~.img-input__span {
   opacity: 0.6;
 }
 
-.main-title input{
+.main-title input {}
 
-}
-
-.main-description textarea{
+.main-description textarea {
   resize: vertical;
 }
 
 .main-title input,
-.main-description textarea{
+.main-description textarea {
   width: 100%;
   color: var(--extra-light);
   background-color: rgba(0, 0, 0, 0.6);
   padding: 5px 7px;
-  border:none;
-  border-radius:15px;
+  border: none;
+  border-radius: 15px;
 }
 
 .main-title input::placeholder,
-.main-description textarea::placeholder{
-  color:var(--extra-light);
-}
-
-.new-sections__header{
+.main-description textarea::placeholder {
   color: var(--extra-light);
 }
 
-.new-section{
+.new-sections__header {
+  color: var(--extra-light);
+}
+
+.new-section {
   width: 100%;
   display: flex;
   flex-direction: column;
@@ -164,33 +165,33 @@
   padding: 5px;
 }
 
-.new-section label{
+.new-section label {
   width: 100%;
 }
 
 .new-section label input,
-.new-section label textarea{
+.new-section label textarea {
   width: 100%;
   color: var(--extra-light);
   background-color: rgba(0, 0, 0, 0.6);
   padding: 5px 7px;
-  border:none;
-  border-radius:15px;
+  border: none;
+  border-radius: 15px;
 }
 
 .new-section label input::placeholder,
-.new-section label textarea::placeholder{
-  color:var(--extra-light);
+.new-section label textarea::placeholder {
+  color: var(--extra-light);
 }
 
-.new-section label textarea{
+.new-section label textarea {
   resize: vertical;
 }
 
-.delete-new-section-btn{
+.delete-new-section-btn {
   cursor: pointer;
   padding: 4px 7px;
-  background-color:transparent;
+  background-color: transparent;
   color: var(--extra-light);
   border: 2px solid var(--extra-light);
   border-bottom-left-radius: 15px;
@@ -199,37 +200,37 @@
 }
 
 .delete-new-section-btn:focus,
-.delete-new-section-btn:hover{
+.delete-new-section-btn:hover {
   background-color: var(--remove-color);
   color: var(--extra-dark);
   border-color: var(--extra-dark);
 }
 
-.new-tags__section__header{
+.new-tags__section__header {
   color: var(--extra-light);
 }
 
-.new-tags__section{
+.new-tags__section {
   display: flex;
   flex-wrap: wrap;
   max-width: 100%;
-  gap:5px;
+  gap: 5px;
 }
 
-.new-tag__block{
+.new-tag__block {
   position: relative;
   display: flex;
   justify-content: center;
-  flex:1;
+  flex: 1;
 }
 
 .new-tag__block input,
-.new-tag__block button{
+.new-tag__block button {
   padding: 3px;
   border: 1px solid var(--extra-light);
 }
 
-.new-tag__block input{ 
+.new-tag__block input {
   background-color: transparent;
   border-top-left-radius: 15px;
   border-bottom-left-radius: 15px;
@@ -238,20 +239,20 @@
   transition: background-color .2s, color .3s;
 }
 
-.new-tag__block input:focus{
+.new-tag__block input:focus {
   outline: none;
   background-color: var(--extra-light);
   color: var(--extra-dark);
 }
 
-.new-tag__block button{
+.new-tag__block button {
   border-top-right-radius: 15px;
   border-bottom-right-radius: 15px;
 }
 
 
 @media (max-width:900px) {
-  .info-about-img__section{
+  .info-about-img__section {
     width: 100%;
   }
 }

@@ -21,8 +21,8 @@ class PictureInfoService {
     if (pictureInfoObj.title && pictureInfoObj.description) {
       await models.PictureInfo.create({
         pictureId: picture.id,
-        title: pictureInfoObj.title,
-        description: pictureInfoObj.description
+        title: pictureInfoObj.title.trim(),
+        description: pictureInfoObj.description.trim()
       });
     }
     return;
@@ -44,17 +44,19 @@ class PictureInfoService {
 
     if (pictureInfo) {
       pictureInfo.update({
-        title: pictureInfoObj.title,
-        description: pictureInfoObj.description
+        title: pictureInfoObj.title?.trim(),
+        description: pictureInfoObj.description?.trim()
       });
       return;
     }
 
-    await models.PictureInfo.create({
-      pictureId: picture.id,
-      title: pictureInfoObj.title,
-      description: pictureInfoObj.description
-    });
+    if (pictureInfoObj.title && pictureInfoObj.description) {
+      await models.PictureInfo.create({
+        pictureId: picture.id,
+        title: pictureInfoObj.title.trim(),
+        description: pictureInfoObj.description.trim()
+      });
+    }
 
     return;
   }

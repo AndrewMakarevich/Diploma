@@ -6,7 +6,8 @@ import { IPictureMainData } from "../../../interfaces/forms/create-picture-inter
 import PictureService from "../../../services/picture-service";
 import ArrowIcon from "../../../assets/img/icons/arrow-icon/arrow-icon";
 import MatchingTagsList from "../../lists/picture-lists/matching-tags-list/matching-tags-list";
-import PicturesTypesSelect from "../../inputs/pictures-types-select";
+import PicturesTypesSelect from "../../inputs/pictures-types-select/pictures-types-select";
+import useFetching from "../../../hooks/useFetching";
 
 interface newSectionObj {
   [key: string]: any,
@@ -29,6 +30,8 @@ const CreatePictureForm = () => {
   const [newSections, setNewSections] = useState<newSectionObj[]>([]);
   const [newTags, setNewTags] = useState<newTagObj[]>([]);
   const [infoSectionIsOpen, setInfoSectionIsOpen] = useState(true);
+
+  const { executeCallback: sendPictureCreateRequest, isLoading: pictureRequsetIsLoading } = useFetching(createPicture)
 
   const addPictureInputRef = useRef<HTMLInputElement>(null);
   const addPictureInputBackgroundRef = useRef<HTMLImageElement>(null);
@@ -233,10 +236,10 @@ const CreatePictureForm = () => {
 
       <button className={formStyles["create-picture-btn"]}
         type="submit"
-        disabled={mainData.mainTitle && mainData.img ? false : true}
+        disabled={mainData.mainTitle && mainData.img && !pictureRequsetIsLoading ? false : true}
         onClick={(e) => {
           e.preventDefault();
-          createPicture();
+          sendPictureCreateRequest();
         }}>Create picture</button>
 
 

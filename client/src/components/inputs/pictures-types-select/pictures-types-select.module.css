@@ -1,0 +1,7 @@
+.select {
+  border: none;
+  border-radius: 10px;
+  padding: 3px 3px;
+  background-color: rgba(0, 0, 0, 0.678);
+  color: var(--extra-light);
+}

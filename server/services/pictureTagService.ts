@@ -38,10 +38,13 @@ class PictureTagService {
   }
 
   static async addTag(tagText: string) {
-    const processedTagText = tagText.split(" ").join("").toLowerCase();
+    tagText = tagText.split(" ").join("").toLowerCase();
+
+    PictureValidator.validatePictureTag(tagText, true);
+
     const alreadyExTag = await models.PictureTag.findOne({
       where: {
-        text: processedTagText
+        text: tagText
       }
     });
 
@@ -50,7 +53,7 @@ class PictureTagService {
     }
 
     await models.PictureTag.create({
-      text: processedTagText
+      text: tagText
     });
 
     return { message: "Tag created succesfully" };

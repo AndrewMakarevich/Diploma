@@ -40,6 +40,9 @@ class PictureService {
       throw ApiError.badRequest("Image and main title are required");
     }
 
+    mainTitle = mainTitle.trim();
+    description = description?.trim();
+
     PictureValidator.validatePictureMainTitle(mainTitle, true);
     PictureValidator.validatePictureMainDescription(description, true);
     await PictureTypeService.checkPictureTypeExistence(pictureTypeId);
