@@ -10,6 +10,8 @@ import PictureTagService from "./pictureTagService";
 import PictureInfoService from "./pictureInfoService";
 import PictureValidator from "../validator/pictureValidator";
 import PictureTypeService from "./pictureTypeService";
+import sequelize, { Order, OrderItem, Sequelize } from "sequelize";
+import { Op } from "sequelize";
 
 
 
@@ -21,10 +23,92 @@ class PictureService {
       include: [
         {
           model: models.PictureTag,
-          as: "tags"
-        }]
+          as: "tags",
+          attributes: ["id", "text"],
+          through: {
+            attributes: []
+          }
+        },
+        {
+          model: models.PictureInfo,
+          as: "pictureInfos",
+          attributes: { exclude: ["pictureId"] }
+        },
+        {
+          model: models.PictureLike,
+          as: "pictureLikes",
+          attributes: []
+        },
+      ],
+      attributes: { include: [[sequelize.fn("COUNT", sequelize.col("pictureLikes")), "likesAmount"]] },
+      group: ["picture.id", "tags.id", "pictureInfos.id"]
     });
     return picture;
+  }
+
+  static async getPictures(query: string | undefined, limit: number = 10, page: number = 1, sort: string) {
+
+
+
+    if (!limit && limit !== 0) {
+      limit = 10;
+    }
+
+    if (!page) {
+      page = 1;
+    }
+
+    let orderParam: OrderItem;
+
+    try {
+      orderParam = JSON.parse(sort);
+    } catch (e: any) {
+      orderParam = ["createdAt", "DESC"]
+    }
+
+    const whereStatement = {
+      [Op.or]: {
+        mainTitle: { [Op.iRegexp]: `${query}` },
+        description: { [Op.iRegexp]: `${query}` },
+        "$tags.text$": { [Op.iRegexp]: `${query}` },
+        "$pictureInfos.title$": { [Op.iRegexp]: `${query}` },
+        "$pictureInfos.description$": { [Op.iRegexp]: `${query}` },
+      },
+
+    };
+
+    let pictures = await models.Picture.findAll({
+      where: whereStatement,
+      attributes: { include: [[sequelize.fn('COUNT', sequelize.col('pictureLikes')), 'likesAmount']] },
+      include: [
+        {
+          model: models.PictureTag,
+          as: "tags",
+          attributes: [],
+          through: {
+            attributes: [],
+          },
+        },
+        {
+          model: models.PictureInfo,
+          as: "pictureInfos",
+          attributes: [],
+        },
+        {
+          model: models.PictureLike,
+          as: "pictureLikes",
+          attributes: [],
+        },
+      ],
+      order: [
+        [sequelize.col((orderParam as Array<string>)[0]), (orderParam as Array<string>)[1]]
+      ],
+      group: ["picture.id", "pictureInfos.id", "tags.id"]
+    });
+
+    pictures = pictures.slice((page - 1) * limit, ((page - 1) * limit) + limit);
+
+    return pictures;
   }
 
   static async createPicture(

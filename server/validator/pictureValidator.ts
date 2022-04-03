@@ -6,6 +6,10 @@ class PictureValidator {
       return;
     }
 
+    if (!paramValue.split(" ").join("")) {
+      throw ApiError.badRequest("Row, fully consisted from spaces doesn't allowed");
+    }
+
     const regEx = new RegExp(`\^${regExp}\{${minLength},${maxLength || ''}\}\$`);
 
     if (!regEx.test(paramValue)) {
@@ -46,6 +50,10 @@ class PictureValidator {
 
   static validatePictureType(typeName: string, throwError: boolean) {
     return this.validateText("\[a-zA-Z0-9\\s\]", 3, 25, "Picture type", typeName, throwError);
+  }
+
+  static validatePictureComment(commentText: string, throwError: boolean) {
+    return this.validateText("\[a-zA-Z0-9\\s-&!?(){}\/\"'<>,~@^\]", 4, 450, "Comment text", commentText, throwError);
   }
 }
 

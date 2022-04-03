@@ -5,6 +5,7 @@ import authMiddleware from "../middlewares/authMiddleware";
 const pictureRouter = Router();
 
 pictureRouter.get('/get/:id', PictureController.getPictureById);
+pictureRouter.get('/get-many', PictureController.getPictures);
 
 pictureRouter.post('/create', authMiddleware, PictureController.createPicture);
 

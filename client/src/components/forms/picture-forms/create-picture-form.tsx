@@ -112,10 +112,6 @@ const CreatePictureForm = () => {
 
   }
 
-  useEffect(() => {
-    console.log(mainData);
-  }, [mainData])
-
   return (
     <form className={formStyles["create-picture-form"]}>
 

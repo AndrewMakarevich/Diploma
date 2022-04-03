@@ -80,3 +80,13 @@ export interface IPermissionsInstance extends Model {
     blockAccount: boolean,
     deleteOtherAccount: boolean
 }
+
+export interface ICommentInstance extends Model {
+    id: number,
+    text: string,
+    userId: number,
+    commentId: number,
+    pictureId: number,
+    createdAt: string,
+    updatedAt: string
+}

@@ -15,7 +15,19 @@ class PictureController {
       next(e);
     }
 
-  }
+  };
+
+  static async getPictures(req: Request, res: Response, next: NextFunction) {
+    try {
+      const queryString = req.query.queryString as string;
+      const { limit, page, sort } = req.query;
+      const response = await PictureService.getPictures(queryString, Number(limit), Number(page), String(sort));
+
+      return res.json(response);
+    } catch (e) {
+      next(e);
+    }
+  };
 
   static async createPicture(req: Request, res: Response, next: NextFunction) {
     try {
@@ -43,7 +55,7 @@ class PictureController {
     } catch (e) {
       next(e);
     }
-  }
+  };
 
   static async editPicture(req: Request, res: Response, next: NextFunction) {
     try {
@@ -72,7 +84,7 @@ class PictureController {
     } catch (e) {
       next(e);
     }
-  }
+  };
 
   static async deletePicture(req: Request, res: Response, next: NextFunction) {
     try {
@@ -85,6 +97,6 @@ class PictureController {
     } catch (e) {
       next(e);
     }
-  }
+  };
 }
 export default PictureController;

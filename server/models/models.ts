@@ -1,6 +1,6 @@
 import { DataTypes } from 'sequelize';
 import sequelize from '../db';
-import { IResetPasswordBundleInstance, IRoleInstance, IUserInstance, IUserTokenInstance } from '../interfaces/modelInterfaces';
+import { ICommentInstance, IResetPasswordBundleInstance, IRoleInstance, IUserInstance, IUserTokenInstance } from '../interfaces/modelInterfaces';
 import { IPictureInfoInstance, IPictureInstance } from '../interfaces/pictureInterfaces';
 import { IPicturesTagsInstance, IPictureTagInstance } from '../interfaces/tagInterfaces';
 
@@ -63,7 +63,7 @@ const PictureLike = sequelize.define('pictureLike', {
     id: { type: DataTypes.INTEGER, primaryKey: true, autoIncrement: true }
 });
 
-const Comment = sequelize.define('comment', {
+const Comment = sequelize.define<ICommentInstance>('comment', {
     id: { type: DataTypes.INTEGER, primaryKey: true, autoIncrement: true },
     text: { type: DataTypes.TEXT, allowNull: true }
 });
