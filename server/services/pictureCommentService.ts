@@ -65,10 +65,10 @@ class PictureCommentService {
       throw ApiError.badRequest("User from whom you want to delete commentary doesn't exists");
     };
 
-    const comment = await models.Comment.findOne({ where: { id: commentId, userId } });
+    const comment = await models.Comment.findOne({ where: { id: commentId } });
 
     if (!comment) {
-      throw ApiError.badRequest("Comment you want to delete doesn't exists, or you are not the author of it");
+      throw ApiError.badRequest("Comment you want to delete doesn't exists");
     };
 
     const picture = await models.Picture.findOne({ where: { id: comment.pictureId } });

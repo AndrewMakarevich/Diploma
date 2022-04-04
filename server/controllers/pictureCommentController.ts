@@ -29,7 +29,8 @@ class PictureCommentController {
 
   static async deleteComment(req: Request, res: Response, next: NextFunction) {
     try {
-      const { commentId } = req.query;
+      const { commentId } = req.params;
+      console.log(commentId);
       const userId = (req as any).user.id;
 
       const response = await PictureCommentService.deleteComment(userId, Number(commentId));

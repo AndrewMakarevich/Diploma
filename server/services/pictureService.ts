@@ -22,6 +22,11 @@ class PictureService {
         { id: pictureId },
       include: [
         {
+          model: models.PictureInfo,
+          as: "pictureInfos",
+          attributes: { exclude: ["pictureId"] }
+        },
+        {
           model: models.PictureTag,
           as: "tags",
           attributes: ["id", "text"],
@@ -30,18 +35,17 @@ class PictureService {
           }
         },
         {
-          model: models.PictureInfo,
-          as: "pictureInfos",
-          attributes: { exclude: ["pictureId"] }
-        },
-        {
           model: models.PictureLike,
           as: "pictureLikes",
           attributes: []
         },
+        {
+          model: models.Comment,
+          as: "comments",
+        },
       ],
       attributes: { include: [[sequelize.fn("COUNT", sequelize.col("pictureLikes")), "likesAmount"]] },
-      group: ["picture.id", "tags.id", "pictureInfos.id"]
+      group: ["picture.id", "tags.id", "pictureInfos.id", "comments.id"]
     });
     return picture;
   }
