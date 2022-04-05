@@ -53,7 +53,7 @@ class PictureValidator {
   }
 
   static validatePictureComment(commentText: string, throwError: boolean) {
-    return this.validateText("\[a-zA-Z0-9\\s-&!?(){}\/\"'<>,~@^_\]", 4, 450, "Comment text", commentText, throwError);
+    return this.validateText("\[a-zA-Z0-9\\s-&!?(){}\/\"'<>,~@^_.\]", 4, 450, "Comment text", commentText, throwError);
   }
 }
 

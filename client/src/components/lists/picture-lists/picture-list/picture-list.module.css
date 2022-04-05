@@ -1,0 +1,6 @@
+.picture-list {
+  display: flex;
+  flex-wrap: wrap;
+  grid-gap: 15px;
+  justify-content: center;
+}

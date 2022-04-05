@@ -8,16 +8,22 @@ const useDelayFetching = <T>(callback: Function, delay: number) => {
   let timeout: ReturnType<typeof setTimeout> = setTimeout(() => { }, 0);
   const timeoutVariableRef = useRef(timeout);
 
-  const executeCallback = () => {
+  const executeCallback = (params?: any) => {
+    const paramsArr: Array<number | string | string[]> = [];
+
+    for (let key in params) {
+      paramsArr.push(params[key]);
+    };
+
     clearTimeout(timeoutVariableRef.current);
 
     timeoutVariableRef.current = setTimeout(async () => {
       try {
         setIsLoading(true);
-        const response = await callback();
+        const response = await callback(...paramsArr);
         setExecuteResult(response);
       } catch (e: Error | AxiosError | any) {
-        alert(e.response.data.message);
+        alert(e.message);
 
         return null;
       } finally {

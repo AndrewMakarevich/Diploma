@@ -50,17 +50,18 @@ class PictureService {
     return picture;
   }
 
-  static async getPictures(query: string | undefined, limit: number = 10, page: number = 1, sort: string) {
+  static async getPictures(userId: number, query: string | undefined, limit: number = 10, page: number = 1, sort: string) {
 
 
-
-    if (!limit && limit !== 0) {
+    if (!limit) {
       limit = 10;
     }
 
     if (!page) {
       page = 1;
     }
+
+    console.log('LIMIT', limit)
 
     let orderParam: OrderItem;
 
@@ -71,20 +72,30 @@ class PictureService {
     }
 
     const whereStatement = {
+      userId: userId || { [Op.not]: null },
       [Op.or]: {
-        mainTitle: { [Op.iRegexp]: `${query}` },
-        description: { [Op.iRegexp]: `${query}` },
-        "$tags.text$": { [Op.iRegexp]: `${query}` },
-        "$pictureInfos.title$": { [Op.iRegexp]: `${query}` },
-        "$pictureInfos.description$": { [Op.iRegexp]: `${query}` },
+        mainTitle: { [Op.iRegexp]: `${query || ""}` },
+        description: { [Op.iRegexp]: `${query || ""}` },
+        "$tags.text$": { [Op.iRegexp]: `${query || ""}` },
+        "$pictureInfos.title$": { [Op.iRegexp]: `${query || ""}` },
+        "$pictureInfos.description$": { [Op.iRegexp]: `${query || ""}` },
       },
-
     };
 
     let pictures = await models.Picture.findAll({
       where: whereStatement,
-      attributes: { include: [[sequelize.fn('COUNT', sequelize.col('pictureLikes')), 'likesAmount']] },
+      attributes: {
+        include: [
+          [sequelize.fn('COUNT', sequelize.col('pictureLikes')), 'likesAmount'],
+          [sequelize.fn('COUNT', sequelize.col('comments')), 'commentsAmount'],
+        ]
+      },
       include: [
+        {
+          model: models.User,
+          as: "user",
+          attributes: ["nickname"]
+        },
         {
           model: models.PictureTag,
           as: "tags",
@@ -103,11 +114,16 @@ class PictureService {
           as: "pictureLikes",
           attributes: [],
         },
+        {
+          model: models.Comment,
+          as: "comments",
+          attributes: []
+        }
       ],
       order: [
         [sequelize.col((orderParam as Array<string>)[0]), (orderParam as Array<string>)[1]]
       ],
-      group: ["picture.id", "pictureInfos.id", "tags.id"]
+      group: ["picture.id", "user.id", "pictureInfos.id", "tags.id"]
     });
 
     pictures = pictures.slice((page - 1) * limit, ((page - 1) * limit) + limit);

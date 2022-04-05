@@ -1,0 +1,9 @@
+.icon {
+  width: 22px;
+  height: 22px;
+  color: black;
+}
+
+.icon-active {
+  fill: rgb(230, 92, 92);
+}
