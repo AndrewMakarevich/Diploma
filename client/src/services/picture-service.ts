@@ -5,7 +5,7 @@ import { IShortPictureObj } from "../interfaces/http/response/pictureInterfaces"
 class PictureService {
   static async getPictures(userId: number, queryString: string, sort: string[], page: number, limit: number): Promise<AxiosResponse<IShortPictureObj[]>> {
     const response =
-      await $host.get<IShortPictureObj[]>(`api/picture/get-many?userId=${userId || ""}&queryString=${queryString || ""}&sort=${sort || ""}&page=${page || ""}&limit=${limit || ""}`);
+      await $host.get<IShortPictureObj[]>(`api/picture/get-many?userId=${userId || ""}&queryString=${queryString || ""}&sort=${sort}&page=${page || ""}&limit=${limit || ""}`);
 
     return response;
   };

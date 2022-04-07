@@ -1,0 +1,26 @@
+.pagination-line {
+  display: flex;
+  column-gap: 5px;
+}
+
+.pagination-line__btn {
+  border-radius: 50%;
+  padding: 5px;
+  border: none;
+  min-width: 25px;
+  min-height: 25px;
+  cursor: pointer;
+  background-color: var(--light-brown);
+  transition: color .2s, background-color .3s;
+}
+
+.pagination-line__btn:hover,
+.pagination-line__btn:focus {
+  background-color: var(--extra-dark);
+  color: var(--extra-light);
+}
+
+.active {
+  background-color: var(--extra-light);
+  color: var(--extra-dark);
+}

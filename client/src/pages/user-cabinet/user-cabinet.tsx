@@ -48,7 +48,6 @@ const UserCabinet = () => {
           {new Date(userStore.userData.createdAt).toLocaleString('en-EN', { year: 'numeric', month: 'long', day: 'numeric' })}</p>
       </article>
       <EditUserModal isOpen={isOpen} setIsOpen={setIsOpen} />
-      <LogoutBtn stylesById="" />
       <Link to={routePaths.personalCabinet.adminPanel}>Admin panel</Link>
       <Link to={routePaths.personalCabinet.myGallery}>My Gallery</Link>
       <Outlet />

@@ -13,3 +13,8 @@ export interface IShortPictureObj {
   likesAmount: number,
   commentsAmount: number
 }
+
+export interface IGetPicturesResponse {
+  count: number,
+  rows: IShortPictureObj[]
+}

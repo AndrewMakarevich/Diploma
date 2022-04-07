@@ -1,9 +1,10 @@
-*{
+* {
   margin: 0;
   padding: 0;
   box-sizing: border-box;
   font-family: Spartan;
 }
+
 body {
   margin: 0;
   font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
@@ -17,7 +18,8 @@ code {
   font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New',
     monospace;
 }
-#root{
+
+#root {
   --extra-dark: #202020;
   --extra-light: #ffffff;
   --light-brown: #beab9e;
@@ -25,8 +27,8 @@ code {
   --dark-brown: #4d2f18;
 
   --remove-color: rgb(231, 164, 164);
-
 }
+
 @font-face {
   font-family: Spartan;
   src: url(./assets/fonts/LeagueSpartan.ttf);

@@ -10,6 +10,7 @@ const PictureItem = ({ pictureItem }: IPictureItemProps) => {
   const pictureImgLink = process.env.REACT_APP_BACK_LINK + "/img/picture/" + pictureItem.img;
   return (
     <section className={itemStyles["wrapper"]}>
+      <button className={itemStyles["open-picture__btn"]}></button>
       <img className={itemStyles["image"]} alt="" src={pictureImgLink} />
       <div className={itemStyles["picture-info"]}>
         <p className={itemStyles["author-nickname"]}>{pictureItem.user.nickname}</p>

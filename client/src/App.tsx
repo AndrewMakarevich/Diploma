@@ -18,6 +18,7 @@ function App() {
       <NavBar />
       <AuthModal />
       <AppRouter />
+      <footer>Foooter</footer>
     </div>
   );
 }

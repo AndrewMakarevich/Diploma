@@ -67,6 +67,14 @@ class PictureService {
 
     try {
       orderParam = JSON.parse(sort);
+      if (Array.isArray(orderParam)) {
+
+        if (orderParam.length !== 2) {
+          orderParam = ["createdAt", "DESC"]
+        }
+      } else {
+        orderParam = ["createdAt", "DESC"]
+      }
     } catch (e: any) {
       orderParam = ["createdAt", "DESC"]
     }
@@ -126,9 +134,11 @@ class PictureService {
       group: ["picture.id", "user.id", "pictureInfos.id", "tags.id"]
     });
 
+    let picturesAmount = pictures.length;
+
     pictures = pictures.slice((page - 1) * limit, ((page - 1) * limit) + limit);
 
-    return pictures;
+    return { count: picturesAmount, rows: pictures };
   }
 
   static async createPicture(

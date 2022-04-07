@@ -7,6 +7,17 @@
   cursor: pointer;
   color: var(--extra-light);
   /* flex: 1 300px; */
+  z-index: 1;
+}
+
+.open-picture__btn {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  border: none;
+  background-color: transparent;
 }
 
 .image {
@@ -31,6 +42,7 @@
   height: 100%;
   opacity: 0;
   transition: opacity .3s;
+  pointer-events: none;
 }
 
 .wrapper:hover .picture-info,
