@@ -8,7 +8,6 @@ const EditUserModal = ({ isOpen, setIsOpen }:
   return (
     <ModalWindow
       id={modalStyles["modal-window"]}
-      closeBtnId={modalStyles["close-btn"]}
       isOpen={isOpen}
       setIsOpen={setIsOpen} >
       <>

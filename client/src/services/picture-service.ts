@@ -9,9 +9,18 @@ class PictureService {
     return response;
   };
 
-  static async getPictures(userId: number, queryString: string, sort: string[], page: number, limit: number): Promise<AxiosResponse<IShortPictureObj[]>> {
+  static async getPictures(userId?: number, queryString?: string, sort?: string[], page?: number, limit?: number): Promise<AxiosResponse<IShortPictureObj[]>> {
     const response =
-      await $host.get<IShortPictureObj[]>(`api/picture/get-many?userId=${userId || ""}&queryString=${queryString || ""}&sort=${sort}&page=${page || ""}&limit=${limit || ""}`);
+      await $host.get<IShortPictureObj[]>('api/picture/get-many',
+        {
+          params: {
+            userId: userId || '',
+            queryString: queryString || '',
+            sort: sort || '',
+            page: page || 1,
+            limit: limit || 5
+          }
+        });
 
     return response;
   };

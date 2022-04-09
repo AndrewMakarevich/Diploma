@@ -1,31 +1,27 @@
-#modal-window{
+#modal-window {
   background-color: var(--extra-dark);
 }
 
-#modal-window:before{
+#modal-window:before {
   content: "";
   position: absolute;
-  bottom:0;
-  left:0;
+  bottom: 0;
+  left: 0;
   transform: translateX(35%) translateY(35%);
   width: 450px;
   height: 450px;
   background-color: var(--medium-brown);
-  border-radius:50%;
+  border-radius: 50%;
 }
 
-#modal-window:after{
+#modal-window:after {
   content: "";
   position: absolute;
-  top:0;
-  left:0;
+  top: 0;
+  left: 0;
   transform: translateX(-35%) translateY(-35%);
   width: 450px;
   height: 450px;
   background-color: var(--light-brown);
-  border-radius:50%;
-}
-
-#close-btn{
-  color: var(--extra-light);
+  border-radius: 50%;
 }

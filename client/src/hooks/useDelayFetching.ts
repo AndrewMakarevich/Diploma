@@ -1,5 +1,5 @@
 import { AxiosError } from "axios";
-import { useRef, useState } from "react";
+import { useCallback, useRef, useState } from "react";
 
 const useDelayFetching = <T>(callback: Function, delay: number) => {
   const [isLoading, setIsLoading] = useState(false);
@@ -8,7 +8,7 @@ const useDelayFetching = <T>(callback: Function, delay: number) => {
   let timeout: ReturnType<typeof setTimeout> = setTimeout(() => { }, 0);
   const timeoutVariableRef = useRef(timeout);
 
-  const executeCallback = (params?: any) => {
+  const executeCallback = useCallback((params?: any) => {
     const paramsArr: Array<number | string | string[]> = [];
 
     for (let key in params) {
@@ -30,7 +30,7 @@ const useDelayFetching = <T>(callback: Function, delay: number) => {
         setIsLoading(false);
       }
     }, delay);
-  }
+  }, [callback, delay]);
 
   return { executeCallback, executeResult, isLoading };
 

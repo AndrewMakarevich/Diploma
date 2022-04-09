@@ -22,6 +22,11 @@ class PictureService {
         { id: pictureId },
       include: [
         {
+          model: models.User,
+          as: "user",
+          attributes: ["nickname", "firstName", "surname", "avatar"]
+        },
+        {
           model: models.PictureInfo,
           as: "pictureInfos",
           attributes: { exclude: ["pictureId"] }
@@ -45,7 +50,7 @@ class PictureService {
         },
       ],
       attributes: { include: [[sequelize.fn("COUNT", sequelize.col("pictureLikes")), "likesAmount"]] },
-      group: ["picture.id", "tags.id", "pictureInfos.id", "comments.id"]
+      group: ["picture.id", "user.id", "pictureInfos.id", "tags.id", "comments.id"]
     });
     return picture;
   }

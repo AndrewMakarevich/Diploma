@@ -14,6 +14,19 @@ body {
   -moz-osx-font-smoothing: grayscale;
 }
 
+::-webkit-scrollbar {
+  width: 5px;               /* width of the entire scrollbar */
+}
+
+::-webkit-scrollbar-track {
+  background: rgba(0, 0, 0, 0.603);        /* color of the tracking area */
+}
+
+::-webkit-scrollbar-thumb {
+  background-color: white;  
+  border-radius:15px;  /* color of the scroll thumb */  /* creates padding around scroll thumb */
+}
+
 code {
   font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New',
     monospace;

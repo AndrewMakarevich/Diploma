@@ -45,15 +45,17 @@ const PictureList = ({ userId, isPersonalGallery }: IPictureListProps) => {
   } = useDelayFetching<AxiosResponse<IGetPicturesResponse>>(PictureService.getPictures, 500)
 
   useEffect(() => {
-    setQueryParams({ ...queryParams, userId });
+    if (userId) {
+      setQueryParams({ ...queryParams, userId });
+    }
   }, [userId]);
 
   useEffect(() => {
     getPictures(queryParams);
-  }, [queryParams]);
+  }, [queryParams, getPictures]);
 
   useEffect(() => {
-    getPictures();
+    PictureService.getPictures();
   }, []);
 
   return (

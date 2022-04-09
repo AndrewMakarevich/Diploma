@@ -13,7 +13,9 @@ const EditPictureModal = ({ isOpen, setIsOpen, currentPictureId }: IEditPictureM
   const [pictureInfo, setPictureInfo] = useState<IExtendedPictureObj>();
 
   useEffect(() => {
-    PictureService.getPicture(currentPictureId).then(({ data }) => setPictureInfo(data));
+    if (currentPictureId) {
+      PictureService.getPicture(currentPictureId).then(({ data }) => setPictureInfo(data));
+    }
   }, [currentPictureId]);
   return (
     <ModalWindow isOpen={isOpen} setIsOpen={setIsOpen}>
