@@ -56,17 +56,19 @@ const PaginationInput = ({ count, limit, page, setPage }: IPaginationInput) => {
 
   useEffect(() => {
     createCurrentPaginationLineState()
-  }, [pages]);
-
-  useEffect(() => {
-    createCurrentPaginationLineState()
-  }, [page]);
+  }, [pages, page]);
 
   return (
     <div className={inputStyles["pagination-line"]}>
       <button className={inputStyles["pagination-line__btn"]}
         onClick={
-          () => { if (page > 1) setPage(page - 1) }
+          () => {
+            if (page > 1) {
+              setPage(page - 1);
+              return;
+            }
+            setPage(pages[pages.length - 1])
+          }
         }>{"<"}</button>
       {
         currentPaginationState.map(pageItem =>
@@ -82,7 +84,11 @@ const PaginationInput = ({ count, limit, page, setPage }: IPaginationInput) => {
       <button className={inputStyles["pagination-line__btn"]}
         onClick={
           () => {
-            if (page < pages.length) setPage(page + 1)
+            if (page < pages.length) {
+              setPage(page + 1);
+              return;
+            }
+            setPage(pages[0])
           }
         }>{">"}</button>
     </div>

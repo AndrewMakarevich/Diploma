@@ -1,0 +1,22 @@
+.button {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 5px 8px;
+  border: 2px solid var(--extra-light);
+  border-radius: 15px;
+  background-color: transparent;
+  color: var(--extra-light);
+  cursor: pointer;
+  transition: background-color .2s, color .3s;
+}
+
+.button:hover,
+.button:focus {
+  background-color: var(--extra-light);
+  color: var(--extra-dark);
+}
+
+.button:disabled {
+  opacity: 0.6;
+}

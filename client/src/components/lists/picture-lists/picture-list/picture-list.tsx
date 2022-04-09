@@ -8,9 +8,12 @@ import PictureItem from "./picture-item/picture-item";
 import SearchPanel from "./search-panel/search-panel";
 import useDelayFetching from "../../../../hooks/useDelayFetching";
 import PaginationInput from "../../../inputs/pagination-input/pagination-input";
+import ViewPictureModal from "../../../modal-window/view-picture-modal/view-picture-modal";
+import EditPictureModal from "../../../modal-window/edit-picture-modal/edit-picture-modal";
 
 interface IPictureListProps {
-  userId: number
+  userId: number,
+  isPersonalGallery: boolean
 };
 
 export interface IQueryParamsObj {
@@ -21,7 +24,7 @@ export interface IQueryParamsObj {
   limit: number
 };
 
-const PictureList = ({ userId }: IPictureListProps) => {
+const PictureList = ({ userId, isPersonalGallery }: IPictureListProps) => {
   const [queryParams, setQueryParams] = useState<IQueryParamsObj>({
     userId: 0,
     queryString: "",
@@ -30,21 +33,20 @@ const PictureList = ({ userId }: IPictureListProps) => {
     limit: 1
   });
 
-  useEffect(() => {
-    setQueryParams({ ...queryParams, userId });
-  }, [userId]);
+  const [viewPictureModalIsOpen, setViewPictureModalIsOpen] = useState(false);
+  const [currentPictureId, setCurrentPictureId] = useState(0);
 
-  // const {
-  //   executeCallback: getPictures,
-  //   isLoading: picturesIsLoading,
-  //   response: pictureList
-  // } = useFetching<AxiosResponse<IShortPictureObj[]>>(PictureService.getPictures);
+
 
   const {
     executeCallback: getPictures,
     isLoading: picturesIsLoading,
     executeResult: pictureList
   } = useDelayFetching<AxiosResponse<IGetPicturesResponse>>(PictureService.getPictures, 500)
+
+  useEffect(() => {
+    setQueryParams({ ...queryParams, userId });
+  }, [userId]);
 
   useEffect(() => {
     getPictures(queryParams);
@@ -56,12 +58,19 @@ const PictureList = ({ userId }: IPictureListProps) => {
 
   return (
     <article className={listStyles["picture-list__wrapper"]}>
+      {
+        isPersonalGallery ?
+          <EditPictureModal isOpen={viewPictureModalIsOpen} setIsOpen={setViewPictureModalIsOpen} currentPictureId={currentPictureId} />
+          :
+          <ViewPictureModal isOpen={viewPictureModalIsOpen} setIsOpen={setViewPictureModalIsOpen} currentPictureId={currentPictureId} />
+      }
+
       <h1>Picture List</h1>
       <SearchPanel queryParams={queryParams} onChange={setQueryParams} />
       <section className={listStyles["picture-list"]}>
         {
           pictureList && pictureList.data && pictureList.data.rows.map(pictureItem =>
-            <PictureItem key={pictureItem.id} pictureItem={pictureItem} />
+            <PictureItem key={pictureItem.id} pictureItem={pictureItem} setCurrentPictureId={setCurrentPictureId} setIsOpen={setViewPictureModalIsOpen} />
           )
         }
       </section>

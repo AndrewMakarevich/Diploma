@@ -1,8 +1,14 @@
 import { AxiosResponse } from "axios";
 import { $authHost, $host } from "../http";
-import { IShortPictureObj } from "../interfaces/http/response/pictureInterfaces";
+import { IExtendedPictureObj, IShortPictureObj } from "../interfaces/http/response/pictureInterfaces";
 
 class PictureService {
+  static async getPicture(id: number): Promise<AxiosResponse<IExtendedPictureObj>> {
+    const response = await $host.get<IExtendedPictureObj>(`api/picture/get/${id}`);
+
+    return response;
+  };
+
   static async getPictures(userId: number, queryString: string, sort: string[], page: number, limit: number): Promise<AxiosResponse<IShortPictureObj[]>> {
     const response =
       await $host.get<IShortPictureObj[]>(`api/picture/get-many?userId=${userId || ""}&queryString=${queryString || ""}&sort=${sort}&page=${page || ""}&limit=${limit || ""}`);

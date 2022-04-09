@@ -1,6 +1,5 @@
 import { useEffect, useRef, useState } from "react";
 import formStyles from "./create-picture-form.module.css";
-import commonBtnStyles from "../../../common-styles/btn.module.css";
 import setFileInputCurrentImg from "../../../utils/file-input-utils/setFileInputCurrentImg";
 import { IPictureMainData } from "../../../interfaces/forms/create-picture-interfaces";
 import PictureService from "../../../services/picture-service";
@@ -8,6 +7,8 @@ import ArrowIcon from "../../../assets/img/icons/arrow-icon/arrow-icon";
 import MatchingTagsList from "../../lists/picture-lists/matching-tags-list/matching-tags-list";
 import PicturesTypesSelect from "../../inputs/pictures-types-select/pictures-types-select";
 import useFetching from "../../../hooks/useFetching";
+import DeleteButton from "../../../UI/delete-button/delete-button";
+import StandartButton from "../../../UI/standart-button/standart-button";
 
 interface newSectionObj {
   [key: string]: any,
@@ -175,22 +176,20 @@ const CreatePictureForm = () => {
                     value={newSection.description}
                     onChange={(e) => editNewSection('description', e.target.value, newSection.id)}></textarea>
                 </label>
-                <button
-                  className={formStyles["delete-new-section-btn"]}
-                  onClick={(e) => {
+                <DeleteButton
+                  onClick={(e: React.ChangeEvent<any>) => {
                     e.preventDefault();
                     deleteNewSection(newSection);
-                  }}>delete section</button>
+                  }}>delete section</DeleteButton>
               </div>
             )
           }
 
-          <button
-            className={commonBtnStyles["standart-btn"]}
-            onClick={(e) => {
+          <StandartButton
+            onClick={(e: React.ChangeEvent<any>) => {
               e.preventDefault();
               addNewSection();
-            }}>add new section</button>
+            }}>add new section</StandartButton>
 
           <p className={formStyles["new-tags__section__header"]}>Tags</p>
 
@@ -206,37 +205,37 @@ const CreatePictureForm = () => {
                       editNewTag(e.target.value, newTag.id);
                     }}></input>
                   <MatchingTagsList tagInputRef={tagsInputsRefs.current[newTag.id]} tagObj={newTag} setTagValue={editNewTag} />
-                  <button
-                    className={commonBtnStyles["remove-btn"]}
-                    onClick={(e) => {
+                  <DeleteButton
+                    className={formStyles["delete-tag-btn"]}
+                    onClick={(e: React.ChangeEvent<any>) => {
                       e.preventDefault();
                       deleteNewTag(newTag);
                       delete tagsInputsRefs.current[newTag.id];
-                    }}>delete</button>
+                    }}>delete</DeleteButton>
 
                 </div>
               )
             }
           </section>
 
-          <button
-            className={commonBtnStyles["standart-btn"]}
-            onClick={(e) => {
+          <StandartButton
+            onClick={(e: React.ChangeEvent<any>) => {
               e.preventDefault();
               addNewTag();
             }}>
             add new tag
-          </button>
+          </StandartButton>
         </div>
       </section>
 
-      <button className={formStyles["create-picture-btn"]}
+      <StandartButton
+        className={formStyles["create-picture-btn"]}
         type="submit"
         disabled={mainData.mainTitle && mainData.img && !pictureRequsetIsLoading ? false : true}
-        onClick={(e) => {
+        onClick={(e: React.ChangeEvent<any>) => {
           e.preventDefault();
           sendPictureCreateRequest();
-        }}>Create picture</button>
+        }}>Create picture</StandartButton>
 
 
 

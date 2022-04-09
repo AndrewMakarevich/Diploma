@@ -1,5 +1,6 @@
-import { useContext, useState } from "react";
+import { Component, useContext, useState } from "react";
 import { Context } from "../../..";
+import StandartButton from "../../../UI/standart-button/standart-button";
 import UserValidator from "../../../validator/userValidator";
 import btnStyles from './login-btn.module.css'
 
@@ -8,11 +9,11 @@ const LoginBtn = ({ email, password, stylesById }: { email: string, password: st
   const [isLoading, setIsLoading] = useState(false);
 
   return (
-    <button
+    <StandartButton
       className={btnStyles['log-btn']}
       disabled={isLoading}
       id={stylesById}
-      onClick={(e) => {
+      onClick={(e: React.ChangeEvent<any>) => {
         e.preventDefault();
 
         if (UserValidator.validateEmail(email) && UserValidator.validatePassword(password)) {
@@ -22,7 +23,7 @@ const LoginBtn = ({ email, password, stylesById }: { email: string, password: st
       }
       }>
       Authentificate
-    </button>
+    </StandartButton>
   )
 };
 export default LoginBtn;

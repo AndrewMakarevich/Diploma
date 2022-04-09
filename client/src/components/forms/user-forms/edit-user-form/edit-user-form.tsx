@@ -1,5 +1,5 @@
 import { observer } from 'mobx-react-lite';
-import { useContext, useRef, useState } from 'react';
+import React, { useContext, useRef, useState } from 'react';
 import formStyles from './edit-user-form.module.css';
 import { Context } from '../../../..';
 import PairSelects from '../../../inputs/pair-select';
@@ -7,6 +7,8 @@ import countriesList from '../../../../consts/countries-list/countries-list';
 import { IUserDataToEdit } from '../../../../interfaces/forms/edit-user-interfaces';
 import useFetching from '../../../../hooks/useFetching';
 import setFileInputCurrentImg from '../../../../utils/file-input-utils/setFileInputCurrentImg';
+import StandartButton from '../../../../UI/standart-button/standart-button';
+import DeleteButton from '../../../../UI/delete-button/delete-button';
 
 const EditUserForm = () => {
   const { userStore } = useContext(Context);
@@ -140,21 +142,20 @@ const EditUserForm = () => {
             secOptName='city' />
         </label>
 
-        <button
-          className={formStyles['submit-changes-btn']}
-          onClick={(e) => {
+        <StandartButton
+          onClick={(e: React.ChangeEvent<HTMLButtonElement>) => {
             e.preventDefault();
             sendDataToEdit();
           }}
-          disabled={isEditLoading}>Submit changes</button>
+          disabled={isEditLoading}>Submit changes</StandartButton>
 
       </form>
 
-      <button
+      <DeleteButton
         className={formStyles['clear-changes-btn']}
         onClick={clearChanges}>
         Clear changes
-      </button>
+      </DeleteButton>
     </>
 
   )

@@ -52,7 +52,7 @@ const SignInForm = (
           </label>
         </li>
       </ul>
-      <RegistrationBtn stylesById={formStyles["registration-btn"]}
+      <RegistrationBtn
         email={authData.email}
         nickname={authData.nickname}
         password={authData.password}

@@ -1,0 +1,6 @@
+.delete-button:hover,
+.delete-button:focus {
+  background-color: var(--remove-color);
+  border-color: var(--remove-color);
+  color: var(--extra-dark);
+}

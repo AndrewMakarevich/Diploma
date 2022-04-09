@@ -11,25 +11,8 @@
 .create-picture-btn {
   position: absolute;
   top: 10px;
-  left: 10px;
-  z-index: 3;
-  padding: 5px;
-  border-radius: 15px;
-  border: 2px solid var(--extra-light);
-  background-color: rgba(0, 0, 0, 0.637);
-  color: var(--extra-light);
-  cursor: pointer;
-  transition: background-color .2s, color .3s;
-}
-
-.create-picture-btn:disabled {
-  opacity: 0.7;
-}
-
-.create-picture-btn:focus,
-.create-picture-btn:hover {
-  background-color: var(--extra-light);
-  color: var(--extra-dark);
+  left: 5px;
+  border-top-left-radius: 15px;
 }
 
 .set-img__section {}
@@ -188,24 +171,6 @@
   resize: vertical;
 }
 
-.delete-new-section-btn {
-  cursor: pointer;
-  padding: 4px 7px;
-  background-color: transparent;
-  color: var(--extra-light);
-  border: 2px solid var(--extra-light);
-  border-bottom-left-radius: 15px;
-  border-bottom-right-radius: 15px;
-  transition: background-color .2s, color .3s, border-color .4s;
-}
-
-.delete-new-section-btn:focus,
-.delete-new-section-btn:hover {
-  background-color: var(--remove-color);
-  color: var(--extra-dark);
-  border-color: var(--extra-dark);
-}
-
 .new-tags__section__header {
   color: var(--extra-light);
 }
@@ -245,9 +210,9 @@
   color: var(--extra-dark);
 }
 
-.new-tag__block button {
-  border-top-right-radius: 15px;
-  border-bottom-right-radius: 15px;
+.delete-tag-btn {
+  border-top-left-radius: 0;
+  border-bottom-left-radius: 0;
 }
 
 

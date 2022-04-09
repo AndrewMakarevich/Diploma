@@ -1,6 +1,7 @@
 import { useContext } from "react";
 import { Context } from "../../..";
 import useFetching from "../../../hooks/useFetching";
+import StandartButton from "../../../UI/standart-button/standart-button";
 import UserValidator from "../../../validator/userValidator";
 
 const ResetPassBtn = ({ id, newPass, repeatNewPass }: { id?: string, newPass: string, repeatNewPass: string }) => {
@@ -22,13 +23,13 @@ const ResetPassBtn = ({ id, newPass, repeatNewPass }: { id?: string, newPass: st
   const { executeCallback: resetPassword, isLoading: resetIsLoading } = useFetching(() => sendResetPassRequest(newPass, repeatNewPass));
 
   return (
-    <button id={id} onClick={
-      (e) => {
+    <StandartButton id={id} onClick={
+      (e: React.ChangeEvent<any>) => {
         e.preventDefault();
         resetPassword();
       }
     }
-      disabled={resetIsLoading}>Reset password</button>
+      disabled={resetIsLoading}>Reset password</StandartButton>
   )
 };
 export default ResetPassBtn;

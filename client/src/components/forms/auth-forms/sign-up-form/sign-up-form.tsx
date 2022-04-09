@@ -30,7 +30,7 @@ const SignUpForm = (
           </label>
         </li>
       </ul>
-      <LoginBtn stylesById={formStyles["login-btn"]} email={authData.email} password={authData.password} />
+      <LoginBtn email={authData.email} password={authData.password} />
     </form>
   )
 };
