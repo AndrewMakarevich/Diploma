@@ -1,9 +1,11 @@
 .icon {
   width: 22px;
   height: 22px;
-  color: black;
+  color: white;
+  transition: color .2s, fill .2s;
 }
 
 .icon-active {
   fill: rgb(230, 92, 92);
+  color: black;
 }

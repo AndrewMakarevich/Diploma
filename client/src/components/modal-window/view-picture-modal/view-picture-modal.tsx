@@ -1,10 +1,17 @@
 import modalStyles from "./view-picture-modal.module.css";
 
-import { useEffect, useState } from "react";
+import { useCallback, useContext, useEffect, useState } from "react";
 import { IExtendedPictureObj } from "../../../interfaces/http/response/pictureInterfaces";
 import PictureService from "../../../services/picture-service";
 import ModalWindow from "../modal-window";
 import ArrowIcon from "../../../assets/img/icons/arrow-icon/arrow-icon";
+import LikeButton from "../../../UI/like-button/like-button";
+import { Context } from "../../..";
+import LikePictureBtn from "../../btns/like-picture-btn/like-picture-btn";
+import { IGetPictureLikesResponseObj, IPictureLikeResponseObj } from "../../../interfaces/http/response/pictureLikeInterfaces";
+import PictureLikeService from "../../../services/picture-like-service";
+import { IGetPictureCommentsResponseObj } from "../../../interfaces/http/response/pictureCommentInterfaces";
+import GetPictureCommentsButton from "../../btns/get-picture-comments-btn/get-picture-comments-btn";
 
 interface IViewPictureModalProps {
   isOpen: boolean,
@@ -14,15 +21,33 @@ interface IViewPictureModalProps {
 
 
 const ViewPictureModal = ({ isOpen, setIsOpen, currentPictureId }: IViewPictureModalProps) => {
+  const { userStore } = useContext(Context);
   const [pictureInfo, setPictureInfo] = useState<IExtendedPictureObj | null>(null);
+  const [pictureLikes, setPictureLikes] = useState<IGetPictureLikesResponseObj[] | []>([]);
+  const [pictureComments, setPictureComments] = useState<IGetPictureCommentsResponseObj[] | []>([])
   const [pictureInfoIsOpen, setPictureInfoIsOpen] = useState(true);
+
+
   const currentPictureImgLink = process.env.REACT_APP_BACK_LINK + "/img/picture/" + pictureInfo?.img;
   const userImgLink = process.env.REACT_APP_BACK_LINK + "/img/avatar/" + pictureInfo?.user.avatar;
-  const pictureDateCreation = new Date(pictureInfo?.createdAt || 0).toLocaleDateString("en-EN", { year: "numeric", month: "long", day: "numeric" });
+
+  const getParsedDate = useCallback((date: string) => {
+    return new Date(date).toLocaleDateString("en-EN", { year: 'numeric', month: "long", day: "numeric" });
+  }, []);
+
+  function getLikes() {
+    PictureLikeService.getPictureLikes(currentPictureId).then(({ data }) => setPictureLikes(data));
+  };
+
+  function getPictureInfo() {
+    PictureService.getPicture(currentPictureId).then(({ data }) => setPictureInfo(data));
+  }
+
 
   useEffect(() => {
     if (currentPictureId) {
-      PictureService.getPicture(currentPictureId).then(({ data }) => setPictureInfo(data));
+      getPictureInfo();
+      getLikes();
     }
   }, [currentPictureId]);
 
@@ -37,6 +62,14 @@ const ViewPictureModal = ({ isOpen, setIsOpen, currentPictureId }: IViewPictureM
                 alt={pictureInfo.mainTitle}
                 src={currentPictureImgLink} />
             </div>
+            <div className={modalStyles["picture-like-block"]}>
+              <LikePictureBtn
+                pictureId={pictureInfo.id}
+                actualizePictureLikes={(e: React.ChangeEvent<HTMLButtonElement>) => getLikes()}
+                active={pictureLikes.some((likeObj) => likeObj.userId === userStore.userData.id)} />
+              <p>{pictureLikes?.length}</p>
+            </div>
+
             <div className={`${modalStyles["picture-info-wrapper"]} ${pictureInfoIsOpen ? "" : modalStyles["closed-picture-info"]}`}>
               <button
                 className={modalStyles["hide-picture-info-btn"]}
@@ -48,42 +81,62 @@ const ViewPictureModal = ({ isOpen, setIsOpen, currentPictureId }: IViewPictureM
                   <div>
                     <p className={modalStyles["author-info-nickname"]}>{pictureInfo.user.nickname}</p>
                     <p className={modalStyles["author-info-fullname"]}>{pictureInfo.user.firstName} {pictureInfo.user.surname}</p>
-                    <p className={modalStyles["author-info-fullname"]}>{pictureDateCreation}</p>
+                    <p className={modalStyles["author-info-fullname"]}>{getParsedDate(pictureInfo.createdAt)}</p>
                   </div>
                   <img className={modalStyles["author-avatar"]} alt={`${pictureInfo.user.nickname}'s avatar`} src={userImgLink}></img>
                 </section>
                 <hr></hr>
                 <section className={modalStyles["main-info-block"]}>
                   <p className={modalStyles["main-title"]}>{pictureInfo.mainTitle}</p>
+
                   <div className={modalStyles["main-description__wrapper"]}>
-                    <div className={modalStyles["main-description"]}>
-                    Lorem ipsum dolor sit amet consectetur adipisicing elit. Odit aliquam tempora possimus eos, aperiam sint ea vitae laudantium eius beatae magnam provident id quasi dolore, ex earum officia nemo quia!Lorem ipsum dolor sit amet consectetur adipisicing elit. Odit aliquam tempora possimus eos, aperiam sint ea vitae laudantium eius beatae magnam provident id quasi dolore, ex earum officia nemo quia!
-                    Lorem ipsum dolor sit amet consectetur adipisicing elit. Odit aliquam tempora possimus eos, aperiam sint ea vitae laudantium eius beatae magnam provident id quasi dolore, ex earum officia nemo quia!
-                    Lorem ipsum dolor sit amet consectetur adipisicing elit. Odit aliquam tempora possimus eos, aperiam sint ea vitae laudantium eius beatae magnam provident id quasi dolore, ex earum officia nemo quia!
-                    Lorem ipsum dolor sit amet consectetur adipisicing elit. Odit aliquam tempora possimus eos, aperiam sint ea vitae laudantium eius beatae magnam provident id quasi dolore, ex earum officia nemo quia!
-                    Lorem ipsum dolor sit amet consectetur adipisicing elit. Odit aliquam tempora possimus eos, aperiam sint ea vitae laudantium eius beatae magnam provident id quasi dolore, ex earum officia nemo quia!
-                    Lorem ipsum dolor sit amet consectetur adipisicing elit. Odit aliquam tempora possimus eos, aperiam sint ea vitae laudantium eius beatae magnam provident id quasi dolore, ex earum officia nemo quia!
+                    <div className={`${pictureInfo.description ? modalStyles["main-description"] : ""}`}>
+                      {pictureInfo.description}
                     </div>
                   </div>
 
-                  <ul>
+                  <ul className={modalStyles["picture-info__list"]}>
                     {
                       pictureInfo.pictureInfos.map(pictureInfo => (
-                        <li>
-                          <p>{pictureInfo.title}</p>
-                          <p>{pictureInfo.description}</p>
-                          <p>{pictureInfo.updatedAt}</p>
+                        <li className={modalStyles["picture-info__item"]}>
+                          <p className={modalStyles["picture-info__item-title"]}>
+                            {pictureInfo.title}
+                            <hr></hr>
+                          </p>
+                          <p className={modalStyles["picture-info__item-description"]}>
+                            {pictureInfo.description}
+                          </p>
+                          <p className={modalStyles["picture-info__item-creation-date"]}>
+                            Section created at: {getParsedDate(pictureInfo.createdAt)}
+                          </p>
+                          <p className={modalStyles["picture-info__item-update-date"]}>
+                            {pictureInfo.createdAt === pictureInfo.updatedAt ? "" : `Last update: ${getParsedDate(pictureInfo.updatedAt)}`}
+                          </p>
                         </li>
                       ))
                     }
                   </ul>
-                  <ul>
+
+                  <p className={modalStyles["picture-tags__header"]}>Tags:</p>
+                  <ul className={modalStyles["picture-tags__list"]}>
                     {
                       pictureInfo.tags.map(tag => (
-                        <li>
+                        <li className={modalStyles["picture-tags__item"]}>
                           {tag.text}
                         </li>
                       ))
+                    }
+                  </ul>
+
+                  <GetPictureCommentsButton pictureId={currentPictureId} setPictureComments={setPictureComments}>
+                    Get comments
+                  </GetPictureCommentsButton>
+
+                  <ul>
+                    {
+                      pictureComments.map(comment =>
+                        <li>{JSON.stringify(comment)}</li>
+                      )
                     }
                   </ul>
                 </section>

@@ -1,6 +1,3 @@
-#modal-window {
-  background-color: var(--extra-dark);
-}
 
 #modal-window:before {
   content: "";

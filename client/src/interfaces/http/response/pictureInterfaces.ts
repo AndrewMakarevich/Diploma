@@ -5,14 +5,16 @@ interface mainPictureObjectProps {
   description: string,
   createdAt: string,
   updatedAt: string,
-  pictureTypeId: number | null,
-  likesAmount: number,
+  userId:number,
+  pictureTypeId: string | null, 
+  
 }
 
 export interface IShortPictureObj extends mainPictureObjectProps {
   user: {
     nickname: string
-  }
+  }, 
+  likesAmount: number,
   commentsAmount: number
 }
 

@@ -5,6 +5,10 @@
   font-family: Spartan;
 }
 
+ul, ol{
+  list-style: none;
+}
+
 body {
   margin: 0;
   font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
