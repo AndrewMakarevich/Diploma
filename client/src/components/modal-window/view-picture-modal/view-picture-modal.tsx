@@ -51,6 +51,11 @@ const ViewPictureModal = ({ isOpen, setIsOpen, currentPictureId }: IViewPictureM
     }
   }, [currentPictureId]);
 
+  useEffect(() => {
+    console.log(pictureLikes.some((likeObj) => likeObj.userId === userStore.userData.id));
+    console.log(pictureLikes);
+  }, [pictureLikes]);
+
   return (
     <ModalWindow isOpen={isOpen} setIsOpen={setIsOpen} closeBtnId={modalStyles["close-btn"]}>
       {
@@ -65,7 +70,7 @@ const ViewPictureModal = ({ isOpen, setIsOpen, currentPictureId }: IViewPictureM
             <div className={modalStyles["picture-like-block"]}>
               <LikePictureBtn
                 pictureId={pictureInfo.id}
-                actualizePictureLikes={(e: React.ChangeEvent<HTMLButtonElement>) => getLikes()}
+                actualizePictureLikes={() => getLikes()}
                 active={pictureLikes.some((likeObj) => likeObj.userId === userStore.userData.id)} />
               <p>{pictureLikes?.length}</p>
             </div>
@@ -128,7 +133,7 @@ const ViewPictureModal = ({ isOpen, setIsOpen, currentPictureId }: IViewPictureM
                     }
                   </ul>
 
-                  <GetPictureCommentsButton pictureId={currentPictureId} setPictureComments={setPictureComments}>
+                  <GetPictureCommentsButton pictureId={currentPictureId} commentId={0} setPictureComments={setPictureComments} >
                     Get comments
                   </GetPictureCommentsButton>
 

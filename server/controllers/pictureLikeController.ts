@@ -12,6 +12,17 @@ class PictureLikeController {
     } catch (e) {
       next(e);
     }
+  };
+
+  static async getPictureLikes(req: Request, res: Response, next: NextFunction) {
+    try{
+      const {pictureId} = req.params;
+      const response = await PictureLikeService.getPictureLikes(Number(pictureId));
+
+      return res.json(response);
+    }catch(e){
+      next(e);
+    }
   }
 };
 

@@ -143,7 +143,7 @@ const EditUserForm = () => {
         </label>
 
         <StandartButton
-          onClick={(e: React.ChangeEvent<HTMLButtonElement>) => {
+          onClick={(e: React.MouseEvent<HTMLButtonElement>) => {
             e.preventDefault();
             sendDataToEdit();
           }}

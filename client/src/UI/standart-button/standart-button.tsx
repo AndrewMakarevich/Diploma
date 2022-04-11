@@ -1,11 +1,10 @@
 import { ComponentProps } from "react";
 import btnStyles from "./standart-button.module.css";
 
-const StandartButton = (props: ComponentProps<any>) => {
-  const { className, ...restProps } = props;
+const StandartButton = ({ className, children, ...restProps }: ComponentProps<"button">) => {
   return (
     <button className={`${btnStyles["button"]} ${className || ""}`} {...restProps}>
-      {props.children}
+      {children}
     </button>
   )
 };

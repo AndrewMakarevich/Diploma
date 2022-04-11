@@ -1,34 +1,37 @@
 import { AxiosResponse } from "axios";
-import { ComponentProps, useEffect } from "react";
+import { ComponentProps } from "react";
 import useFetching from "../../../hooks/useFetching";
 import { IPictureLikeResponseObj } from "../../../interfaces/http/response/pictureLikeInterfaces";
 import PictureLikeService from "../../../services/picture-like-service";
 import LikeButton from "../../../UI/like-button/like-button";
 
-interface ILikePictureBtnProps {
-  pictureId:number;
-  actualizePictureLikes:Function;
+interface ILikePictureBtnProps extends ComponentProps<"button"> {
+  pictureId: number;
+  actualizePictureLikes: Function;
+  active: boolean
 }
 
-const LikePictureBtn = ({pictureId,actualizePictureLikes, ...restProps}:ComponentProps<any>) =>{
-  const {executeCallback: interractWithPicture, isLoading, response} = useFetching<AxiosResponse<IPictureLikeResponseObj>>(()=>PictureLikeService.likePicture(pictureId));
+const LikePictureBtn = ({ pictureId, actualizePictureLikes, active, onClick, ...restProps }: ILikePictureBtnProps) => {
+  const { executeCallback: interractWithPicture, isLoading } =
+    useFetching<AxiosResponse<IPictureLikeResponseObj>>(async () => {
+      await PictureLikeService.likePicture(pictureId)
+    });
 
-  // useEffect(()=>{
-  //   if(response?.data){
-  //     alert(response.data.message)
-  //   }
-  // }, [response]);
-
-  return(
-      <LikeButton 
+  return (
+    <LikeButton
       disabled={isLoading}
-      onClick={async(e:React.ChangeEvent<any>)=>{
-      await interractWithPicture(); 
-      await actualizePictureLikes()   
-  }}
-  {...restProps}>
+      onClick={async (e) => {
+        if (onClick) {
+          onClick(e);
+        }
 
-  </LikeButton>
+        await interractWithPicture();
+        await actualizePictureLikes();
+      }}
+      active={active}
+      {...restProps}>
+
+    </LikeButton>
   )
 
 };

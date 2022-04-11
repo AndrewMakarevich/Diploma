@@ -4,30 +4,41 @@ import models from "../models/models";
 import PictureValidator from "../validator/pictureValidator";
 
 class PictureCommentService {
-  static async getComments(pictureId: number) {
+  static async getComments(pictureId: number, commentId:number) {
     const picture = await models.Picture.findOne({ where: { id: pictureId } });
 
     if (!picture) {
       throw ApiError.badRequest("Picture from whom you want to get commentaries from doesn't exists");
     };
 
-    const comments = await models.Comment.findAll({
-      where: {
+    let whereStatement;
+
+    if(!commentId){
+      whereStatement = {
+        commentId:null,
         pictureId
-      },
-      attributes: { include: [[sequelize.fn('COUNT', sequelize.col("commentLikes")), "likesAmount"]] },
+      }
+    }else{
+      whereStatement = {
+        commentId,
+        pictureId
+      }
+    }
+
+    const comments = await models.Comment.findAll({
+      where: whereStatement,
       include: [
         {
           model: models.CommentLike,
           as: "commentLikes",
-          attributes: []
+          attributes: ["userId"]
         }
-      ],
-      group: ["comment.id"]
+      ]
     });
 
     return comments;
-  }
+  };
+
   static async addComment(pictureId: number, commentId: number, userId: number, text: string) {
     const picture = await models.Picture.findOne({ where: { id: pictureId } });
 

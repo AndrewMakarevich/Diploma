@@ -37,7 +37,27 @@ class PictureLikeService {
     );
 
     return { message: "Like from you to this picture added successfully" }
-  }
+  };
+
+  static async getPictureLikes(pictureId:number){
+    const picture = await models.Picture.findOne(
+      {
+        where:{
+          id:pictureId
+        }
+    });
+
+    if(!picture){
+      throw ApiError.badRequest("Picture with such id doesn't exists");
+    };
+
+    const pictureLikes = await models.PictureLike.findAll({
+      where:{pictureId},
+      attributes:["userId"]
+    });
+
+    return pictureLikes;
+  };
 };
 
 export default PictureLikeService;

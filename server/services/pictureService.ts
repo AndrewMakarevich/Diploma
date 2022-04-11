@@ -40,17 +40,10 @@ class PictureService {
           }
         },
         {
-          model: models.PictureLike,
-          as: "pictureLikes",
-          attributes: []
-        },
-        {
           model: models.Comment,
           as: "comments",
         },
-      ],
-      attributes: { include: [[sequelize.fn("COUNT", sequelize.col("pictureLikes")), "likesAmount"]] },
-      group: ["picture.id", "user.id", "pictureInfos.id", "tags.id", "comments.id"]
+      ]
     });
     return picture;
   }
@@ -65,8 +58,6 @@ class PictureService {
     if (!page) {
       page = 1;
     }
-
-    console.log('LIMIT', limit)
 
     let orderParam: OrderItem;
 
