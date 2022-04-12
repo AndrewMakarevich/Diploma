@@ -9,9 +9,9 @@ import { Context } from "../../..";
 import LikeEssenceBtn from "../../btns/like-picture-btn/like-essence-btn";
 import { IGetPictureLikesResponseObj } from "../../../interfaces/http/response/pictureLikeInterfaces";
 import PictureLikeService from "../../../services/picture-like-service";
-import { IGetPictureCommentsResponseObj } from "../../../interfaces/http/response/pictureCommentInterfaces";
-import GetPictureCommentsButton from "../../btns/get-picture-comments-btn/get-picture-comments-btn";
+import GetCommentsButton from "../../btns/get-picture-comments-btn/get-picture-comments-btn";
 import PictureInfoList from "../../lists/picture-lists/picture-info-list/picture-info-list";
+import PictureCommentList from "../../lists/comment-list/comment-list";
 
 interface IViewPictureModalProps {
   isOpen: boolean,
@@ -23,8 +23,7 @@ interface IViewPictureModalProps {
 const ViewPictureModal = ({ isOpen, setIsOpen, currentPictureId }: IViewPictureModalProps) => {
   const { userStore } = useContext(Context);
   const [pictureInfo, setPictureInfo] = useState<IExtendedPictureObj | null>(null);
-  const [pictureLikes, setPictureLikes] = useState<IGetPictureLikesResponseObj[] | []>([]);
-  const [pictureComments, setPictureComments] = useState<IGetPictureCommentsResponseObj[] | []>([])
+  const [pictureLikes, setPictureLikes] = useState<IGetPictureLikesResponseObj[]>([]);
   const [pictureInfoIsOpen, setPictureInfoIsOpen] = useState(true);
 
 
@@ -115,16 +114,7 @@ const ViewPictureModal = ({ isOpen, setIsOpen, currentPictureId }: IViewPictureM
                       </li>
                     ))}
                   </ul>
-
-                  <GetPictureCommentsButton pictureId={currentPictureId} commentId={0} setPictureComments={setPictureComments} >
-                    Get comments
-                  </GetPictureCommentsButton>
-
-                  <ul>
-                    {pictureComments.map(comment =>
-                      <li>{JSON.stringify(comment)}</li>
-                    )}
-                  </ul>
+                  <PictureCommentList pictureId={currentPictureId} />
                 </section>
 
               </div>

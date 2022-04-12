@@ -88,12 +88,7 @@ class PictureService {
 
     let pictures = await models.Picture.findAll({
       where: whereStatement,
-      attributes: {
-        include: [
-          [sequelize.fn('COUNT', sequelize.col('pictureLikes')), 'likesAmount'],
-          [sequelize.fn('COUNT', sequelize.col('comments')), 'commentsAmount'],
-        ]
-      },
+
       include: [
         {
           model: models.User,
@@ -124,10 +119,14 @@ class PictureService {
           attributes: []
         }
       ],
-      order: [
-        [sequelize.col((orderParam as Array<string>)[0]), (orderParam as Array<string>)[1]]
-      ],
-      group: ["picture.id", "user.id", "pictureInfos.id", "tags.id"]
+      order: [[sequelize.col((orderParam as Array<string>)[0]), (orderParam as Array<string>)[1]]],
+      attributes: {
+        include: [
+          [sequelize.fn('COUNT', sequelize.fn('DISTINCT', sequelize.col('pictureLikes'))), 'likesAmount'],
+          [sequelize.fn('COUNT', sequelize.fn('DISTINCT', sequelize.col('comments'))), 'commentsAmount']
+        ]
+      },
+      group: ["picture.id", "user.id"]
     });
 
     let picturesAmount = pictures.length;

@@ -4,11 +4,12 @@ import PictureCommentService from "../services/pictureCommentService";
 class PictureCommentController {
   static async getComments(req: Request, res: Response, next: NextFunction) {
     try {
-      const {pictureId, commentId} = req.query;
+      const { pictureId, commentId } = req.query;
       const response = await PictureCommentService.getComments(Number(pictureId), Number(commentId));
 
       return res.json(response);
     } catch (e) {
+      console.log(e);
       next(e);
     }
   };

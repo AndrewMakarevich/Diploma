@@ -3,7 +3,7 @@ import useFetching from "../../../hooks/useFetching";
 import PictureCommentService from "../../../services/picture-comment-service";
 import StandartButton from "../../../UI/standart-button/standart-button";
 
-interface IGetCommentsBtnProps extends ComponentProps<"button"> {
+interface IGetPictureCommentsBtnProps extends ComponentProps<"button"> {
   pictureId: number;
   commentId: number;
   setPictureComments: Function;
@@ -15,7 +15,7 @@ const GetPictureCommentsButton = ({
   setPictureComments,
   onClick,
   ...restProps
-}: IGetCommentsBtnProps) => {
+}: IGetPictureCommentsBtnProps) => {
   const getAndSetPictureComments = useCallback(async () => {
     await PictureCommentService.getPictureComments(pictureId, commentId).then(
       ({ data }) => setPictureComments(data)

@@ -1,4 +1,4 @@
-export interface IGetPictureCommentsResponseObj {
+export interface IGetCommentsResponseObj {
   id: number,
   text: string,
   createdAt: string,

@@ -4,7 +4,7 @@ import models from "../models/models";
 import PictureValidator from "../validator/pictureValidator";
 
 class PictureCommentService {
-  static async getComments(pictureId: number, commentId:number) {
+  static async getComments(pictureId: number, commentId: number) {
     const picture = await models.Picture.findOne({ where: { id: pictureId } });
 
     if (!picture) {
@@ -13,12 +13,12 @@ class PictureCommentService {
 
     let whereStatement;
 
-    if(!commentId){
+    if (!commentId) {
       whereStatement = {
-        commentId:null,
+        commentId: null,
         pictureId
       }
-    }else{
+    } else {
       whereStatement = {
         commentId,
         pictureId
@@ -28,12 +28,19 @@ class PictureCommentService {
     const comments = await models.Comment.findAll({
       where: whereStatement,
       include: [
+        // {
+        //   model: models.CommentLike,
+        //   as: "commentLikes",
+        //   attributes: ["userId"]
+        // },
         {
-          model: models.CommentLike,
-          as: "commentLikes",
-          attributes: ["userId"]
+          model: models.Comment,
+          as: "comments",
+          attributes: []
         }
-      ]
+      ],
+      attributes: { include: [[sequelize.fn("COUNT", sequelize.col("comments")), "childCommentsAmount"]] },
+      group: ["comment.id"]
     });
 
     return comments;
@@ -53,10 +60,10 @@ class PictureCommentService {
     }
 
     if (commentId) {
-      const parentComment = await models.Comment.findOne({ where: { id: commentId } });
+      const parentComment = await models.Comment.findOne({ where: { id: commentId, pictureId } });
 
       if (!parentComment) {
-        throw ApiError.badRequest("Parent comment, to whom you want to add comment doesn't exists");
+        throw ApiError.badRequest("Parent comment, to whom you want to add comment doesn't exists, or this comment left not on this picture");
       };
     };
 
