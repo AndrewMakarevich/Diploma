@@ -7,12 +7,12 @@ import LikeButton from "../../../UI/like-button/like-button";
 
 interface ILikePictureBtnProps extends ComponentProps<"button"> {
   pictureId: number;
-  actualizePictureLikes: Function;
+  actualizeInfoAfterLike: Function;
   active: boolean
 }
 
-const LikePictureBtn = ({ pictureId, actualizePictureLikes, active, onClick, ...restProps }: ILikePictureBtnProps) => {
-  const { executeCallback: interractWithPicture, isLoading } =
+const LikeEssenceBtn = ({ pictureId, actualizeInfoAfterLike, active, onClick, ...restProps }: ILikePictureBtnProps) => {
+  const { executeCallback: sendRequestForLike, isLoading } =
     useFetching<AxiosResponse<IPictureLikeResponseObj>>(async () => {
       await PictureLikeService.likePicture(pictureId)
     });
@@ -25,8 +25,8 @@ const LikePictureBtn = ({ pictureId, actualizePictureLikes, active, onClick, ...
           onClick(e);
         }
 
-        await interractWithPicture();
-        await actualizePictureLikes();
+        await sendRequestForLike();
+        await actualizeInfoAfterLike();
       }}
       active={active}
       {...restProps}>
@@ -36,4 +36,4 @@ const LikePictureBtn = ({ pictureId, actualizePictureLikes, active, onClick, ...
 
 };
 
-export default LikePictureBtn;
+export default LikeEssenceBtn;

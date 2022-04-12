@@ -5,13 +5,13 @@ import { IExtendedPictureObj } from "../../../interfaces/http/response/pictureIn
 import PictureService from "../../../services/picture-service";
 import ModalWindow from "../modal-window";
 import ArrowIcon from "../../../assets/img/icons/arrow-icon/arrow-icon";
-import LikeButton from "../../../UI/like-button/like-button";
 import { Context } from "../../..";
-import LikePictureBtn from "../../btns/like-picture-btn/like-picture-btn";
-import { IGetPictureLikesResponseObj, IPictureLikeResponseObj } from "../../../interfaces/http/response/pictureLikeInterfaces";
+import LikeEssenceBtn from "../../btns/like-picture-btn/like-essence-btn";
+import { IGetPictureLikesResponseObj } from "../../../interfaces/http/response/pictureLikeInterfaces";
 import PictureLikeService from "../../../services/picture-like-service";
 import { IGetPictureCommentsResponseObj } from "../../../interfaces/http/response/pictureCommentInterfaces";
 import GetPictureCommentsButton from "../../btns/get-picture-comments-btn/get-picture-comments-btn";
+import PictureInfoList from "../../lists/picture-lists/picture-info-list/picture-info-list";
 
 interface IViewPictureModalProps {
   isOpen: boolean,
@@ -67,10 +67,11 @@ const ViewPictureModal = ({ isOpen, setIsOpen, currentPictureId }: IViewPictureM
                 alt={pictureInfo.mainTitle}
                 src={currentPictureImgLink} />
             </div>
+
             <div className={modalStyles["picture-like-block"]}>
-              <LikePictureBtn
+              <LikeEssenceBtn
                 pictureId={pictureInfo.id}
-                actualizePictureLikes={() => getLikes()}
+                actualizeInfoAfterLike={() => getLikes()}
                 active={pictureLikes.some((likeObj) => likeObj.userId === userStore.userData.id)} />
               <p>{pictureLikes?.length}</p>
             </div>
@@ -81,6 +82,7 @@ const ViewPictureModal = ({ isOpen, setIsOpen, currentPictureId }: IViewPictureM
                 onClick={(e) => setPictureInfoIsOpen(!pictureInfoIsOpen)}>
                 <ArrowIcon id={modalStyles["arrow-icon"]} />
               </button>
+
               <div className={modalStyles["picture-info-block"]}>
                 <section className={modalStyles["author-info-block"]}>
                   <div>
@@ -90,7 +92,9 @@ const ViewPictureModal = ({ isOpen, setIsOpen, currentPictureId }: IViewPictureM
                   </div>
                   <img className={modalStyles["author-avatar"]} alt={`${pictureInfo.user.nickname}'s avatar`} src={userImgLink}></img>
                 </section>
+
                 <hr></hr>
+
                 <section className={modalStyles["main-info-block"]}>
                   <p className={modalStyles["main-title"]}>{pictureInfo.mainTitle}</p>
 
@@ -100,37 +104,16 @@ const ViewPictureModal = ({ isOpen, setIsOpen, currentPictureId }: IViewPictureM
                     </div>
                   </div>
 
-                  <ul className={modalStyles["picture-info__list"]}>
-                    {
-                      pictureInfo.pictureInfos.map(pictureInfo => (
-                        <li className={modalStyles["picture-info__item"]}>
-                          <p className={modalStyles["picture-info__item-title"]}>
-                            {pictureInfo.title}
-                            <hr></hr>
-                          </p>
-                          <p className={modalStyles["picture-info__item-description"]}>
-                            {pictureInfo.description}
-                          </p>
-                          <p className={modalStyles["picture-info__item-creation-date"]}>
-                            Section created at: {getParsedDate(pictureInfo.createdAt)}
-                          </p>
-                          <p className={modalStyles["picture-info__item-update-date"]}>
-                            {pictureInfo.createdAt === pictureInfo.updatedAt ? "" : `Last update: ${getParsedDate(pictureInfo.updatedAt)}`}
-                          </p>
-                        </li>
-                      ))
-                    }
-                  </ul>
+                  <PictureInfoList pictureInfos={pictureInfo.pictureInfos} />
 
                   <p className={modalStyles["picture-tags__header"]}>Tags:</p>
+
                   <ul className={modalStyles["picture-tags__list"]}>
-                    {
-                      pictureInfo.tags.map(tag => (
-                        <li className={modalStyles["picture-tags__item"]}>
-                          {tag.text}
-                        </li>
-                      ))
-                    }
+                    {pictureInfo.tags.map(tag => (
+                      <li className={modalStyles["picture-tags__item"]}>
+                        {tag.text}
+                      </li>
+                    ))}
                   </ul>
 
                   <GetPictureCommentsButton pictureId={currentPictureId} commentId={0} setPictureComments={setPictureComments} >
@@ -138,11 +121,9 @@ const ViewPictureModal = ({ isOpen, setIsOpen, currentPictureId }: IViewPictureM
                   </GetPictureCommentsButton>
 
                   <ul>
-                    {
-                      pictureComments.map(comment =>
-                        <li>{JSON.stringify(comment)}</li>
-                      )
-                    }
+                    {pictureComments.map(comment =>
+                      <li>{JSON.stringify(comment)}</li>
+                    )}
                   </ul>
                 </section>
 

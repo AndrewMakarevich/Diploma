@@ -1,0 +1,27 @@
+.picture-info__list{
+  display: flex;
+  flex-direction: column;
+  padding-top: 10px;
+  row-gap: 10px;
+}
+
+.picture-info__item{
+  display:flex;
+  flex-direction: column;
+  row-gap: 10px;
+  padding: 15px;
+  border-radius:15px;
+  background-color: rgba(0, 0, 0, 0.644);  
+}
+
+.picture-info__item-description{
+  max-height: 200px;
+  overflow-y: auto;
+}
+
+.picture-info__item-creation-date,
+.picture-info__item-update-date{
+  display: flex;
+  justify-content: end;
+  font-size: .4rem;
+}
