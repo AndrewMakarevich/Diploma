@@ -6,7 +6,7 @@ import PictureService from "../../../services/picture-service";
 import ModalWindow from "../modal-window";
 import ArrowIcon from "../../../assets/img/icons/arrow-icon/arrow-icon";
 import { Context } from "../../..";
-import LikeEssenceBtn from "../../btns/like-picture-btn/like-essence-btn";
+import LikeEssenceBtn from "../../btns/like-essence-btn/like-essence-btn";
 import { IGetPictureLikesResponseObj } from "../../../interfaces/http/response/pictureLikeInterfaces";
 import PictureLikeService from "../../../services/picture-like-service";
 import GetCommentsButton from "../../btns/get-picture-comments-btn/get-picture-comments-btn";
@@ -69,7 +69,9 @@ const ViewPictureModal = ({ isOpen, setIsOpen, currentPictureId }: IViewPictureM
 
             <div className={modalStyles["picture-like-block"]}>
               <LikeEssenceBtn
-                pictureId={pictureInfo.id}
+                sendLikeRequest={async () => {
+                  await PictureLikeService.likePicture(pictureInfo.id)
+                }}
                 actualizeInfoAfterLike={() => getLikes()}
                 active={pictureLikes.some((likeObj) => likeObj.userId === userStore.userData.id)} />
               <p>{pictureLikes?.length}</p>
@@ -114,7 +116,7 @@ const ViewPictureModal = ({ isOpen, setIsOpen, currentPictureId }: IViewPictureM
                       </li>
                     ))}
                   </ul>
-                  <PictureCommentList pictureId={currentPictureId} />
+                  <PictureCommentList userId={userStore.userData.id} pictureId={currentPictureId} />
                 </section>
 
               </div>

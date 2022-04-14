@@ -8,6 +8,7 @@ import LocationIcon from "../../assets/img/icons/location-icon/location-icon";
 import EditUserModal from "../../components/modal-window/edit-user-modal/edit-user-modal";
 import EditIcon from "../../assets/img/icons/edit-icon/edit-icon";
 import { routePaths } from "../../components/routes/paths";
+import returnUserAvatar from "../../utils/img-utils/return-user-avatar";
 
 const UserCabinet = () => {
   const { userStore } = useContext(Context);
@@ -25,7 +26,7 @@ const UserCabinet = () => {
 
         <img title="Your avatar" className={userCabinetStyles["user-cabinet__profile-avatar"]}
           alt="Profile avatar"
-          src={`${process.env.REACT_APP_BACK_LINK}/img/avatar/${userStore.userData.avatar}`} />
+          src={returnUserAvatar(userStore.userData.avatar)} />
         <img className={userCabinetStyles["user-cabinet__profile-background"]}
           alt="Profile background"
           src={`${process.env.REACT_APP_BACK_LINK}/img/profile-background/${userStore.userData.profileBackground}`} />

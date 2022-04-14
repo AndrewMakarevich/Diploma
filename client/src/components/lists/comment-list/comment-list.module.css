@@ -1,0 +1,15 @@
+.comment-list__wrapper{
+  display: flex;
+  flex-direction: column;
+  row-gap: 10px;
+  background-color: rgba(0, 0, 0, 0.6);
+  border-radius:15px;
+  border-left: solid 2px white;
+  padding:5px 2px 5px 10px;
+}
+
+.comment-list{
+  display: flex;
+  flex-direction: column;
+  row-gap: 5px;
+}

@@ -28,11 +28,16 @@ class PictureCommentService {
     const comments = await models.Comment.findAll({
       where: whereStatement,
       include: [
-        // {
-        //   model: models.CommentLike,
-        //   as: "commentLikes",
-        //   attributes: ["userId"]
-        // },
+        {
+          model: models.CommentLike,
+          as: "commentLikes",
+          attributes: ["userId"]
+        },
+        {
+          model: models.User,
+          as: "user",
+          attributes: ["avatar", "nickname"]
+        },
         {
           model: models.Comment,
           as: "comments",
@@ -40,7 +45,7 @@ class PictureCommentService {
         }
       ],
       attributes: { include: [[sequelize.fn("COUNT", sequelize.col("comments")), "childCommentsAmount"]] },
-      group: ["comment.id"]
+      group: ["comment.id", "commentLikes.id", "user.id"]
     });
 
     return comments;

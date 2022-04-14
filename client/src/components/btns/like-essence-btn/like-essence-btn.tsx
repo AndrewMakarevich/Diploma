@@ -6,16 +6,15 @@ import PictureLikeService from "../../../services/picture-like-service";
 import LikeButton from "../../../UI/like-button/like-button";
 
 interface ILikePictureBtnProps extends ComponentProps<"button"> {
-  pictureId: number;
+  sendLikeRequest: Function;
   actualizeInfoAfterLike: Function;
+  iconClassName?: string,
   active: boolean
 }
 
-const LikeEssenceBtn = ({ pictureId, actualizeInfoAfterLike, active, onClick, ...restProps }: ILikePictureBtnProps) => {
+const LikeEssenceBtn = ({ sendLikeRequest, actualizeInfoAfterLike, onClick, ...restProps }: ILikePictureBtnProps) => {
   const { executeCallback: sendRequestForLike, isLoading } =
-    useFetching<AxiosResponse<IPictureLikeResponseObj>>(async () => {
-      await PictureLikeService.likePicture(pictureId)
-    });
+    useFetching<AxiosResponse<IPictureLikeResponseObj>>(sendLikeRequest);
 
   return (
     <LikeButton
@@ -28,7 +27,6 @@ const LikeEssenceBtn = ({ pictureId, actualizeInfoAfterLike, active, onClick, ..
         await sendRequestForLike();
         await actualizeInfoAfterLike();
       }}
-      active={active}
       {...restProps}>
 
     </LikeButton>
