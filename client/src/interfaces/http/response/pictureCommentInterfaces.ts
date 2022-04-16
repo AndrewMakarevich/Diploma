@@ -16,3 +16,12 @@ export interface IGetCommentsResponseObj {
     nickname: string
   }
 };
+
+export interface ICreateCommentResponseObj {
+  message: string,
+  comment: IGetCommentsResponseObj
+};
+
+export interface IEditCommentResponseObj {
+  message: string,
+}

@@ -4,6 +4,7 @@ import authMiddleware from "../middlewares/authMiddleware";
 
 const pictureCommentRouter = Router();
 
+pictureCommentRouter.get('/get/:commentId', PictureCommentController.getCommentById);
 pictureCommentRouter.get('/get-many', PictureCommentController.getComments);
 pictureCommentRouter.post('/add', authMiddleware, PictureCommentController.addComment);
 pictureCommentRouter.put('/edit', authMiddleware, PictureCommentController.editComment);

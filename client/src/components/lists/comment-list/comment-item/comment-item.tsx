@@ -6,43 +6,77 @@ import LikeEssenceBtn from "../../../btns/like-essence-btn/like-essence-btn";
 import returnUserAvatar from "../../../../utils/img-utils/return-user-avatar";
 import { IGetCommentsResponseObj } from "../../../../interfaces/http/response/pictureCommentInterfaces";
 import { useCallback, useEffect, useState } from "react";
+import CommentValidator from "../../../../validator/comment-validator";
+import useFetching from "../../../../hooks/useFetching";
+import CreateCommentForm from "../../../forms/comment-forms/create-comment-form/create-comment-form";
 
 interface ICommentItemProps {
-  comment: IGetCommentsResponseObj,
+  commentId: number,
   parentCommentId?: number,
   pictureId: number,
   userId: number,
-  setComments: React.Dispatch<React.SetStateAction<IGetCommentsResponseObj[]>>
+  setChildComment: React.Dispatch<React.SetStateAction<IGetCommentsResponseObj | undefined>>
 }
 
-const CommentItem = ({ comment, parentCommentId, pictureId, userId, setComments }: ICommentItemProps) => {
+const CommentItem = ({ commentId, parentCommentId, pictureId, userId, setChildComment }: ICommentItemProps) => {
+  console.log(commentId);
+  const [commentObj, setCommentObj] = useState<IGetCommentsResponseObj>(
+    {
+      id: 0,
+      text: "",
+      createdAt: "",
+      updatedAt: "",
+      userId: 0,
+      commentId: null,
+      pictureId: 0,
+      childCommentsAmount: 0,
+      commentLikes: [],
+      user: {
+        avatar: "",
+        nickname: ""
+      }
+    }
+  );
   const [editMode, setEditMode] = useState(false);
+  const [addCommentFormOpen, setAddCommentFormOpen] = useState(false);
   const [commentText, setCommentText] = useState("");
 
-  // const sendEditCommentRequest = () => {
-  //   PictureCommentService.editComment(comment.id, commentText)
-  // };
+  const getCommentById = useCallback(async () => {
+    await PictureCommentService.getPictureComment(commentId).then(({ data }) => setCommentObj(data))
+  }, [commentId]);
 
-  // const actualizeComments = useCallback(async() =>{
+  // const actualizeComments = useCallback(async () => {
   //   await PictureCommentService.getPictureComments(pictureId, parentCommentId || undefined).then(
   //     ({ data }) => setComments(data));
-  // },[]);
+  // }, [pictureId, parentCommentId, setComments]);
+
+  const sendEditCommentRequest = useCallback(async () => {
+    CommentValidator.validateCommentText(commentText, true);
+    await PictureCommentService.editComment(commentObj.id, commentText);
+    await getCommentById();
+  }, [commentObj, commentText, getCommentById]);
+
+  const { executeCallback: editComment, isLoading: editCommentLoading } = useFetching(sendEditCommentRequest)
 
   useEffect(() => {
-    setCommentText(comment.text)
-  }, [comment]);
+    setCommentText(commentObj.text)
+  }, [commentObj]);
+
+  useEffect(() => {
+    getCommentById();
+  }, []);
   return (
     <li className={itemStyles["comment-item"]}>
       <section className={itemStyles["user-info"]}>
-        <img className={itemStyles["user-avatar"]} alt={`${comment.user.nickname}'s avatar`} src={returnUserAvatar(comment.user.avatar)} />
-        <p>{comment.user.nickname}</p>
+        <img className={itemStyles["user-avatar"]} alt={`${commentObj.user.nickname}'s avatar`} src={returnUserAvatar(commentObj.user.avatar)} />
+        <p>{commentObj.user.nickname}</p>
         {
-          userId === comment.userId ?
+          userId === commentObj.userId ?
             <>
               <button onClick={() => setEditMode(!editMode)}>{editMode ? "Leave edit panel" : "Edit comment"}</button>
-              {commentText !== comment.text ?
+              {commentText !== commentObj.text ?
                 <>
-                  <button>Submit changes</button>
+                  <button disabled={editCommentLoading} onClick={editComment}>Submit changes</button>
                   <button>Clear changes</button>
                 </>
                 :
@@ -57,14 +91,12 @@ const CommentItem = ({ comment, parentCommentId, pictureId, userId, setComments 
       <section className={itemStyles["comment-info"]}>
         {
           editMode ?
-            <textarea className={itemStyles["comment__text-area"]}
+            <textarea value={commentText} className={itemStyles["comment__text-area"]}
               onChange={(e) => {
                 setCommentText(e.target.value)
-              }}>
-              {commentText}
-            </textarea>
+              }} />
             :
-            <p>{comment.text}</p>
+            <p>{`${commentObj.text}`}</p>
         }
 
         <div className={itemStyles["comment-bottom-section"]}>
@@ -72,25 +104,40 @@ const CommentItem = ({ comment, parentCommentId, pictureId, userId, setComments 
           <div className={itemStyles["comment-like-block"]}>
             <LikeEssenceBtn
               iconClassName={itemStyles["like-btn"]}
-              actualizeInfoAfterLike={async () => await PictureCommentService.getPictureComments(pictureId, parentCommentId || undefined).then(
-                ({ data }) => setComments(data)
-              )}
+              actualizeInfoAfterLike={async () => await getCommentById()}
               sendLikeRequest={async () =>
-                PictureCommentLikeService.likePictureComment(comment.id)
+                PictureCommentLikeService.likePictureComment(commentObj.id)
               }
-              active={comment.commentLikes.some(({ userId: likeAuthor }) => likeAuthor === userId)} />
-            <p>{comment.commentLikes.length}</p>
+              active={commentObj.commentLikes.some(({ userId: likeAuthor }) => likeAuthor === userId)} />
+            <p>{commentObj.commentLikes.length}</p>
           </div>
 
           <div>
             <p className={itemStyles["comment-creation-date"]}>
-              Created at: {getToLocaleStringData(comment.createdAt)}
+              Created at: {getToLocaleStringData(commentObj.createdAt)}
             </p>
             <p className={itemStyles["comment-update-date"]}>
-              {comment.createdAt === comment.updatedAt ? "" : `Last update: ${getToLocaleStringData(comment.updatedAt)}`}
+              {commentObj.createdAt === commentObj.updatedAt ? "" : `Last update: ${getToLocaleStringData(commentObj.updatedAt)}`}
             </p>
           </div>
+        </div>
+        <div className={itemStyles["create-comment-form__wrapper"]}>
+          {
+            addCommentFormOpen ?
+              <CreateCommentForm
+                pictureId={pictureId}
+                commentId={commentObj.id}
+                actualizeCommentList={(comment: IGetCommentsResponseObj) => setChildComment(comment)} />
+              :
+              null
+          }
+          <button
+            onClick={() => {
+              setAddCommentFormOpen(!addCommentFormOpen);
+            }}>
+            {addCommentFormOpen ? "Close" : "Answer"}
 
+          </button>
         </div>
       </section>
     </li>

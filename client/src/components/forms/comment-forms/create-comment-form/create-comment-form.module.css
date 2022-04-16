@@ -1,0 +1,38 @@
+.create-comment-form{
+  display: flex;
+  overflow: hidden;
+  /* flex-wrap: wrap; */
+}
+
+.textarea{
+  width: 90%;
+  max-height: 250px;
+  resize: vertical;
+  border-top-left-radius: 15px;
+  border-bottom-left-radius: 15px;
+  border:1px solid black;
+  border-right:none;
+  padding: 5px 2px 2px 5px;
+  transition: background-color .2s;
+}
+
+.textarea:focus{
+  background-color: rgb(247, 242, 235);
+  outline: none;
+}
+
+.create-comment-btn{
+  border-top-right-radius: 15px;
+  border-bottom-right-radius: 15px;
+  padding: 0 5px;
+  border: 1px solid black;
+  border-left:none;
+  background-color:transparent;
+  cursor:pointer;
+  transition: color .3s, background-color .2s;
+}
+
+.create-comment-btn:hover{
+  background-color: var(--extra-dark);
+  color:var(--extra-light);
+}

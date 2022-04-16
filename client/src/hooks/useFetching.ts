@@ -1,4 +1,3 @@
-import { AxiosError } from "axios";
 import { useCallback, useState } from "react";
 
 const useFetching = <T>(callback: Function) => {
@@ -10,8 +9,12 @@ const useFetching = <T>(callback: Function) => {
       setIsLoading(true);
       const responseData = await callback();
       setResponse(responseData);
-    } catch (e: Error | AxiosError | any) {
-      alert(e.response.data.message)
+    } catch (e: any) {
+      if (e.isAxiosError) {
+        alert(e.response.data.message);
+        return;
+      }
+      alert(e.message);
     } finally {
       setIsLoading(false);
     }

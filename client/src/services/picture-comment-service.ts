@@ -1,19 +1,34 @@
 import { AxiosResponse } from "axios";
 import { $authHost, $host } from "../http";
-import { IGetCommentsResponseObj } from "../interfaces/http/response/pictureCommentInterfaces";
+import { ICreateCommentResponseObj, IEditCommentResponseObj, IGetCommentsResponseObj } from "../interfaces/http/response/pictureCommentInterfaces";
 
 class PictureCommentService {
-  static async getPictureComments(pictureId: number, commentId?: number): Promise<AxiosResponse<IGetCommentsResponseObj[]>> {
-    const response = $host.get<IGetCommentsResponseObj[]>("/api/picture-comment/get-many", { params: { pictureId, commentId } });
+  static async getPictureComment(commentId: number): Promise<AxiosResponse<IGetCommentsResponseObj>> {
+    const response = await $host.get<IGetCommentsResponseObj>(`/api/picture-comment/get/${commentId}`);
 
     return response;
   };
 
-  static async editComment(commentId: number, text: string) {
-    const response = $authHost.put("/api/picture-comment/edit", { commentId, text });
+  static async getPictureComments(pictureId: number, commentId?: number): Promise<AxiosResponse<IGetCommentsResponseObj[]>> {
+    const response = await $host.get<IGetCommentsResponseObj[]>("/api/picture-comment/get-many", { params: { pictureId, commentId } });
+
+    return response;
+  };
+
+  static async addComment(pictureId: number, text: string, commentId?: number): Promise<AxiosResponse<ICreateCommentResponseObj>> {
+    const response = await $authHost.post<ICreateCommentResponseObj>(
+      "/api/picture-comment/add",
+      { pictureId, text, commentId: commentId || null }
+    );
 
     return response;
   }
+
+  static async editComment(commentId: number, text: string): Promise<AxiosResponse<IEditCommentResponseObj>> {
+    const response = await $authHost.put<IEditCommentResponseObj>("/api/picture-comment/edit", { commentId, text });
+
+    return response;
+  };
 };
 
 export default PictureCommentService;

@@ -4,6 +4,37 @@ import models from "../models/models";
 import PictureValidator from "../validator/pictureValidator";
 
 class PictureCommentService {
+  static async getCommentById(commentId: number) {
+    const comment = await models.Comment.findOne({
+      where: { id: commentId },
+      include: [
+        {
+          model: models.CommentLike,
+          as: "commentLikes",
+          attributes: ["userId"]
+        },
+        {
+          model: models.User,
+          as: "user",
+          attributes: ["avatar", "nickname"]
+        },
+        {
+          model: models.Comment,
+          as: "comments",
+          attributes: []
+        }
+      ],
+      attributes: { include: [[sequelize.fn("COUNT", sequelize.col("comments")), "childCommentsAmount"]] },
+      group: ["comment.id", "commentLikes.id", "user.id"]
+    });
+
+    if (!comment) {
+      throw ApiError.badRequest("Comment with such id doesn't exists");
+    };
+
+    return comment;
+  };
+
   static async getComments(pictureId: number, commentId: number) {
     const picture = await models.Picture.findOne({ where: { id: pictureId } });
 
@@ -74,14 +105,14 @@ class PictureCommentService {
 
     PictureValidator.validatePictureComment(text, true);
 
-    await models.Comment.create({
+    const comment = await models.Comment.create({
       text,
       userId,
       commentId,
       pictureId
     });
 
-    return { message: "Comment created succesfully" }
+    return { message: "Comment created succesfully", comment }
   };
 
   static async editComment(userId: number, commentId: number, text: string) {

@@ -2,6 +2,17 @@ import { NextFunction, Request, Response } from "express";
 import PictureCommentService from "../services/pictureCommentService";
 
 class PictureCommentController {
+  static async getCommentById(req: Request, res: Response, next: NextFunction) {
+    try {
+      const { commentId } = req.params;
+      const response = await PictureCommentService.getCommentById(Number(commentId));
+
+      return res.json(response);
+    } catch (e) {
+      next(e);
+    }
+  };
+
   static async getComments(req: Request, res: Response, next: NextFunction) {
     try {
       const { pictureId, commentId } = req.query;
