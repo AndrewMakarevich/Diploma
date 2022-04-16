@@ -48,10 +48,10 @@ const PictureSortSelect = (props: ComponentProps<any>) => {
     <MySelect {...props}>
       {
         selectOptions.map(optGroup =>
-          <optgroup label={optGroup.name}>
+          <optgroup key={optGroup.name} label={optGroup.name}>
             {
               optGroup.options.map(option =>
-                <option label={option.name} value={JSON.stringify(option.value)}></option>
+                <option key={option.name} label={option.name} value={JSON.stringify(option.value)}></option>
               )
             }
           </optgroup>

@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
+import { v4 } from "uuid";
 import inputStyles from "./pagination-input.module.css";
 
 interface IPaginationInput {
@@ -9,7 +10,7 @@ interface IPaginationInput {
 }
 
 const PaginationInput = ({ count, limit, page, setPage }: IPaginationInput) => {
-  const [currentPaginationState, setCurrentPaginationState] = useState<Array<number | string>>([]);
+  const [currentPaginationState, setCurrentPaginationState] = useState<Array<{ id: string, pageNumber: number }>>([]);
 
   function createPagesArr(count: number = 0, limit: number) {
 
@@ -45,6 +46,8 @@ const PaginationInput = ({ count, limit, page, setPage }: IPaginationInput) => {
         paginationLineArr.push(pages[pages.length - 1]);
       }
     }
+
+    paginationLineArr = paginationLineArr.map(item => ({ id: v4(), pageNumber: item }));
     setCurrentPaginationState(paginationLineArr);
   }
 
@@ -71,14 +74,14 @@ const PaginationInput = ({ count, limit, page, setPage }: IPaginationInput) => {
           }
         }>{"<"}</button>
       {
-        currentPaginationState.map(pageItem =>
-          <button className={`${inputStyles["pagination-line__btn"]} ${pageItem == page ? inputStyles["active"] : ""}`}
+        currentPaginationState.map(({ id, pageNumber }) =>
+          <button key={id} className={`${inputStyles["pagination-line__btn"]} ${pageNumber == page ? inputStyles["active"] : ""}`}
             onClick={() => {
-              if (Number(pageItem)) {
-                setPage(pageItem)
+              if (Number(pageNumber)) {
+                setPage(pageNumber)
               }
             }
-            }>{pageItem}</button>
+            }>{pageNumber}</button>
         )
       }
       <button className={inputStyles["pagination-line__btn"]}

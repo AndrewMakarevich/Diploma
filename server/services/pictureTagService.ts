@@ -72,11 +72,11 @@ class PictureTagService {
   }
 
   static async createPictureTagConnection(pictureId: number, tagText: string) {
-    if (!PictureValidator.validatePictureTag(tagText, false)) {
+    const processedTagText = tagText.split(" ").join("").toLowerCase();
+
+    if (!PictureValidator.validatePictureTag(processedTagText, false)) {
       return;
     }
-
-    const processedTagText = tagText.split(" ").join("").toLowerCase();
 
     let tag = await models.PictureTag.findOne({ where: { text: processedTagText } });
 

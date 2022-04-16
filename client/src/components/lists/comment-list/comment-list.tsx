@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { Fragment, useEffect, useState } from "react";
 import { IGetCommentsResponseObj } from "../../../interfaces/http/response/pictureCommentInterfaces";
 import PictureCommentLikeService from "../../../services/picture-comment-like-service";
 import PictureCommentService from "../../../services/picture-comment-service";
@@ -44,15 +44,15 @@ const PictureCommentList = ({ userId, pictureId, commentId, commentsAmount }: IC
         commentsListIsOpen ?
           <ul className={listStyles["comment-list"]}>
             {comments.map(comment =>
-              <>
-                <CommentItem key={comment.id} comment={comment} parentCommentId={commentId} pictureId={pictureId} userId={userId} setComments={setComments} />
+              <Fragment key={comment.id}>
+                <CommentItem comment={comment} parentCommentId={commentId} pictureId={pictureId} userId={userId} setComments={setComments} />
                 {
                   Number(comment.childCommentsAmount) ?
                     <PictureCommentList userId={userId} pictureId={pictureId} commentId={comment.id} commentsAmount={comment.childCommentsAmount} />
                     :
                     null
                 }
-              </>
+              </Fragment>
             )}
           </ul>
           :

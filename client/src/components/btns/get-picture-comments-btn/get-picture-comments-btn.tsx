@@ -1,12 +1,14 @@
-import { ComponentProps, useCallback } from "react";
+import { AxiosResponse } from "axios";
+import { ComponentProps, useCallback, useEffect } from "react";
 import useFetching from "../../../hooks/useFetching";
+import { IGetCommentsResponseObj } from "../../../interfaces/http/response/pictureCommentInterfaces";
 import PictureCommentService from "../../../services/picture-comment-service";
 import StandartButton from "../../../UI/standart-button/standart-button";
 
 interface IGetPictureCommentsBtnProps extends ComponentProps<"button"> {
   pictureId: number;
   commentId: number;
-  setPictureComments: Function;
+  setPictureComments: React.Dispatch<React.SetStateAction<IGetCommentsResponseObj[]>>;
 }
 
 const GetPictureCommentsButton = ({
@@ -17,19 +19,28 @@ const GetPictureCommentsButton = ({
   ...restProps
 }: IGetPictureCommentsBtnProps) => {
   const getAndSetPictureComments = useCallback(async () => {
-    await PictureCommentService.getPictureComments(pictureId, commentId).then(
-      ({ data }) => setPictureComments(data)
-    );
+    const response = await PictureCommentService.getPictureComments(pictureId, commentId);
+
+    return response;
   }, [pictureId, commentId]);
 
-  const { executeCallback, isLoading } = useFetching(getAndSetPictureComments);
+  const { executeCallback, isLoading, response } = useFetching<AxiosResponse<IGetCommentsResponseObj[]>>(getAndSetPictureComments);
+
+  //If a list of comments returned from the server, set them to the state
+  useEffect(() => {
+    if (response) {
+      setPictureComments(response.data);
+    }
+  }, [response, setPictureComments]);
+
   return (
     <StandartButton
-      onClick={(e) => {
+      onClick={async (e) => {
         if (onClick) {
-          onClick(e);
+          await onClick(e);
         }
-        executeCallback();
+        // Getting comment from the server
+        await executeCallback();
       }}
       disabled={isLoading}
       {...restProps}

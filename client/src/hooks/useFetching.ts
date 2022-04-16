@@ -1,11 +1,11 @@
 import { AxiosError } from "axios";
-import { useState } from "react";
+import { useCallback, useState } from "react";
 
 const useFetching = <T>(callback: Function) => {
   const [isLoading, setIsLoading] = useState(false);
   const [response, setResponse] = useState<T>();
 
-  const executeCallback = async () => {
+  const executeCallback = useCallback(async () => {
     try {
       setIsLoading(true);
       const responseData = await callback();
@@ -15,7 +15,7 @@ const useFetching = <T>(callback: Function) => {
     } finally {
       setIsLoading(false);
     }
-  }
+  }, [callback])
   return { executeCallback, isLoading, response };
 }
 export default useFetching;

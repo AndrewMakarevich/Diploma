@@ -1,5 +1,5 @@
 import { AxiosResponse } from "axios";
-import { $host } from "../http";
+import { $authHost, $host } from "../http";
 import { IGetCommentsResponseObj } from "../interfaces/http/response/pictureCommentInterfaces";
 
 class PictureCommentService {
@@ -8,6 +8,12 @@ class PictureCommentService {
 
     return response;
   };
+
+  static async editComment(commentId: number, text: string) {
+    const response = $authHost.put("/api/picture-comment/edit", { commentId, text });
+
+    return response;
+  }
 };
 
 export default PictureCommentService;

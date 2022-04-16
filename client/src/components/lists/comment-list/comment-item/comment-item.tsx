@@ -5,7 +5,7 @@ import { getToLocaleStringData } from "../../../../utils/getToLocaleStringData";
 import LikeEssenceBtn from "../../../btns/like-essence-btn/like-essence-btn";
 import returnUserAvatar from "../../../../utils/img-utils/return-user-avatar";
 import { IGetCommentsResponseObj } from "../../../../interfaces/http/response/pictureCommentInterfaces";
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 
 interface ICommentItemProps {
   comment: IGetCommentsResponseObj,
@@ -18,6 +18,15 @@ interface ICommentItemProps {
 const CommentItem = ({ comment, parentCommentId, pictureId, userId, setComments }: ICommentItemProps) => {
   const [editMode, setEditMode] = useState(false);
   const [commentText, setCommentText] = useState("");
+
+  // const sendEditCommentRequest = () => {
+  //   PictureCommentService.editComment(comment.id, commentText)
+  // };
+
+  // const actualizeComments = useCallback(async() =>{
+  //   await PictureCommentService.getPictureComments(pictureId, parentCommentId || undefined).then(
+  //     ({ data }) => setComments(data));
+  // },[]);
 
   useEffect(() => {
     setCommentText(comment.text)
@@ -48,9 +57,12 @@ const CommentItem = ({ comment, parentCommentId, pictureId, userId, setComments 
       <section className={itemStyles["comment-info"]}>
         {
           editMode ?
-            <textarea className={itemStyles["comment__text-area"]} onChange={(e) => {
-              setCommentText(e.target.value)
-            }}>{commentText}</textarea>
+            <textarea className={itemStyles["comment__text-area"]}
+              onChange={(e) => {
+                setCommentText(e.target.value)
+              }}>
+              {commentText}
+            </textarea>
             :
             <p>{comment.text}</p>
         }
@@ -71,8 +83,12 @@ const CommentItem = ({ comment, parentCommentId, pictureId, userId, setComments 
           </div>
 
           <div>
-            <p className={itemStyles["comment-creation-date"]}>Created at: {getToLocaleStringData(comment.createdAt)}</p>
-            <p>{comment.createdAt === comment.updatedAt ? "" : `Last update: ${getToLocaleStringData(comment.updatedAt)}`}</p>
+            <p className={itemStyles["comment-creation-date"]}>
+              Created at: {getToLocaleStringData(comment.createdAt)}
+            </p>
+            <p className={itemStyles["comment-update-date"]}>
+              {comment.createdAt === comment.updatedAt ? "" : `Last update: ${getToLocaleStringData(comment.updatedAt)}`}
+            </p>
           </div>
 
         </div>

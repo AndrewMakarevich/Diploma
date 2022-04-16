@@ -15,11 +15,11 @@ const PictureInfoList = ({ pictureInfos }: IPictureInfoListProps) => {
     <ul className={listStyles["picture-info__list"]}>
       {
         pictureInfos.map(pictureInfo => (
-          <li className={listStyles["picture-info__item"]}>
+          <li key={pictureInfo.id} className={listStyles["picture-info__item"]}>
             <p className={listStyles["picture-info__item-title"]}>
               {pictureInfo.title}
-              <hr></hr>
             </p>
+            <hr></hr>
             <p className={listStyles["picture-info__item-description"]}>
               {pictureInfo.description}
             </p>

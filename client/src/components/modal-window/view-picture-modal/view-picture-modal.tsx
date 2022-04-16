@@ -111,7 +111,7 @@ const ViewPictureModal = ({ isOpen, setIsOpen, currentPictureId }: IViewPictureM
 
                   <ul className={modalStyles["picture-tags__list"]}>
                     {pictureInfo.tags.map(tag => (
-                      <li className={modalStyles["picture-tags__item"]}>
+                      <li key={tag.id} className={modalStyles["picture-tags__item"]}>
                         {tag.text}
                       </li>
                     ))}
