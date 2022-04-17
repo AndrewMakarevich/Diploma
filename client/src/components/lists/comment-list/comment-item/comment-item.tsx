@@ -4,23 +4,15 @@ import PictureCommentService from "../../../../services/picture-comment-service"
 import { getToLocaleStringData } from "../../../../utils/getToLocaleStringData";
 import LikeEssenceBtn from "../../../btns/like-essence-btn/like-essence-btn";
 import returnUserAvatar from "../../../../utils/img-utils/return-user-avatar";
-import { IGetCommentsResponseObj } from "../../../../interfaces/http/response/pictureCommentInterfaces";
+import { IGetCommentByIdResponseObj, IGetCommentsResponseObj } from "../../../../interfaces/http/response/pictureCommentInterfaces";
 import { useCallback, useEffect, useState } from "react";
 import CommentValidator from "../../../../validator/comment-validator";
 import useFetching from "../../../../hooks/useFetching";
 import CreateCommentForm from "../../../forms/comment-forms/create-comment-form/create-comment-form";
+import { ICommentItemProps } from "../comment-list-interfaces";
 
-interface ICommentItemProps {
-  commentId: number,
-  parentCommentId?: number,
-  pictureId: number,
-  userId: number,
-  setChildComment: React.Dispatch<React.SetStateAction<IGetCommentsResponseObj | undefined>>
-}
-
-const CommentItem = ({ commentId, parentCommentId, pictureId, userId, setChildComment }: ICommentItemProps) => {
-  console.log(commentId);
-  const [commentObj, setCommentObj] = useState<IGetCommentsResponseObj>(
+const CommentItem = ({ commentId, userId }: ICommentItemProps) => {
+  const [commentObj, setCommentObj] = useState<IGetCommentByIdResponseObj>(
     {
       id: 0,
       text: "",
@@ -38,22 +30,17 @@ const CommentItem = ({ commentId, parentCommentId, pictureId, userId, setChildCo
     }
   );
   const [editMode, setEditMode] = useState(false);
-  const [addCommentFormOpen, setAddCommentFormOpen] = useState(false);
   const [commentText, setCommentText] = useState("");
 
   const getCommentById = useCallback(async () => {
     await PictureCommentService.getPictureComment(commentId).then(({ data }) => setCommentObj(data))
   }, [commentId]);
 
-  // const actualizeComments = useCallback(async () => {
-  //   await PictureCommentService.getPictureComments(pictureId, parentCommentId || undefined).then(
-  //     ({ data }) => setComments(data));
-  // }, [pictureId, parentCommentId, setComments]);
-
   const sendEditCommentRequest = useCallback(async () => {
     CommentValidator.validateCommentText(commentText, true);
     await PictureCommentService.editComment(commentObj.id, commentText);
     await getCommentById();
+    setEditMode(false);
   }, [commentObj, commentText, getCommentById]);
 
   const { executeCallback: editComment, isLoading: editCommentLoading } = useFetching(sendEditCommentRequest)
@@ -65,23 +52,26 @@ const CommentItem = ({ commentId, parentCommentId, pictureId, userId, setChildCo
   useEffect(() => {
     getCommentById();
   }, []);
+
   return (
     <li className={itemStyles["comment-item"]}>
       <section className={itemStyles["user-info"]}>
-        <img className={itemStyles["user-avatar"]} alt={`${commentObj.user.nickname}'s avatar`} src={returnUserAvatar(commentObj.user.avatar)} />
-        <p>{commentObj.user.nickname}</p>
+        <div className={itemStyles["user-avatar-nickname"]}>
+          <img className={itemStyles["user-avatar"]} alt={`${commentObj.user.nickname}'s avatar`} src={returnUserAvatar(commentObj.user.avatar)} />
+          <p>{commentObj.user.nickname}</p>
+        </div>
         {
           userId === commentObj.userId ?
-            <>
+            <div className={itemStyles["edit-comment-panel"]}>
               <button onClick={() => setEditMode(!editMode)}>{editMode ? "Leave edit panel" : "Edit comment"}</button>
               {commentText !== commentObj.text ?
                 <>
                   <button disabled={editCommentLoading} onClick={editComment}>Submit changes</button>
-                  <button>Clear changes</button>
+                  <button onClick={() => setCommentText(commentObj.text)}>Clear changes</button>
                 </>
                 :
                 null}
-            </>
+            </div>
             : null
         }
       </section>
@@ -120,24 +110,6 @@ const CommentItem = ({ commentId, parentCommentId, pictureId, userId, setChildCo
               {commentObj.createdAt === commentObj.updatedAt ? "" : `Last update: ${getToLocaleStringData(commentObj.updatedAt)}`}
             </p>
           </div>
-        </div>
-        <div className={itemStyles["create-comment-form__wrapper"]}>
-          {
-            addCommentFormOpen ?
-              <CreateCommentForm
-                pictureId={pictureId}
-                commentId={commentObj.id}
-                actualizeCommentList={(comment: IGetCommentsResponseObj) => setChildComment(comment)} />
-              :
-              null
-          }
-          <button
-            onClick={() => {
-              setAddCommentFormOpen(!addCommentFormOpen);
-            }}>
-            {addCommentFormOpen ? "Close" : "Answer"}
-
-          </button>
         </div>
       </section>
     </li>

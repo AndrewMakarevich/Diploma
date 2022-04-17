@@ -1,16 +1,45 @@
 .comment-list__wrapper{
   display: flex;
   flex-direction: column;
-  row-gap: 10px;
   background-color: rgba(0, 0, 0, 0.6);
   border-radius:15px;
-  border-top-left-radius: 0;
   border-left: solid 2px white;
-  padding:5px 2px 5px 10px;
+}
+
+.nested{
+    border-top-left-radius: 0;
 }
 
 .comment-list{
   display: flex;
   flex-direction: column;
-  row-gap: 5px;
+  padding:0px 2px 0px 10px;
+  /* margin-top: 5px; */
+  /* row-gap: 5px; */
+}
+
+.hidden{
+  display: none;
+}
+
+.get-show-answer-comment-btns__wrapper{
+  display:flex;
+}
+
+.get-comments-btn,
+.show-comments-btn{
+  flex:1;
+  border-top-left-radius:0;
+  border-bottom-left-radius:0
+}
+
+.answer-comment-btn{
+  flex:1;
+  border-top-right-radius:0;
+  border-bottom-right-radius:0
+}
+
+.sub-btn{
+  border-top-right-radius: 0;
+  border-top-left-radius: 0;
 }

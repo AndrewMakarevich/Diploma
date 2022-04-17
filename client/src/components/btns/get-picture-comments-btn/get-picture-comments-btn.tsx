@@ -6,8 +6,8 @@ import PictureCommentService from "../../../services/picture-comment-service";
 import StandartButton from "../../../UI/standart-button/standart-button";
 
 interface IGetPictureCommentsBtnProps extends ComponentProps<"button"> {
-  pictureId: number;
-  commentId: number;
+  pictureId: string | number;
+  commentId: string | number;
   setPictureComments: React.Dispatch<React.SetStateAction<IGetCommentsResponseObj[]>>;
 }
 

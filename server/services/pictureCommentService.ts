@@ -62,12 +62,7 @@ class PictureCommentService {
         {
           model: models.CommentLike,
           as: "commentLikes",
-          attributes: ["userId"]
-        },
-        {
-          model: models.User,
-          as: "user",
-          attributes: ["avatar", "nickname"]
+          attributes: []
         },
         {
           model: models.Comment,
@@ -75,8 +70,13 @@ class PictureCommentService {
           attributes: []
         }
       ],
-      attributes: { include: [[sequelize.fn("COUNT", sequelize.col("comments")), "childCommentsAmount"]] },
-      group: ["comment.id", "commentLikes.id", "user.id"]
+      attributes: [
+        "id",
+        [sequelize.fn("COUNT", sequelize.fn("DISTINCT", sequelize.col("comments"))), "childCommentsAmount"],
+        [sequelize.fn("COUNT", sequelize.fn("DISTINCT", sequelize.col("commentLikes"))), "commentLikesAmount"]
+      ],
+      // attributes: { include: [[sequelize.fn("COUNT", sequelize.col("comments")), "childCommentsAmount"]] },
+      group: ["comment.id"]
     });
 
     return comments;

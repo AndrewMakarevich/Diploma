@@ -1,6 +1,9 @@
 .comment-item{
   border-radius: 15px;
+  border-bottom-right-radius: 0;
+  border-bottom-left-radius: 0;
   padding: 5px;
+  margin-top:5px;
   background-color: var(--extra-light);
   color: var(--extra-dark);
 }
@@ -8,8 +11,15 @@
 .user-info{
   display:flex;
   align-items: center;
+  flex-wrap: wrap;
   gap:5px 15px;
   padding-bottom: 5px;
+}
+
+.user-avatar-nickname{
+  display: flex;
+  align-items: center;
+  gap:5px;
 }
 
 .user-avatar{
@@ -17,6 +27,13 @@
   height: 25px;
   border-radius: 50%;
   object-fit: cover;
+}
+
+.edit-comment-panel{
+  display: flex;
+  gap:5px;
+  justify-content: center;
+  flex-wrap: wrap;
 }
 
 .comment-info{

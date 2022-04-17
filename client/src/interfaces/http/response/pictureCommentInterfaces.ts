@@ -1,21 +1,27 @@
 export interface IGetCommentsResponseObj {
-  id: number,
+  id: string | number,
+  childCommentsAmount: string | number,
+  commentLikesAmount: string | number
+};
+
+export interface IGetCommentByIdResponseObj {
+  id: string | number,
   text: string,
   createdAt: string,
   updatedAt: string,
-  userId: number,
-  commentId: number | null,
-  pictureId: number,
-  childCommentsAmount: number,
+  userId: string | number,
+  commentId: string | number | null,
+  pictureId: string | number,
+  childCommentsAmount: string | number,
   commentLikes:
   {
-    userId: number
+    userId: string | number
   }[],
   user: {
     avatar: string,
     nickname: string
   }
-};
+}
 
 export interface ICreateCommentResponseObj {
   message: string,

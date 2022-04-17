@@ -7,18 +7,20 @@ import { ICreateCommentResponseObj } from "../../../../interfaces/http/response/
 import { AxiosResponse } from "axios";
 
 interface ICreateCommentFormProps {
-  pictureId: number,
-  commentId?: number,
-  actualizeCommentList: Function
+  pictureId: string | number,
+  commentId?: string | number,
+  actualizeCommentList: Function,
+  setAddCommentFormOpen: React.Dispatch<React.SetStateAction<boolean>>
 }
 
-const CreateCommentForm = ({ pictureId, commentId, actualizeCommentList }: ICreateCommentFormProps) => {
+const CreateCommentForm = ({ pictureId, commentId, actualizeCommentList, setAddCommentFormOpen }: ICreateCommentFormProps) => {
   const [commentText, setCommentText] = useState("");
 
   const sendRequestToAddComment = useCallback(async () => {
     CommentValidator.validateCommentText(commentText, true);
     const response = await PictureCommentService.addComment(pictureId, commentText, commentId);
     alert(response.data.message);
+    ;
     return response;
   }, [commentText, pictureId, commentId]);
 
@@ -31,8 +33,9 @@ const CreateCommentForm = ({ pictureId, commentId, actualizeCommentList }: ICrea
     if (createCommentResponse) {
       console.log(createCommentResponse.data.comment);
       actualizeCommentList(createCommentResponse.data.comment);
+      setAddCommentFormOpen(false);
     }
-  }, [createCommentResponse]);
+  }, [createCommentResponse, setAddCommentFormOpen, actualizeCommentList]);
 
   return (
     <form className={formStyles["create-comment-form"]}>
@@ -42,6 +45,7 @@ const CreateCommentForm = ({ pictureId, commentId, actualizeCommentList }: ICrea
         className={formStyles["create-comment-btn"]}
         disabled={createCommentLoading || !commentText}
         onClick={async (e) => {
+          e.preventDefault();
           await createComment();
         }}>
         Send
