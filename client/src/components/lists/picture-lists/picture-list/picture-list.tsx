@@ -1,6 +1,6 @@
 import listStyles from "./picture-list.module.css";
 import { AxiosResponse } from "axios";
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import useFetching from "../../../../hooks/useFetching";
 import { IGetPicturesResponse } from "../../../../interfaces/http/response/pictureInterfaces";
 import PictureService from "../../../../services/picture-service";
@@ -36,8 +36,6 @@ const PictureList = ({ userId, isPersonalGallery }: IPictureListProps) => {
   const [viewPictureModalIsOpen, setViewPictureModalIsOpen] = useState(false);
   const [currentPictureId, setCurrentPictureId] = useState(0);
 
-
-
   const {
     executeCallback: getPictures,
     isLoading: picturesIsLoading,
@@ -51,12 +49,8 @@ const PictureList = ({ userId, isPersonalGallery }: IPictureListProps) => {
   }, [userId]);
 
   useEffect(() => {
-    getPictures(queryParams);
+    getPictures(queryParams.userId, queryParams.queryString, queryParams.sort, queryParams.page, queryParams.limit);
   }, [queryParams, getPictures]);
-
-  useEffect(() => {
-    PictureService.getPictures();
-  }, []);
 
   return (
     <article className={listStyles["picture-list__wrapper"]}>

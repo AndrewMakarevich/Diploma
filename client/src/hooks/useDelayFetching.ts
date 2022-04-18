@@ -8,12 +8,7 @@ const useDelayFetching = <T>(callback: Function, delay: number) => {
   let timeout: ReturnType<typeof setTimeout> = setTimeout(() => { }, 0);
   const timeoutVariableRef = useRef(timeout);
 
-  const executeCallback = useCallback((params?: any) => {
-    const paramsArr: Array<number | string | string[]> = [];
-
-    for (let key in params) {
-      paramsArr.push(params[key]);
-    };
+  const executeCallback = useCallback((...paramsArr) => {
 
     clearTimeout(timeoutVariableRef.current);
 

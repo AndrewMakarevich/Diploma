@@ -13,13 +13,13 @@ const SearchPanel = ({ queryParams, onChange: setQueryParams }: ISearchPanelProp
     <article className={panelStyles["search-panel"]}>
       <SearchInput
         onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
-          setQueryParams({ ...queryParams, queryString: e.target.value });
+          setQueryParams({ ...queryParams, queryString: e.target.value, page: 1 });
         }
         }></SearchInput>
 
       <PictureSortSelect
         onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
-          setQueryParams({ ...queryParams, sort: e.target.value })
+          setQueryParams({ ...queryParams, sort: e.target.value, page: 1 })
         }
         } />
     </article>

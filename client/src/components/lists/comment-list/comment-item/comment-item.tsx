@@ -4,14 +4,14 @@ import PictureCommentService from "../../../../services/picture-comment-service"
 import { getToLocaleStringData } from "../../../../utils/getToLocaleStringData";
 import LikeEssenceBtn from "../../../btns/like-essence-btn/like-essence-btn";
 import returnUserAvatar from "../../../../utils/img-utils/return-user-avatar";
-import { IGetCommentByIdResponseObj, IGetCommentsResponseObj } from "../../../../interfaces/http/response/pictureCommentInterfaces";
+import { IGetCommentByIdResponseObj } from "../../../../interfaces/http/response/pictureCommentInterfaces";
 import { useCallback, useEffect, useState } from "react";
 import CommentValidator from "../../../../validator/comment-validator";
 import useFetching from "../../../../hooks/useFetching";
-import CreateCommentForm from "../../../forms/comment-forms/create-comment-form/create-comment-form";
 import { ICommentItemProps } from "../comment-list-interfaces";
+import DeleteCommentBtn from "../../../btns/delete-comment-btn/delete-comment-btn";
 
-const CommentItem = ({ commentId, userId }: ICommentItemProps) => {
+const CommentItem = ({ commentId, userId, pictureAuthorId, actualizeCommentListAfterDeleting }: ICommentItemProps) => {
   const [commentObj, setCommentObj] = useState<IGetCommentByIdResponseObj>(
     {
       id: 0,
@@ -64,7 +64,7 @@ const CommentItem = ({ commentId, userId }: ICommentItemProps) => {
           userId === commentObj.userId ?
             <div className={itemStyles["edit-comment-panel"]}>
               <button onClick={() => setEditMode(!editMode)}>{editMode ? "Leave edit panel" : "Edit comment"}</button>
-              {commentText !== commentObj.text ?
+              {commentText !== commentObj.text && editMode ?
                 <>
                   <button disabled={editCommentLoading} onClick={editComment}>Submit changes</button>
                   <button onClick={() => setCommentText(commentObj.text)}>Clear changes</button>
@@ -73,6 +73,12 @@ const CommentItem = ({ commentId, userId }: ICommentItemProps) => {
                 null}
             </div>
             : null
+        }
+        {
+          !editMode && (userId === pictureAuthorId || userId === commentObj.userId) ?
+            <DeleteCommentBtn commentId={commentObj.id} actualizeCommentListAfterDeleting={actualizeCommentListAfterDeleting} />
+            :
+            null
         }
       </section>
 

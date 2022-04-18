@@ -1,6 +1,6 @@
 import { AxiosResponse } from "axios";
 import { $authHost, $host } from "../http";
-import { ICreateCommentResponseObj, IEditCommentResponseObj, IGetCommentByIdResponseObj, IGetCommentsResponseObj } from "../interfaces/http/response/pictureCommentInterfaces";
+import { ICreateCommentResponseObj, IDeleteCommentResponseObj, IEditCommentResponseObj, IGetCommentByIdResponseObj, IGetCommentsResponseObj } from "../interfaces/http/response/pictureCommentInterfaces";
 
 class PictureCommentService {
   static async getPictureComment(commentId: string | number): Promise<AxiosResponse<IGetCommentByIdResponseObj>> {
@@ -27,6 +27,12 @@ class PictureCommentService {
   static async editComment(commentId: string | number, text: string): Promise<AxiosResponse<IEditCommentResponseObj>> {
     const response = await $authHost.put<IEditCommentResponseObj>("/api/picture-comment/edit", { commentId, text });
 
+    return response;
+  };
+
+  static async deleteComment(commentId: string | number): Promise<AxiosResponse<IDeleteCommentResponseObj>> {
+    const response = await $authHost.delete<IDeleteCommentResponseObj>(`/api/picture-comment/delete/${commentId}`);
+    console.log(response);
     return response;
   };
 };

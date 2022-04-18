@@ -31,3 +31,7 @@ export interface ICreateCommentResponseObj {
 export interface IEditCommentResponseObj {
   message: string,
 }
+
+export interface IDeleteCommentResponseObj {
+  message: string,
+}

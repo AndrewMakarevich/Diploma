@@ -110,7 +110,7 @@ CommentLike.belongsTo(Comment);
 User.hasMany(CommentLike);
 CommentLike.belongsTo(User);
 
-Comment.hasMany(Comment);
+Comment.hasMany(Comment, { onDelete: "cascade" });
 Comment.belongsTo(Comment);
 
 User.hasMany(Picture);

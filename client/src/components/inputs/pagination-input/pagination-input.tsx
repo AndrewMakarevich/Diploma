@@ -54,10 +54,6 @@ const PaginationInput = ({ count, limit, page, setPage }: IPaginationInput) => {
   const pages = useMemo(() => createPagesArr(count, limit), [count, limit]);
 
   useEffect(() => {
-    setPage(1);
-  }, [count]);
-
-  useEffect(() => {
     createCurrentPaginationLineState()
   }, [pages, page]);
 
@@ -66,10 +62,15 @@ const PaginationInput = ({ count, limit, page, setPage }: IPaginationInput) => {
       <button className={inputStyles["pagination-line__btn"]}
         onClick={
           () => {
+            if (pages.length <= 1) {
+              return;
+            }
+
             if (page > 1) {
               setPage(page - 1);
               return;
             }
+
             setPage(pages[pages.length - 1])
           }
         }>{"<"}</button>
@@ -77,6 +78,10 @@ const PaginationInput = ({ count, limit, page, setPage }: IPaginationInput) => {
         currentPaginationState.map(({ id, pageNumber }) =>
           <button key={id} className={`${inputStyles["pagination-line__btn"]} ${pageNumber == page ? inputStyles["active"] : ""}`}
             onClick={() => {
+              if (pageNumber == page) {
+                return;
+              }
+
               if (Number(pageNumber)) {
                 setPage(pageNumber)
               }
@@ -87,6 +92,10 @@ const PaginationInput = ({ count, limit, page, setPage }: IPaginationInput) => {
       <button className={inputStyles["pagination-line__btn"]}
         onClick={
           () => {
+            if (pages.length <= 1) {
+              return;
+            }
+
             if (page < pages.length) {
               setPage(page + 1);
               return;

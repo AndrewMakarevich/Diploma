@@ -1,4 +1,4 @@
-import { Fragment, useEffect, useState } from "react";
+import { Fragment, useCallback, useEffect, useState } from "react";
 import { IGetCommentsResponseObj } from "../../../interfaces/http/response/pictureCommentInterfaces";
 import StandartButton from "../../../UI/standart-button/standart-button";
 import GetPictureCommentsButton from "../../btns/get-picture-comments-btn/get-picture-comments-btn";
@@ -7,11 +7,18 @@ import CommentItem from "./comment-item/comment-item";
 import { ICommentListProps } from "./comment-list-interfaces";
 import listStyles from "./comment-list.module.css";
 
-const PictureCommentList = ({ userId, pictureId, commentId, commentsAmount }: ICommentListProps) => {
+const PictureCommentList = ({ userId, pictureId, pictureAuthorId, commentId, commentsAmount }: ICommentListProps) => {
   const [childCommentsAmount, setChildCommentsAmount] = useState<string | number | undefined | null>();
   const [commentsListIsOpen, setCommentsListIsOpen] = useState(true);
   const [addCommentFormOpen, setAddCommentFormOpen] = useState(false);
   const [comments, setComments] = useState<IGetCommentsResponseObj[]>([]);
+
+  const actualizeListAfterItemDelete = useCallback((commentId: string | number) => {
+    if (comments.length) {
+      setComments(comments.filter(comment => comment.id != commentId));
+      setChildCommentsAmount(childCommentsAmount ? Number(childCommentsAmount) - 1 : null);
+    }
+  }, [setComments, comments]);
 
   useEffect(() => {
     setChildCommentsAmount(commentsAmount);
@@ -76,10 +83,13 @@ const PictureCommentList = ({ userId, pictureId, commentId, commentsAmount }: IC
           <Fragment key={comment.id}>
             <CommentItem
               commentId={comment.id}
-              userId={userId} />
+              userId={userId}
+              pictureAuthorId={pictureAuthorId}
+              actualizeCommentListAfterDeleting={actualizeListAfterItemDelete} />
             <PictureCommentList
               userId={userId}
               pictureId={pictureId}
+              pictureAuthorId={pictureAuthorId}
               commentId={comment.id}
               commentsAmount={Number(comment.childCommentsAmount) || 0}
             />
