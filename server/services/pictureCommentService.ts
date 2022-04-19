@@ -35,7 +35,7 @@ class PictureCommentService {
     return comment;
   };
 
-  static async getComments(pictureId: number, commentId: number) {
+  static async getComments(pictureId: number, commentId: number, page: number, limit: number) {
     const picture = await models.Picture.findOne({ where: { id: pictureId } });
 
     if (!picture) {
@@ -54,10 +54,19 @@ class PictureCommentService {
         commentId,
         pictureId
       }
-    }
+    };
+
+    const limitValue = limit || 10;
+    const offsetValue = ((page - 1) * limitValue) || 0;
 
     const comments = await models.Comment.findAll({
       where: whereStatement,
+      attributes: {
+        include:
+          [
+            [sequelize.fn("COUNT", sequelize.fn("DISTINCT", sequelize.col("comments"))), "childCommentsAmount"],
+          ]
+      },
       include: [
         {
           model: models.CommentLike,
@@ -75,15 +84,10 @@ class PictureCommentService {
           attributes: []
         }
       ],
-      attributes: {
-        include:
-          [[sequelize.fn("COUNT", sequelize.fn("DISTINCT", sequelize.col("comments"))), "childCommentsAmount"],
-          [sequelize.fn("COUNT", sequelize.fn("DISTINCT", sequelize.col("commentLikes"))), "commentLikesAmount"]]
-      },
-      group: ["comment.id", "commentLikes.id", "user.id"]
+      group: ["comment.id", "commentLikes.id", "user.id"],
     });
 
-    return comments;
+    return { count: comments.length, rows: comments.slice(offsetValue, offsetValue + limitValue) };
   };
 
   static async addComment(pictureId: number, commentId: number, userId: number, text: string) {

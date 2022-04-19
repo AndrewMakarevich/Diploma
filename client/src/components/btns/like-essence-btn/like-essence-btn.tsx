@@ -12,7 +12,7 @@ interface ILikePictureBtnProps extends ComponentProps<"button"> {
   active: boolean
 }
 
-const LikeEssenceBtn = ({ sendLikeRequest, actualizeInfoAfterLike, onClick, ...restProps }: ILikePictureBtnProps) => {
+const LikeEssenceBtn = ({ sendLikeRequest, actualizeInfoAfterLike, active, onClick, ...restProps }: ILikePictureBtnProps) => {
   const { executeCallback: sendRequestForLike, isLoading } =
     useFetching<AxiosResponse<IPictureLikeResponseObj>>(sendLikeRequest);
 
@@ -27,6 +27,7 @@ const LikeEssenceBtn = ({ sendLikeRequest, actualizeInfoAfterLike, onClick, ...r
         await sendRequestForLike();
         await actualizeInfoAfterLike();
       }}
+      active={active}
       {...restProps}>
 
     </LikeButton>

@@ -116,7 +116,7 @@ const ViewPictureModal = ({ isOpen, setIsOpen, currentPictureId }: IViewPictureM
                       </li>
                     ))}
                   </ul>
-                  <PictureCommentList userId={userStore.userData.id} pictureId={currentPictureId} pictureAuthorId={pictureInfo.id} />
+                  <PictureCommentList pictureId={currentPictureId} pictureAuthorId={pictureInfo.id} />
                 </section>
 
               </div>

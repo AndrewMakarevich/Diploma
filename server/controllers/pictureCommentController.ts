@@ -15,8 +15,12 @@ class PictureCommentController {
 
   static async getComments(req: Request, res: Response, next: NextFunction) {
     try {
-      const { pictureId, commentId } = req.query;
-      const response = await PictureCommentService.getComments(Number(pictureId), Number(commentId));
+      const { pictureId, commentId, page, limit } = req.query;
+      const response = await PictureCommentService.getComments(
+        Number(pictureId),
+        Number(commentId),
+        Number(page),
+        Number(limit));
 
       return res.json(response);
     } catch (e) {

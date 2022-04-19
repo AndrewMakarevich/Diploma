@@ -5,13 +5,19 @@ import { getToLocaleStringData } from "../../../../utils/getToLocaleStringData";
 import LikeEssenceBtn from "../../../btns/like-essence-btn/like-essence-btn";
 import returnUserAvatar from "../../../../utils/img-utils/return-user-avatar";
 import { IGetCommentByIdResponseObj } from "../../../../interfaces/http/response/pictureCommentInterfaces";
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useContext, useEffect, useState } from "react";
 import CommentValidator from "../../../../validator/comment-validator";
 import useFetching from "../../../../hooks/useFetching";
 import { ICommentItemProps } from "../comment-list-interfaces";
 import DeleteCommentBtn from "../../../btns/delete-comment-btn/delete-comment-btn";
+import { Context } from "../../../..";
+import { observer } from "mobx-react-lite";
 
-const CommentItem = ({ comment, userId, pictureAuthorId, actualizeCommentListAfterDeleting }: ICommentItemProps) => {
+const CommentItem = ({ comment, pictureAuthorId, actualizeCommentListAfterDeleting }: ICommentItemProps) => {
+
+  const { userStore } = useContext(Context);
+  const currentUserId = userStore.userData.id;
+
   const [commentObj, setCommentObj] = useState<IGetCommentByIdResponseObj>(
     {
       id: 0,
@@ -32,28 +38,26 @@ const CommentItem = ({ comment, userId, pictureAuthorId, actualizeCommentListAft
   const [editMode, setEditMode] = useState(false);
   const [commentText, setCommentText] = useState("");
 
-  const getCommentById = useCallback(async () => {
-    await PictureCommentService.getPictureComment(comment.id).then(({ data }) => setCommentObj(data))
-  }, [comment.id]);
+  const [commentIsLiked, setCommentIsLiked] = useState(false);
+
+  // const getCommentById = useCallback(async () => {
+  //   await PictureCommentService.getPictureComment(comment.id).then(({ data }) => setCommentObj(data))
+  // }, [comment.id]);
 
   const sendEditCommentRequest = useCallback(async () => {
     CommentValidator.validateCommentText(commentText, true);
     await PictureCommentService.editComment(commentObj.id, commentText);
-    await getCommentById();
+    setCommentObj({ ...commentObj, text: commentText });
     setEditMode(false);
-  }, [commentObj, commentText, getCommentById]);
+  }, [commentText, commentObj, setCommentObj]);
 
-  const { executeCallback: editComment, isLoading: editCommentLoading } = useFetching(sendEditCommentRequest)
-
-  useEffect(() => {
-    setCommentText(commentObj.text)
-  }, [commentObj]);
+  const { executeCallback: editComment, isLoading: editCommentLoading } = useFetching(sendEditCommentRequest);
 
   useEffect(() => {
-    // getCommentById();
     setCommentObj(comment);
-    console.log(comment);
-  }, [comment]);
+    setCommentText(comment.text);
+    setCommentIsLiked(comment.commentLikes?.some(({ userId: likeAuthor }) => likeAuthor === currentUserId));
+  }, [comment, currentUserId]);
 
   return (
     <li className={itemStyles["comment-item"]}>
@@ -63,7 +67,7 @@ const CommentItem = ({ comment, userId, pictureAuthorId, actualizeCommentListAft
           <p>{commentObj.user.nickname}</p>
         </div>
         {
-          userId === commentObj.userId ?
+          currentUserId === commentObj.userId ?
             <div className={itemStyles["edit-comment-panel"]}>
               <button onClick={() => setEditMode(!editMode)}>{editMode ? "Leave edit panel" : "Edit comment"}</button>
               {commentText !== commentObj.text && editMode ?
@@ -77,7 +81,7 @@ const CommentItem = ({ comment, userId, pictureAuthorId, actualizeCommentListAft
             : null
         }
         {
-          !editMode && (userId === pictureAuthorId || userId === commentObj.userId) ?
+          !editMode && (currentUserId === pictureAuthorId || currentUserId === commentObj.userId) ?
             <DeleteCommentBtn commentId={commentObj.id} actualizeCommentListAfterDeleting={actualizeCommentListAfterDeleting} />
             :
             null
@@ -102,11 +106,24 @@ const CommentItem = ({ comment, userId, pictureAuthorId, actualizeCommentListAft
           <div className={itemStyles["comment-like-block"]}>
             <LikeEssenceBtn
               iconClassName={itemStyles["like-btn"]}
-              actualizeInfoAfterLike={async () => await getCommentById()}
+              actualizeInfoAfterLike={() => {
+                const oppositeCommentIsLikedValue = !commentIsLiked;
+                setCommentIsLiked(oppositeCommentIsLikedValue);
+                //locally changing commentLikes array, to not to send additional request
+                setCommentObj(
+                  {
+                    ...commentObj,
+                    commentLikes:
+                      oppositeCommentIsLikedValue ?
+                        [...commentObj.commentLikes, { userId: currentUserId }]
+                        :
+                        commentObj.commentLikes.splice(0, commentObj.commentLikes.length - 1)
+                  })
+              }}
               sendLikeRequest={async () =>
                 PictureCommentLikeService.likePictureComment(commentObj.id)
               }
-              active={commentObj.commentLikes?.some(({ userId: likeAuthor }) => likeAuthor === userId)} />
+              active={commentIsLiked} />
             <p>{commentObj.commentLikes?.length || 0}</p>
           </div>
 
@@ -124,4 +141,4 @@ const CommentItem = ({ comment, userId, pictureAuthorId, actualizeCommentListAft
   )
 
 };
-export default CommentItem;
+export default observer(CommentItem);

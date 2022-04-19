@@ -31,7 +31,6 @@ const CreateCommentForm = ({ pictureId, commentId, actualizeCommentList, setAddC
 
   useEffect(() => {
     if (createCommentResponse) {
-      console.log(createCommentResponse.data.comment);
       actualizeCommentList(createCommentResponse.data.comment);
       setAddCommentFormOpen(false);
     }

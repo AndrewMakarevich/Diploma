@@ -23,6 +23,11 @@ export interface IGetCommentByIdResponseObj {
   }
 }
 
+export interface IGetCommentsResponseObj {
+  count: string | number,
+  rows: IGetCommentByIdResponseObj[]
+}
+
 export interface ICreateCommentResponseObj {
   message: string,
   comment: IGetCommentByIdResponseObj

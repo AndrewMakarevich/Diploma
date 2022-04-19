@@ -2,7 +2,6 @@ import { IGetCommentByIdResponseObj } from "../../../interfaces/http/response/pi
 
 
 export interface ICommentListProps {
-  userId: string | number,
   pictureId: string | number,
   pictureAuthorId: string | number,
   commentId?: string | number,
@@ -12,6 +11,5 @@ export interface ICommentListProps {
 export interface ICommentItemProps {
   comment: IGetCommentByIdResponseObj,
   pictureAuthorId: string | number,
-  userId: string | number,
   actualizeCommentListAfterDeleting: (commentId: string | number) => void;
 }
