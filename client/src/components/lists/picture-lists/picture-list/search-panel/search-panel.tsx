@@ -5,21 +5,21 @@ import { IQueryParamsObj } from "../picture-list";
 
 interface ISearchPanelProps {
   queryParams: IQueryParamsObj,
-  onChange: React.Dispatch<React.SetStateAction<IQueryParamsObj>>
+  onChange: (newQueryParamsObj: IQueryParamsObj, delayed: boolean) => Promise<void>
 }
 
-const SearchPanel = ({ queryParams, onChange: setQueryParams }: ISearchPanelProps) => {
+const SearchPanel = ({ queryParams, onChange: getPictureList }: ISearchPanelProps) => {
   return (
     <article className={panelStyles["search-panel"]}>
       <SearchInput
-        onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
-          setQueryParams({ ...queryParams, queryString: e.target.value, page: 1 });
+        onChange={async (e: React.ChangeEvent<HTMLInputElement>) => {
+          await getPictureList({ ...queryParams, queryString: e.target.value, page: 1 }, true);
         }
         }></SearchInput>
 
       <PictureSortSelect
         onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
-          setQueryParams({ ...queryParams, sort: e.target.value, page: 1 })
+          getPictureList({ ...queryParams, sort: e.target.value, page: 1 }, false)
         }
         } />
     </article>

@@ -1,6 +1,6 @@
 import { AxiosResponse } from "axios";
 import { $authHost, $host } from "../http";
-import { IExtendedPictureObj, IShortPictureObj } from "../interfaces/http/response/pictureInterfaces";
+import { IExtendedPictureObj, IGetPicturesResponse } from "../interfaces/http/response/pictureInterfaces";
 
 class PictureService {
   static async getPicture(id: number): Promise<AxiosResponse<IExtendedPictureObj>> {
@@ -9,9 +9,9 @@ class PictureService {
     return response;
   };
 
-  static async getPictures(userId?: number, queryString?: string, sort?: string[], page?: number, limit?: number): Promise<AxiosResponse<IShortPictureObj[]>> {
+  static async getPictures(userId?: number, queryString?: string, sort?: string[], page?: number, limit?: number): Promise<AxiosResponse<IGetPicturesResponse>> {
     const response =
-      await $host.get<IShortPictureObj[]>('api/picture/get-many',
+      await $host.get<IGetPicturesResponse>('api/picture/get-many',
         {
           params: {
             userId: userId || '',

@@ -33,14 +33,40 @@ const PictureList = ({ userId, isPersonalGallery }: IPictureListProps) => {
     limit: 1
   });
 
+  const [pictureList, setPictureList] = useState<IGetPicturesResponse>()
+
   const [viewPictureModalIsOpen, setViewPictureModalIsOpen] = useState(false);
   const [currentPictureId, setCurrentPictureId] = useState(0);
 
+  const getPictures = useCallback(async (userId, queryString, sort, page, limit) => {
+    const response = await PictureService.getPictures(userId, queryString, sort, page, limit);
+    setPictureList(response.data);
+
+    return response;
+  }, []);
+
   const {
-    executeCallback: getPictures,
-    isLoading: picturesIsLoading,
-    executeResult: pictureList
-  } = useDelayFetching<AxiosResponse<IGetPicturesResponse>>(PictureService.getPictures, 500)
+    executeCallback: fetchPictures, isLoading: fetchPicturesLoading
+  } = useFetching(getPictures);
+
+  const {
+    executeCallback: delayedFetchPictures,
+    isLoading: delayedFetchPicturesLoading,
+  } = useDelayFetching(getPictures, 500);
+
+
+  const getPictureListWithCurrentQueryParams = useCallback(async (newQueryParamsObj: IQueryParamsObj, delayed: boolean) => {
+    console.log(delayed);
+    setQueryParams(newQueryParamsObj);
+    const paramsArr = Object.values(newQueryParamsObj);
+
+    if (delayed) {
+      await delayedFetchPictures(...paramsArr);
+      return;
+    }
+
+    await fetchPictures(...paramsArr);
+  }, [setQueryParams, delayedFetchPictures, fetchPictures]);
 
   useEffect(() => {
     if (userId) {
@@ -49,8 +75,8 @@ const PictureList = ({ userId, isPersonalGallery }: IPictureListProps) => {
   }, [userId]);
 
   useEffect(() => {
-    getPictures(queryParams.userId, queryParams.queryString, queryParams.sort, queryParams.page, queryParams.limit);
-  }, [queryParams, getPictures]);
+    getPictureListWithCurrentQueryParams(queryParams, false);
+  }, [userId, getPictureListWithCurrentQueryParams]);
 
   return (
     <article className={listStyles["picture-list__wrapper"]}>
@@ -62,19 +88,20 @@ const PictureList = ({ userId, isPersonalGallery }: IPictureListProps) => {
       }
 
       <h1>Picture List</h1>
-      <SearchPanel queryParams={queryParams} onChange={setQueryParams} />
+      <SearchPanel queryParams={queryParams} onChange={getPictureListWithCurrentQueryParams} />
       <section className={listStyles["picture-list"]}>
         {
-          pictureList && pictureList.data && pictureList.data.rows.map(pictureItem =>
+          pictureList?.rows.map(pictureItem =>
             <PictureItem key={pictureItem.id} pictureItem={pictureItem} setCurrentPictureId={setCurrentPictureId} setIsOpen={setViewPictureModalIsOpen} />
           )
         }
       </section>
       <PaginationInput
-        count={pictureList?.data.count}
+        count={pictureList?.count}
         limit={queryParams.limit}
         page={queryParams.page}
-        setPage={(page: number) => setQueryParams({ ...queryParams, page })
+        setPage={(page: number, delayed: boolean = false) =>
+          getPictureListWithCurrentQueryParams({ ...queryParams, page }, delayed)
         } />
     </article>
   )

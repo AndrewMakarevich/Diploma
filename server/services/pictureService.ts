@@ -38,11 +38,7 @@ class PictureService {
           through: {
             attributes: []
           }
-        },
-        {
-          model: models.Comment,
-          as: "comments",
-        },
+        }
       ]
     });
     return picture;

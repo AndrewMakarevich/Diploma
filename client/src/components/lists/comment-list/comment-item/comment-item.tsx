@@ -11,7 +11,7 @@ import useFetching from "../../../../hooks/useFetching";
 import { ICommentItemProps } from "../comment-list-interfaces";
 import DeleteCommentBtn from "../../../btns/delete-comment-btn/delete-comment-btn";
 
-const CommentItem = ({ commentId, userId, pictureAuthorId, actualizeCommentListAfterDeleting }: ICommentItemProps) => {
+const CommentItem = ({ comment, userId, pictureAuthorId, actualizeCommentListAfterDeleting }: ICommentItemProps) => {
   const [commentObj, setCommentObj] = useState<IGetCommentByIdResponseObj>(
     {
       id: 0,
@@ -33,8 +33,8 @@ const CommentItem = ({ commentId, userId, pictureAuthorId, actualizeCommentListA
   const [commentText, setCommentText] = useState("");
 
   const getCommentById = useCallback(async () => {
-    await PictureCommentService.getPictureComment(commentId).then(({ data }) => setCommentObj(data))
-  }, [commentId]);
+    await PictureCommentService.getPictureComment(comment.id).then(({ data }) => setCommentObj(data))
+  }, [comment.id]);
 
   const sendEditCommentRequest = useCallback(async () => {
     CommentValidator.validateCommentText(commentText, true);
@@ -50,8 +50,10 @@ const CommentItem = ({ commentId, userId, pictureAuthorId, actualizeCommentListA
   }, [commentObj]);
 
   useEffect(() => {
-    getCommentById();
-  }, []);
+    // getCommentById();
+    setCommentObj(comment);
+    console.log(comment);
+  }, [comment]);
 
   return (
     <li className={itemStyles["comment-item"]}>
@@ -104,8 +106,8 @@ const CommentItem = ({ commentId, userId, pictureAuthorId, actualizeCommentListA
               sendLikeRequest={async () =>
                 PictureCommentLikeService.likePictureComment(commentObj.id)
               }
-              active={commentObj.commentLikes.some(({ userId: likeAuthor }) => likeAuthor === userId)} />
-            <p>{commentObj.commentLikes.length}</p>
+              active={commentObj.commentLikes?.some(({ userId: likeAuthor }) => likeAuthor === userId)} />
+            <p>{commentObj.commentLikes?.length || 0}</p>
           </div>
 
           <div>

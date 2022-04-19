@@ -62,7 +62,12 @@ class PictureCommentService {
         {
           model: models.CommentLike,
           as: "commentLikes",
-          attributes: []
+          attributes: ["userId"]
+        },
+        {
+          model: models.User,
+          as: "user",
+          attributes: ["avatar", "nickname"]
         },
         {
           model: models.Comment,
@@ -70,13 +75,12 @@ class PictureCommentService {
           attributes: []
         }
       ],
-      attributes: [
-        "id",
-        [sequelize.fn("COUNT", sequelize.fn("DISTINCT", sequelize.col("comments"))), "childCommentsAmount"],
-        [sequelize.fn("COUNT", sequelize.fn("DISTINCT", sequelize.col("commentLikes"))), "commentLikesAmount"]
-      ],
-      // attributes: { include: [[sequelize.fn("COUNT", sequelize.col("comments")), "childCommentsAmount"]] },
-      group: ["comment.id"]
+      attributes: {
+        include:
+          [[sequelize.fn("COUNT", sequelize.fn("DISTINCT", sequelize.col("comments"))), "childCommentsAmount"],
+          [sequelize.fn("COUNT", sequelize.fn("DISTINCT", sequelize.col("commentLikes"))), "commentLikesAmount"]]
+      },
+      group: ["comment.id", "commentLikes.id", "user.id"]
     });
 
     return comments;
@@ -112,7 +116,16 @@ class PictureCommentService {
       pictureId
     });
 
-    return { message: "Comment created succesfully", comment }
+    const commentObjToReturn = await models.Comment.findOne({
+      where: { id: comment.id },
+      include: [{
+        model: models.User,
+        as: "user",
+        attributes: ["avatar", "nickname"]
+      }],
+    })
+
+    return { message: "Comment created succesfully", comment: commentObjToReturn }
   };
 
   static async editComment(userId: number, commentId: number, text: string) {

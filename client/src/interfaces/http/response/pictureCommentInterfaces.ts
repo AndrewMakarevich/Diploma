@@ -1,8 +1,8 @@
-export interface IGetCommentsResponseObj {
-  id: string | number,
-  childCommentsAmount: string | number,
-  commentLikesAmount: string | number
-};
+// export interface IGetCommentsResponseObj {
+//   id: string | number,
+//   childCommentsAmount: string | number,
+//   commentLikesAmount: string | number
+// };
 
 export interface IGetCommentByIdResponseObj {
   id: string | number,
@@ -25,7 +25,7 @@ export interface IGetCommentByIdResponseObj {
 
 export interface ICreateCommentResponseObj {
   message: string,
-  comment: IGetCommentsResponseObj
+  comment: IGetCommentByIdResponseObj
 };
 
 export interface IEditCommentResponseObj {

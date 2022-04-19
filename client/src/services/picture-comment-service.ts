@@ -1,6 +1,6 @@
 import { AxiosResponse } from "axios";
 import { $authHost, $host } from "../http";
-import { ICreateCommentResponseObj, IDeleteCommentResponseObj, IEditCommentResponseObj, IGetCommentByIdResponseObj, IGetCommentsResponseObj } from "../interfaces/http/response/pictureCommentInterfaces";
+import { ICreateCommentResponseObj, IDeleteCommentResponseObj, IEditCommentResponseObj, IGetCommentByIdResponseObj } from "../interfaces/http/response/pictureCommentInterfaces";
 
 class PictureCommentService {
   static async getPictureComment(commentId: string | number): Promise<AxiosResponse<IGetCommentByIdResponseObj>> {
@@ -9,8 +9,8 @@ class PictureCommentService {
     return response;
   };
 
-  static async getPictureComments(pictureId: string | number, commentId?: string | number): Promise<AxiosResponse<IGetCommentsResponseObj[]>> {
-    const response = await $host.get<IGetCommentsResponseObj[]>("/api/picture-comment/get-many", { params: { pictureId, commentId } });
+  static async getPictureComments(pictureId: string | number, commentId?: string | number): Promise<AxiosResponse<IGetCommentByIdResponseObj[]>> {
+    const response = await $host.get<IGetCommentByIdResponseObj[]>("/api/picture-comment/get-many", { params: { pictureId, commentId } });
 
     return response;
   };

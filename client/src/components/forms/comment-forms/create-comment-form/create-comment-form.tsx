@@ -3,13 +3,13 @@ import formStyles from "./create-comment-form.module.css";
 import useFetching from "../../../../hooks/useFetching";
 import PictureCommentService from "../../../../services/picture-comment-service";
 import CommentValidator from "../../../../validator/comment-validator";
-import { ICreateCommentResponseObj, IGetCommentsResponseObj } from "../../../../interfaces/http/response/pictureCommentInterfaces";
+import { ICreateCommentResponseObj, IGetCommentByIdResponseObj } from "../../../../interfaces/http/response/pictureCommentInterfaces";
 import { AxiosResponse } from "axios";
 
 interface ICreateCommentFormProps {
   pictureId: string | number,
   commentId?: string | number,
-  actualizeCommentList: (comment: IGetCommentsResponseObj) => void,
+  actualizeCommentList: (comment: IGetCommentByIdResponseObj) => void,
   setAddCommentFormOpen: React.Dispatch<React.SetStateAction<boolean>>
 }
 

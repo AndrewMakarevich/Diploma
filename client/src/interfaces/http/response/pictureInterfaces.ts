@@ -5,15 +5,15 @@ interface mainPictureObjectProps {
   description: string,
   createdAt: string,
   updatedAt: string,
-  userId:number,
-  pictureTypeId: string | null, 
-  
+  userId: number,
+  pictureTypeId: string | null,
+
 }
 
 export interface IShortPictureObj extends mainPictureObjectProps {
   user: {
     nickname: string
-  }, 
+  },
   likesAmount: number,
   commentsAmount: number
 }
@@ -36,14 +36,15 @@ export interface IExtendedPictureObj extends mainPictureObjectProps {
     id: number,
     text: string
   }[],
-  comments: {
-    id: number,
-    text: string,
-    createdAt: string,
-    updatedAt: string,
-    userId: number,
-    commentId: number | null,
-  }
+  // comments: {
+  //   id: number,
+  //   text: string,
+  //   createdAt: string,
+  //   updatedAt: string,
+  //   userId: number,
+  //   commentId: number | null,
+  //   pictureId: string
+  // }[]
 }
 
 export interface IGetPicturesResponse {

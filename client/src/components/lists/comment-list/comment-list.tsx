@@ -1,5 +1,5 @@
 import { Fragment, useCallback, useEffect, useState } from "react";
-import { IGetCommentsResponseObj } from "../../../interfaces/http/response/pictureCommentInterfaces";
+import { IGetCommentByIdResponseObj } from "../../../interfaces/http/response/pictureCommentInterfaces";
 import StandartButton from "../../../UI/standart-button/standart-button";
 import GetPictureCommentsButton from "../../btns/get-picture-comments-btn/get-picture-comments-btn";
 import CreateCommentForm from "../../forms/comment-forms/create-comment-form/create-comment-form";
@@ -11,7 +11,7 @@ const PictureCommentList = ({ userId, pictureId, pictureAuthorId, commentId, com
   const [childCommentsAmount, setChildCommentsAmount] = useState<string | number | undefined | null>();
   const [commentsListIsOpen, setCommentsListIsOpen] = useState(true);
   const [addCommentFormOpen, setAddCommentFormOpen] = useState(false);
-  const [comments, setComments] = useState<IGetCommentsResponseObj[]>([]);
+  const [comments, setComments] = useState<IGetCommentByIdResponseObj[]>([]);
 
   const actualizeListAfterItemDelete = useCallback((commentId: string | number) => {
     if (comments.length) {
@@ -31,7 +31,7 @@ const PictureCommentList = ({ userId, pictureId, pictureAuthorId, commentId, com
           <CreateCommentForm
             pictureId={pictureId}
             commentId={commentId}
-            actualizeCommentList={(comment: IGetCommentsResponseObj) => {
+            actualizeCommentList={(comment: IGetCommentByIdResponseObj) => {
               if (comments.length) {
                 setComments([comment, ...comments]);
               }
@@ -82,7 +82,7 @@ const PictureCommentList = ({ userId, pictureId, pictureAuthorId, commentId, com
         {comments.map(comment =>
           <Fragment key={comment.id}>
             <CommentItem
-              commentId={comment.id}
+              comment={comment}
               userId={userId}
               pictureAuthorId={pictureAuthorId}
               actualizeCommentListAfterDeleting={actualizeListAfterItemDelete} />
