@@ -1,5 +1,6 @@
 import { AxiosResponse } from "axios";
-import { ComponentProps } from "react";
+import { ComponentProps, useContext } from "react";
+import { Context } from "../../..";
 import useFetching from "../../../hooks/useFetching";
 import { IPictureLikeResponseObj } from "../../../interfaces/http/response/pictureLikeInterfaces";
 import PictureLikeService from "../../../services/picture-like-service";
@@ -13,6 +14,7 @@ interface ILikePictureBtnProps extends ComponentProps<"button"> {
 }
 
 const LikeEssenceBtn = ({ sendLikeRequest, actualizeInfoAfterLike, active, onClick, ...restProps }: ILikePictureBtnProps) => {
+  const { userStore } = useContext(Context);
   const { executeCallback: sendRequestForLike, isLoading } =
     useFetching<AxiosResponse<IPictureLikeResponseObj>>(sendLikeRequest);
 
@@ -20,6 +22,11 @@ const LikeEssenceBtn = ({ sendLikeRequest, actualizeInfoAfterLike, active, onCli
     <LikeButton
       disabled={isLoading}
       onClick={async (e) => {
+        if (!userStore.isAuth) {
+          alert("Authorize to have ability to like");
+          return;
+        }
+
         if (onClick) {
           onClick(e);
         }

@@ -108,6 +108,7 @@ const CommentItem = ({ comment, pictureAuthorId, actualizeCommentListAfterDeleti
               iconClassName={itemStyles["like-btn"]}
               actualizeInfoAfterLike={() => {
                 const oppositeCommentIsLikedValue = !commentIsLiked;
+
                 setCommentIsLiked(oppositeCommentIsLikedValue);
                 //locally changing commentLikes array, to not to send additional request
                 setCommentObj(

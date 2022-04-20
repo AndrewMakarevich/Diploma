@@ -46,7 +46,10 @@ const PictureCommentList = ({ pictureId, pictureAuthorId, commentId, commentsAmo
       }
       <div className={listStyles["get-show-answer-comment-btns__wrapper"]}>
         <StandartButton
-          className={`${listStyles["answer-comment-btn"]} ${commentId ? listStyles["sub-btn"] : ""}`}
+          className={`
+          ${listStyles["answer-comment-btn"]} 
+          ${commentId ? listStyles["sub-btn"] : ""} 
+          ${commentsAmountValue == 0 ? listStyles["pairless-btn"] : ""}`}
           onClick={() => {
             setAddCommentFormOpen(!addCommentFormOpen);
           }}>

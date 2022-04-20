@@ -1,8 +1,21 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import modalStyles from './modal-window.module.css';
 
 const ModalWindow = ({ id, closeBtnId, children, isOpen, setIsOpen }:
-  { id?: string, closeBtnId?: string, children?: JSX.Element | string, isOpen?: boolean, setIsOpen?: React.Dispatch<React.SetStateAction<boolean>> }) => {
+  { id?: string, closeBtnId?: string, children?: JSX.Element | string, isOpen?: boolean, setIsOpen: React.Dispatch<React.SetStateAction<boolean>> }) => {
+
+
+  useEffect(() => {
+    const closeModalByEsc = (e: KeyboardEvent) => {
+      if (e.key === "Escape") {
+        setIsOpen(false);
+      }
+    }
+
+    document.addEventListener("keyup", closeModalByEsc);
+
+    return () => document.removeEventListener("keyup", closeModalByEsc);
+  }, []);
 
   if (!isOpen) {
     return null;
