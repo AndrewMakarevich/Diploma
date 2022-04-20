@@ -26,7 +26,10 @@ const SearchPanel = ({ onChange: getPictureList }: ISearchPanelProps) => {
         }></SearchInput>
 
       <PictureSortSelect
-        onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
+        onChange={(e) => {
+          runInAction(() => {
+            pictureStore.queryParams = { ...pictureStore.queryParams, sort: e.target.value }
+          });
           getPictureList(false)
         }
         } />

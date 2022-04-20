@@ -5,7 +5,7 @@ import PictureService from "../services/picture-service";
 export interface IQueryParamsObj {
   userId: number,
   queryString: string,
-  sort: string[] | undefined,
+  sort: string | string[] | undefined,
   page: number,
   limit: number
 };

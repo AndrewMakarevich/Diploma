@@ -43,7 +43,7 @@ const selectOptions = [
   },
 ]
 
-const PictureSortSelect = (props: ComponentProps<any>) => {
+const PictureSortSelect = (props: ComponentProps<"select">) => {
   return (
     <MySelect {...props}>
       {
