@@ -14,7 +14,7 @@ const useFetching = <T>(callback: Function) => {
         alert(e.response.data.message);
         return;
       }
-      alert(e.message);
+      alert(e);
     } finally {
       setIsLoading(false);
     }

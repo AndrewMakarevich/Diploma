@@ -7,6 +7,7 @@ import { BrowserRouter } from 'react-router-dom';
 import ModalStore from './store/modalStore';
 import { IGlobalContext } from './interfaces/storeInterfaces';
 import UserStore from './store/userStore';
+import PictureStore from './store/pictureStore';
 
 export const Context: React.Context<IGlobalContext> = createContext({} as IGlobalContext);
 
@@ -15,6 +16,7 @@ ReactDOM.render(
     {
       modalStore: new ModalStore(),
       userStore: new UserStore(),
+      pictureStore: new PictureStore()
     }
   }>
     <BrowserRouter>

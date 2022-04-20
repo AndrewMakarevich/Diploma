@@ -1,10 +1,11 @@
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useContext, useEffect, useState } from "react";
 import formStyles from "./create-comment-form.module.css";
 import useFetching from "../../../../hooks/useFetching";
 import PictureCommentService from "../../../../services/picture-comment-service";
 import CommentValidator from "../../../../validator/comment-validator";
 import { ICreateCommentResponseObj, IGetCommentByIdResponseObj } from "../../../../interfaces/http/response/pictureCommentInterfaces";
 import { AxiosResponse } from "axios";
+import { Context } from "../../../..";
 
 interface ICreateCommentFormProps {
   pictureId: string | number,
@@ -14,6 +15,7 @@ interface ICreateCommentFormProps {
 }
 
 const CreateCommentForm = ({ pictureId, commentId, actualizeCommentList, setAddCommentFormOpen }: ICreateCommentFormProps) => {
+  const { userStore } = useContext(Context);
   const [commentText, setCommentText] = useState("");
 
   const sendRequestToAddComment = useCallback(async () => {
@@ -46,6 +48,12 @@ const CreateCommentForm = ({ pictureId, commentId, actualizeCommentList, setAddC
         className={`${formStyles["create-comment-btn"]} ${commentId ? formStyles["nested-create-comment-btn"] : ""}`}
         disabled={createCommentLoading || !commentText}
         onClick={async (e) => {
+          e.preventDefault();
+
+          if (!userStore.isAuth) {
+            alert("Authorize to have an ability to leave comments")
+            return;
+          }
           e.preventDefault();
           await createComment();
         }}>

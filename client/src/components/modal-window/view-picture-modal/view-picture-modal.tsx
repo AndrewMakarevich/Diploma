@@ -12,6 +12,7 @@ import PictureLikeService from "../../../services/picture-like-service";
 import GetCommentsButton from "../../btns/get-picture-comments-btn/get-picture-comments-btn";
 import PictureInfoList from "../../lists/picture-lists/picture-info-list/picture-info-list";
 import PictureCommentList from "../../lists/comment-list/comment-list";
+import { runInAction } from "mobx";
 
 interface IViewPictureModalProps {
   isOpen: boolean,
@@ -21,7 +22,7 @@ interface IViewPictureModalProps {
 
 
 const ViewPictureModal = ({ isOpen, setIsOpen, currentPictureId }: IViewPictureModalProps) => {
-  const { userStore } = useContext(Context);
+  const { userStore, pictureStore } = useContext(Context);
   const [pictureInfo, setPictureInfo] = useState<IExtendedPictureObj | null>(null);
   const [pictureLikes, setPictureLikes] = useState<IGetPictureLikesResponseObj[]>([]);
   const [pictureInfoIsOpen, setPictureInfoIsOpen] = useState(true);
@@ -49,11 +50,6 @@ const ViewPictureModal = ({ isOpen, setIsOpen, currentPictureId }: IViewPictureM
       getLikes();
     }
   }, [currentPictureId]);
-
-  useEffect(() => {
-    console.log(pictureLikes.some((likeObj) => likeObj.userId === userStore.userData.id));
-    console.log(pictureLikes);
-  }, [pictureLikes]);
 
   return (
     <ModalWindow isOpen={isOpen} setIsOpen={setIsOpen} closeBtnId={modalStyles["close-btn"]}>
@@ -111,9 +107,17 @@ const ViewPictureModal = ({ isOpen, setIsOpen, currentPictureId }: IViewPictureM
 
                   <ul className={modalStyles["picture-tags__list"]}>
                     {pictureInfo.tags.map(tag => (
-                      <li key={tag.id} className={modalStyles["picture-tags__item"]}>
+                      <button
+                        onClick={(e) => {
+                          runInAction(() => {
+                            pictureStore.queryParams = { ...pictureStore.queryParams, queryString: tag.text, page: 1 };
+                            pictureStore.getPictures();
+                          });
+                        }}
+                        key={tag.id}
+                        className={modalStyles["picture-tags__item"]}>
                         {tag.text}
-                      </li>
+                      </button>
                     ))}
                   </ul>
                   <PictureCommentList pictureId={currentPictureId} pictureAuthorId={pictureInfo.id} />

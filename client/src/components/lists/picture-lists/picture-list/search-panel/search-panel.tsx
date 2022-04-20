@@ -2,28 +2,36 @@ import panelStyles from "./search-panel.module.css";
 import SearchInput from "../../../../../UI/search-input/search-input";
 import PictureSortSelect from "../../../../inputs/picture-sort-select/picture-sort-select";
 import { IQueryParamsObj } from "../picture-list";
+import { Context } from "../../../../..";
+import { useContext } from "react";
+import { observer } from "mobx-react-lite";
+import { runInAction } from "mobx";
 
 interface ISearchPanelProps {
-  queryParams: IQueryParamsObj,
-  onChange: (newQueryParamsObj: IQueryParamsObj, delayed: boolean) => Promise<void>
+  onChange: (delayed: boolean) => Promise<void>
 }
 
-const SearchPanel = ({ queryParams, onChange: getPictureList }: ISearchPanelProps) => {
+const SearchPanel = ({ onChange: getPictureList }: ISearchPanelProps) => {
+  const { pictureStore } = useContext(Context);
   return (
     <article className={panelStyles["search-panel"]}>
       <SearchInput
+        value={pictureStore.queryParams.queryString}
         onChange={async (e: React.ChangeEvent<HTMLInputElement>) => {
-          await getPictureList({ ...queryParams, queryString: e.target.value, page: 1 }, true);
+          runInAction(() => {
+            pictureStore.queryParams = { ...pictureStore.queryParams, queryString: e.target.value, page: 1 }
+          });
+          await getPictureList(true);
         }
         }></SearchInput>
 
       <PictureSortSelect
         onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
-          getPictureList({ ...queryParams, sort: e.target.value, page: 1 }, false)
+          getPictureList(false)
         }
         } />
     </article>
   )
 };
 
-export default SearchPanel;
+export default observer(SearchPanel);

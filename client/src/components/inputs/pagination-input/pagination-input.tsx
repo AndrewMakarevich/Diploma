@@ -59,7 +59,28 @@ const PaginationInput = ({ count, limit, page, setPage }: IPaginationInput) => {
 
   return (
     <div className={inputStyles["pagination-line"]}>
+      <input
+        className={inputStyles["custom-page-input"]}
+        placeholder="Enter your page"
+        title="Enter page number"
+        disabled={pages.length <= 1 ? true : false}
+        onChange={(e) => {
+          if (pages.length === 1) {
+            return;
+          }
+          const typedPage = Number(e.target.value);
+          if (typedPage >= pages[0]
+            &&
+            typedPage <= pages[pages.length - 1]
+            &&
+            typedPage !== page) {
+            setPage(typedPage, true);
+          }
+        }}>
+
+      </input>
       <button className={inputStyles["pagination-line__btn"]}
+        disabled={pages.length <= 1 ? true : false}
         onClick={
           () => {
             if (pages.length <= 1) {
@@ -77,6 +98,7 @@ const PaginationInput = ({ count, limit, page, setPage }: IPaginationInput) => {
       {
         currentPaginationState.map(({ id, pageNumber }) =>
           <button key={id} className={`${inputStyles["pagination-line__btn"]} ${pageNumber == page ? inputStyles["active"] : ""}`}
+            disabled={pages.length <= 1 ? true : false}
             onClick={() => {
               if (pageNumber == page) {
                 return;
@@ -90,6 +112,7 @@ const PaginationInput = ({ count, limit, page, setPage }: IPaginationInput) => {
         )
       }
       <button className={inputStyles["pagination-line__btn"]}
+        disabled={pages.length <= 1 ? true : false}
         onClick={
           () => {
             if (pages.length <= 1) {
