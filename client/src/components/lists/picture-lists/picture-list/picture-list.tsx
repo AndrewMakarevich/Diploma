@@ -19,14 +19,6 @@ interface IPictureListProps {
   isPersonalGallery: boolean
 };
 
-export interface IQueryParamsObj {
-  userId: number,
-  queryString: string,
-  sort: string[] | string,
-  page: number,
-  limit: number
-};
-
 const PictureList = ({ userId, isPersonalGallery }: IPictureListProps) => {
   const { pictureStore } = useContext(Context);
 

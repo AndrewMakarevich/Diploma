@@ -1,5 +1,7 @@
-import { AxiosError, AxiosResponse } from "axios";
+import buttonStyles from "./delete-comment-btn.module.css";
+import { AxiosResponse } from "axios";
 import { useCallback, useEffect } from "react";
+import DeleteIcon from "../../../assets/img/icons/delete-icon/delete-icon";
 import useFetching from "../../../hooks/useFetching";
 import { IDeleteCommentResponseObj } from "../../../interfaces/http/response/pictureCommentInterfaces";
 import PictureCommentService from "../../../services/picture-comment-service";
@@ -16,7 +18,7 @@ const DeleteCommentBtn = ({ commentId, actualizeCommentListAfterDeleting }: IDel
     return response;
   }, [commentId]);
 
-  const { executeCallback: deleteComment, isLoading: deleteCommentButton, response: deleteCommentResponse } =
+  const { executeCallback: deleteComment, isLoading: deleteCommentLoading, response: deleteCommentResponse } =
     useFetching<AxiosResponse<IDeleteCommentResponseObj>>(requestToDeleteComment);
 
   const actualizeCommentList = useCallback(() => {
@@ -24,9 +26,7 @@ const DeleteCommentBtn = ({ commentId, actualizeCommentListAfterDeleting }: IDel
   }, [actualizeCommentListAfterDeleting, commentId]);
 
   useEffect(() => {
-    console.log('DELEted comment 1')
     if (deleteCommentResponse) {
-      console.log('DELEted comment 2')
       alert(deleteCommentResponse.data.message);
       actualizeCommentList();
     }
@@ -34,12 +34,16 @@ const DeleteCommentBtn = ({ commentId, actualizeCommentListAfterDeleting }: IDel
 
   return (
     <button
-      disabled={deleteCommentButton}
+      disabled={deleteCommentLoading}
+      className={buttonStyles["button"]}
       onClick={async (e) => {
         e.preventDefault();
-        await deleteComment();
+
+        if (window.confirm("Are you sure you want to delete this comment")) {
+          await deleteComment();
+        }
       }}>
-      Delete comment
+      <DeleteIcon />
     </button>
   )
 };

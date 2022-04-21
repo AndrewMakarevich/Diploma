@@ -36,6 +36,15 @@
   flex-wrap: wrap;
 }
 
+.submit-changes-btn,
+.clear-changes-btn{
+  border:1px solid black;
+  border-radius: 10px;
+  padding: 2px 5px;
+  background-color:transparent;
+  cursor: pointer;
+}
+
 .comment-info{
   display:flex;
   flex-direction: column;

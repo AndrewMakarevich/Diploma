@@ -27,6 +27,9 @@ class PictureStore {
 
   async getPictures() {
     try {
+      if (this.queryParams.queryString === "@" || this.queryParams.queryString === "#") {
+        return;
+      }
       const response =
         await PictureService.getPictures(
           this.queryParams.userId,

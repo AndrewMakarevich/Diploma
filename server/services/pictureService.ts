@@ -10,7 +10,7 @@ import PictureTagService from "./pictureTagService";
 import PictureInfoService from "./pictureInfoService";
 import PictureValidator from "../validator/pictureValidator";
 import PictureTypeService from "./pictureTypeService";
-import sequelize, { Order, OrderItem, Sequelize } from "sequelize";
+import sequelize, { OrderItem } from "sequelize";
 import { Op } from "sequelize";
 
 
@@ -71,16 +71,38 @@ class PictureService {
       orderParam = ["createdAt", "DESC"]
     }
 
-    const whereStatement = {
-      userId: userId || { [Op.not]: null },
-      [Op.or]: {
-        mainTitle: { [Op.iRegexp]: `${query || ""}` },
-        description: { [Op.iRegexp]: `${query || ""}` },
-        "$tags.text$": { [Op.iRegexp]: `${query || ""}` },
-        "$pictureInfos.title$": { [Op.iRegexp]: `${query || ""}` },
-        "$pictureInfos.description$": { [Op.iRegexp]: `${query || ""}` },
-      },
-    };
+    let whereStatement;
+
+    const onlyByAuthorNickname = /^@/;
+    const onlyByTags = /^#/
+
+    if (!query || query === "@" || query === "#") {
+      whereStatement = {};
+    } else {
+
+      if (onlyByAuthorNickname.test(query)) {
+        whereStatement = {
+          "$user.nickname$": { [Op.iRegexp]: `${query.split("@")[1] || ""}` }
+        }
+      } else if (onlyByTags.test(query)) {
+        whereStatement = {
+          "$tags.text$": { [Op.iRegexp]: `${query.split("#")[1] || ""}` }
+        }
+      } else {
+        whereStatement = {
+          userId: userId || { [Op.not]: null },
+          [Op.or]: {
+            mainTitle: { [Op.iRegexp]: `${query || ""}` },
+            description: { [Op.iRegexp]: `${query || ""}` },
+            "$tags.text$": { [Op.iRegexp]: `${query || ""}` },
+            "$pictureInfos.title$": { [Op.iRegexp]: `${query || ""}` },
+            "$pictureInfos.description$": { [Op.iRegexp]: `${query || ""}` },
+          },
+        };
+      }
+    }
+
+    console.log(whereStatement);
 
     let pictures = await models.Picture.findAll({
       where: whereStatement,

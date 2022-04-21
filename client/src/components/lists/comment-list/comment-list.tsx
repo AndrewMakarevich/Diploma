@@ -16,7 +16,7 @@ const PictureCommentList = ({ pictureId, pictureAuthorId, commentId, commentsAmo
 
   const actualizeListAfterItemDelete = useCallback((commentId: string | number) => {
     if (comments.rows.length) {
-      setComments({ ...comments, rows: comments.rows.filter(comment => comment.id != commentId) });
+      setComments({ ...comments, count: +comments.count - 1, rows: comments.rows.filter(comment => comment.id != commentId) });
       setCommentsAmountValue(commentsAmountValue ? Number(commentsAmountValue) - 1 : null);
     }
   }, [comments, commentsAmountValue]);

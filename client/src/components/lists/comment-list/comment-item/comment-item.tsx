@@ -12,11 +12,13 @@ import { ICommentItemProps } from "../comment-list-interfaces";
 import DeleteCommentBtn from "../../../btns/delete-comment-btn/delete-comment-btn";
 import { Context } from "../../../..";
 import { observer } from "mobx-react-lite";
+import EditButton from "../../../../UI/edit-button/edit-button";
 
 const CommentItem = ({ comment, pictureAuthorId, actualizeCommentListAfterDeleting }: ICommentItemProps) => {
 
   const { userStore } = useContext(Context);
   const currentUserId = userStore.userData.id;
+
 
   const [commentObj, setCommentObj] = useState<IGetCommentByIdResponseObj>(
     {
@@ -39,6 +41,9 @@ const CommentItem = ({ comment, pictureAuthorId, actualizeCommentListAfterDeleti
   const [commentText, setCommentText] = useState("");
 
   const [commentIsLiked, setCommentIsLiked] = useState(false);
+
+
+  console.log(currentUserId, pictureAuthorId, commentObj.userId)
 
   // const getCommentById = useCallback(async () => {
   //   await PictureCommentService.getPictureComment(comment.id).then(({ data }) => setCommentObj(data))
@@ -69,11 +74,14 @@ const CommentItem = ({ comment, pictureAuthorId, actualizeCommentListAfterDeleti
         {
           currentUserId === commentObj.userId ?
             <div className={itemStyles["edit-comment-panel"]}>
-              <button onClick={() => setEditMode(!editMode)}>{editMode ? "Leave edit panel" : "Edit comment"}</button>
+              <EditButton
+                onClick={() => setEditMode(!editMode)}
+                active={!!editMode}
+              />
               {commentText !== commentObj.text && editMode ?
                 <>
-                  <button disabled={editCommentLoading} onClick={editComment}>Submit changes</button>
-                  <button onClick={() => setCommentText(commentObj.text)}>Clear changes</button>
+                  <button className={itemStyles["submit-changes-btn"]} disabled={editCommentLoading} onClick={editComment}>Submit</button>
+                  <button className={itemStyles["clear-changes-btn"]} onClick={() => setCommentText(commentObj.text)}>Clear</button>
                 </>
                 :
                 null}
@@ -81,7 +89,7 @@ const CommentItem = ({ comment, pictureAuthorId, actualizeCommentListAfterDeleti
             : null
         }
         {
-          !editMode && (currentUserId === pictureAuthorId || currentUserId === commentObj.userId) ?
+          !editMode && (currentUserId == pictureAuthorId || currentUserId == commentObj.userId) ?
             <DeleteCommentBtn commentId={commentObj.id} actualizeCommentListAfterDeleting={actualizeCommentListAfterDeleting} />
             :
             null

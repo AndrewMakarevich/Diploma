@@ -29,7 +29,7 @@ const selectOptions = [
     ]
   },
   {
-    name: "Sort by likes update date",
+    name: "Sort by likes",
     options: [
       {
         value: ["likesAmount", "DESC"],
@@ -37,6 +37,19 @@ const selectOptions = [
       },
       {
         value: ["likesAmount", "ASC"],
+        name: "Ascending"
+      },
+    ]
+  },
+  {
+    name: "Sort by comments amount",
+    options: [
+      {
+        value: ["commentsAmount", "DESC"],
+        name: "Descending"
+      },
+      {
+        value: ["commentsAmount", "ASC"],
         name: "Ascending"
       },
     ]

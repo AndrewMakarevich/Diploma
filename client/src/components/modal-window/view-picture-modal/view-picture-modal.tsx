@@ -13,6 +13,7 @@ import GetCommentsButton from "../../btns/get-picture-comments-btn/get-picture-c
 import PictureInfoList from "../../lists/picture-lists/picture-info-list/picture-info-list";
 import PictureCommentList from "../../lists/comment-list/comment-list";
 import { runInAction } from "mobx";
+import StandartButton from "../../../UI/standart-button/standart-button";
 
 interface IViewPictureModalProps {
   isOpen: boolean,
@@ -110,7 +111,7 @@ const ViewPictureModal = ({ isOpen, setIsOpen, currentPictureId }: IViewPictureM
                       <button
                         onClick={(e) => {
                           runInAction(() => {
-                            pictureStore.queryParams = { ...pictureStore.queryParams, queryString: tag.text, page: 1 };
+                            pictureStore.queryParams = { ...pictureStore.queryParams, queryString: `#${tag.text}`, page: 1 };
                             pictureStore.getPictures();
                           });
                         }}
@@ -120,7 +121,7 @@ const ViewPictureModal = ({ isOpen, setIsOpen, currentPictureId }: IViewPictureM
                       </button>
                     ))}
                   </ul>
-                  <PictureCommentList pictureId={currentPictureId} pictureAuthorId={pictureInfo.id} />
+                  <PictureCommentList pictureId={currentPictureId} pictureAuthorId={pictureInfo.userId} />
                 </section>
 
               </div>

@@ -1,7 +1,6 @@
 import panelStyles from "./search-panel.module.css";
 import SearchInput from "../../../../../UI/search-input/search-input";
 import PictureSortSelect from "../../../../inputs/picture-sort-select/picture-sort-select";
-import { IQueryParamsObj } from "../picture-list";
 import { Context } from "../../../../..";
 import { useContext } from "react";
 import { observer } from "mobx-react-lite";
