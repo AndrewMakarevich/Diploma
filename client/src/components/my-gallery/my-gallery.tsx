@@ -1,9 +1,9 @@
 import { useContext, useState } from "react";
 import articleStyles from "./my-gallery.module.css";
 import { Context } from "../..";
-import PictureList from "../lists/picture-lists/picture-list/picture-list";
-import CreatePictureModal from "../modal-window/create-picture-modal/create-picture-modal";
-import ViewPictureModal from "../modal-window/view-picture-modal/view-picture-modal";
+import PictureList from "../picture-components/picture-list/picture-list";
+import CreatePictureModal from "../picture-components/modals/create-picture-modal/create-picture-modal";
+import ViewPictureModal from "../picture-components/modals/view-picture-modal/view-picture-modal";
 
 const MyGallery = () => {
   const { userStore } = useContext(Context);

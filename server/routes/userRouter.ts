@@ -5,7 +5,7 @@ import authMiddleware from "../middlewares/authMiddleware";
 import roleMiddleware from "../middlewares/roleMiddleware";
 const userRouter = Router();
 
-userRouter.get('/get', authMiddleware, roleMiddleware(rolePermissions.blockPicture), UserController.getUsers);
+userRouter.get('/get/:userId', UserController.getUser);
 userRouter.get('/myself', authMiddleware, UserController.getMyself);
 
 userRouter.post('/registration', UserController.registration);

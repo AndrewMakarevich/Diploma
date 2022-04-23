@@ -24,7 +24,7 @@ class PictureService {
         {
           model: models.User,
           as: "user",
-          attributes: ["nickname", "firstName", "surname", "avatar"]
+          attributes: ["id", "nickname", "firstName", "surname", "avatar"]
         },
         {
           model: models.PictureInfo,
@@ -46,7 +46,7 @@ class PictureService {
 
   static async getPictures(userId: number, query: string | undefined, limit: number = 10, page: number = 1, sort: string) {
 
-
+    console.log(userId);
     if (!limit) {
       limit = 10;
     }
@@ -71,13 +71,13 @@ class PictureService {
       orderParam = ["createdAt", "DESC"]
     }
 
-    let whereStatement;
+    let whereStatement: {} = { userId: userId || { [Op.not]: null } };
 
     const onlyByAuthorNickname = /^@/;
     const onlyByTags = /^#/
 
     if (!query || query === "@" || query === "#") {
-      whereStatement = {};
+      // whereStatement = {};
     } else {
 
       if (onlyByAuthorNickname.test(query)) {
@@ -90,7 +90,6 @@ class PictureService {
         }
       } else {
         whereStatement = {
-          userId: userId || { [Op.not]: null },
           [Op.or]: {
             mainTitle: { [Op.iRegexp]: `${query || ""}` },
             description: { [Op.iRegexp]: `${query || ""}` },

@@ -1,10 +1,12 @@
 import AdminCabinet from "../../pages/admin-cabinet/admin-cabinet";
 import HomePage from "../../pages/home-page/home-page";
 import UserCabinet from "../../pages/user-cabinet/user-cabinet";
+import UserPage from "../../pages/user-page/user-page";
 import MyGallery from "../my-gallery/my-gallery";
 
 export const routePaths = {
     mainPage: '/',
+    userPage: '/user/:userId',
     personalCabinet: {
         main: '/personalCabinet',
         adminPanel: 'adminPanel',
@@ -16,14 +18,23 @@ export const routePaths = {
 export const guestPaths = [
     {
         id: 1,
+        inNavBar: true,
         name: 'Home',
         path: routePaths.mainPage,
         component: HomePage
-    }
+    },
+    {
+        id: 2,
+        inNavBar: false,
+        name: 'User page',
+        path: routePaths.userPage,
+        component: UserPage
+    },
 ];
 export const userPaths = [
     {
         id: 2,
+        inNavBar: true,
         name: 'Personal cabinet',
         path: routePaths.personalCabinet.main,
         component: UserCabinet,

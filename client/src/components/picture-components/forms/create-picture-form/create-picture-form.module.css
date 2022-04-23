@@ -1,0 +1,149 @@
+.create-picture-form {
+  position: relative;
+  overflow: hidden;
+  overflow-y: auto;
+  width: 100%;
+  height: 100%;
+  border-radius: 15px;
+  background-color: var(--extra-dark);
+}
+
+.create-picture-btn {
+  position: absolute;
+  top: 10px;
+  left: 5px;
+  border-top-left-radius: 15px;
+}
+
+.set-img__section {}
+
+.info-about-img__section {
+  position: absolute;
+  top: 0;
+  right: 0;
+  width: 50%;
+  height: 100%;
+  z-index: 2;
+  display: flex;
+  background-color: rgba(0, 0, 0, 0.6);
+  transition: transform .3s;
+}
+
+.info-section-false {
+  transform: translateX(100%);
+}
+
+.info-about-img__close-btn {
+  transition: transform .3s;
+  border: none;
+  background-color: inherit;
+  cursor: pointer;
+}
+
+/* .info-about-img__close-btn:focus{
+  border-color: var(--extra-light);
+} */
+
+#close-icon {
+  color: white;
+  width: 20px;
+  height: 20px;
+  transition: transform .5s;
+}
+
+.info-section-false .info-about-img__close-btn {
+  transform: translateX(-100%);
+}
+
+.info-section-false #close-icon {
+  transform: rotate(180deg);
+}
+
+.info-about-img__inputs-section {
+  display: flex;
+  overflow-y: auto;
+  flex-direction: column;
+  row-gap: 10px;
+  width: 100%;
+  padding: 15px;
+}
+
+.img-input {
+  opacity: 0;
+  width: 0;
+  height: 0;
+  padding: 0;
+  margin: 0;
+}
+
+.img-input__label {
+  position: absolute;
+  top: 0;
+  left: 0;
+  display: flex;
+  width: 100%;
+  height: 100%;
+  cursor: pointer;
+}
+
+.img-input__background-img {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
+
+.img-input__span {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--extra-light);
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: var(--extra-dark);
+  opacity: 0;
+  transition: opacity .2s;
+}
+
+.img-input:focus~.img-input__span,
+.img-input:hover~.img-input__span {
+  opacity: 0.6;
+}
+
+.main-title input {}
+
+.main-description textarea {
+  resize: vertical;
+}
+
+.main-title input,
+.main-description textarea {
+  width: 100%;
+  color: var(--extra-light);
+  background-color: rgba(0, 0, 0, 0.6);
+  padding: 5px 7px;
+  border: none;
+  border-radius: 15px;
+}
+
+.main-title input::placeholder,
+.main-description textarea::placeholder {
+  color: var(--extra-light);
+}
+
+.new-sections__header {
+  color: var(--extra-light);
+}
+
+.new-tags__section__header {
+  color: var(--extra-light);
+}
+
+@media (max-width:900px) {
+  .info-about-img__section {
+    width: 100%;
+  }
+}

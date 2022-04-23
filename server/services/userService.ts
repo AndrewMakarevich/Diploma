@@ -68,9 +68,9 @@ class UserService {
       throw ApiError.badRequest('Activation key is not valid');
     }
 
-    // if (user.isActivated === true) {
-    //   throw ApiError.badRequest('Account is already activated');
-    // }
+    if (user.isActivated === true) {
+      throw ApiError.badRequest('Account is already activated');
+    }
 
     user.update({ isActivated: true });
 
@@ -287,7 +287,7 @@ class UserService {
     const user = await models.User.findOne({ where: { id } });
 
     if (!user) {
-      return false;
+      throw ApiError.badRequest("User with such id doesn't exists");
     }
 
     return new ExtendedUserDto(user);

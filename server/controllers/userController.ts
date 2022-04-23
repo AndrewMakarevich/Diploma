@@ -63,6 +63,17 @@ class UserController {
     return res.json({ message: "users" });
   }
 
+  static async getUser(req: Request, res: Response, next: NextFunction) {
+    try {
+      const { userId } = req.params;
+      const response = await UserService.getUser(Number(userId));
+
+      return res.json(response);
+    } catch (e) {
+      next(e);
+    }
+  }
+
   static async getMyself(req: Request, res: Response, next: NextFunction) {
     try {
       const { id } = (req as any).user;

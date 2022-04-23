@@ -20,6 +20,7 @@ export interface IShortPictureObj extends mainPictureObjectProps {
 
 export interface IExtendedPictureObj extends mainPictureObjectProps {
   user: {
+    id: string | number,
     nickname: string,
     firstName: string,
     surname: string,

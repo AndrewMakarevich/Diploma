@@ -1,11 +1,15 @@
-import PictureList from "../lists/picture-lists/picture-list/picture-list";
+import PictureList from "../picture-components/picture-list/picture-list";
 import galleryStyles from "./public-gallery.module.css";
 
-const PublicGallery = () => {
+interface IPublicGallryProps {
+  userId?: number
+}
+
+const PublicGallery = ({ userId = 0 }: IPublicGallryProps) => {
   return (
     <article>
       Public gallery
-      <PictureList userId={0} isPersonalGallery={false} />
+      <PictureList userId={userId} isPersonalGallery={false} />
     </article>
   )
 };

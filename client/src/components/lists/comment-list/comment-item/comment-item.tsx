@@ -15,10 +15,8 @@ import { observer } from "mobx-react-lite";
 import EditButton from "../../../../UI/edit-button/edit-button";
 
 const CommentItem = ({ comment, pictureAuthorId, actualizeCommentListAfterDeleting }: ICommentItemProps) => {
-
   const { userStore } = useContext(Context);
   const currentUserId = userStore.userData.id;
-
 
   const [commentObj, setCommentObj] = useState<IGetCommentByIdResponseObj>(
     {
@@ -39,11 +37,7 @@ const CommentItem = ({ comment, pictureAuthorId, actualizeCommentListAfterDeleti
   );
   const [editMode, setEditMode] = useState(false);
   const [commentText, setCommentText] = useState("");
-
   const [commentIsLiked, setCommentIsLiked] = useState(false);
-
-
-  console.log(currentUserId, pictureAuthorId, commentObj.userId)
 
   // const getCommentById = useCallback(async () => {
   //   await PictureCommentService.getPictureComment(comment.id).then(({ data }) => setCommentObj(data))
@@ -52,6 +46,7 @@ const CommentItem = ({ comment, pictureAuthorId, actualizeCommentListAfterDeleti
   const sendEditCommentRequest = useCallback(async () => {
     CommentValidator.validateCommentText(commentText, true);
     await PictureCommentService.editComment(commentObj.id, commentText);
+
     setCommentObj({ ...commentObj, text: commentText });
     setEditMode(false);
   }, [commentText, commentObj, setCommentObj]);

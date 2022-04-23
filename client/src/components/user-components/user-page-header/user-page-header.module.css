@@ -1,0 +1,87 @@
+.edit-user__btn {
+  align-self: flex-start;
+  width: 25px;
+  height: 25px;
+  background-color: transparent;
+  border: none;
+  cursor: pointer;
+}
+
+#edit-icon {
+  color: white;
+  transition: color .2s;
+}
+
+#edit-icon:hover {
+  color: var(--light-brown);
+}
+
+.user-cabinet__main-info {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  row-gap: 15px;
+  padding: 25px 5px;
+  overflow: hidden;
+  z-index: 1;
+}
+
+.user-cabinet__profile-avatar {
+  width: 200px;
+  height: 200px;
+  border-radius: 50%;
+  object-fit: cover;
+}
+
+.user-cabinet__profile-background {
+  display: block;
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  z-index: -1;
+}
+
+.user-cabinet__profile-background_fogging {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  top: 0;
+  left: 0;
+  z-index: -1;
+  background-color: rgba(0, 0, 0, 0.5);
+}
+
+.user-cabinet__user-nickname {
+  font-size: 3rem;
+  letter-spacing: 5px;
+  color: var(--extra-light);
+}
+
+.user-cabinet__user-fullname {
+  font-size: 1.2rem;
+  font-weight: 100;
+  letter-spacing: 3px;
+  color: var(--extra-light);
+}
+
+.user-cabinet__user-location {
+  display: flex;
+  align-items: center;
+  font-size: 0.8rem;
+  font-weight: 100;
+  letter-spacing: 3px;
+  color: var(--extra-light);
+}
+
+.user-cabinet__user-creation-date {
+  font-size: 1.4rem;
+  font-weight: 100;
+  letter-spacing: 5px;
+  color: var(--extra-light);
+  align-self: flex-end;
+}

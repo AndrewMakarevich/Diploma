@@ -1,5 +1,5 @@
 import { AxiosResponse } from "axios";
-import { $authHost } from "../http";
+import { $authHost, $host } from "../http";
 import { editUserSuccesObj, resetPassSuccesObj, userResObject } from "../interfaces/http/response/userInterfaces";
 
 export default class UserService {
@@ -8,6 +8,12 @@ export default class UserService {
 
     return response;
   };
+
+  static async getUserInfo(userId: number): Promise<AxiosResponse<userResObject>> {
+    const response = await $host.get<userResObject>(`/api/user/get/${userId}`);
+
+    return response;
+  }
 
   static async editInfoAboutMyself(infoToEdit: FormData): Promise<AxiosResponse<editUserSuccesObj>> {
     const response = await $authHost.put<editUserSuccesObj>('/api/user/edit', infoToEdit);

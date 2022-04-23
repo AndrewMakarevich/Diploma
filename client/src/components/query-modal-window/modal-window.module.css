@@ -34,3 +34,7 @@
     flex-direction: column;
     row-gap: 15px;
 }
+
+.last-modal-focusable-el{
+    border:none;
+}

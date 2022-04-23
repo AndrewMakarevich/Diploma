@@ -1,0 +1,32 @@
+.new-tag__block {
+  position: relative;
+  display: flex;
+  justify-content: center;
+  flex: 1;
+}
+
+.new-tag__block input,
+.new-tag__block button {
+  padding: 3px;
+  border: 1px solid var(--extra-light);
+}
+
+.new-tag__block input {
+  background-color: transparent;
+  border-top-left-radius: 15px;
+  border-bottom-left-radius: 15px;
+  background-color: var(--extra-dark);
+  color: var(--extra-light);
+  transition: background-color .2s, color .3s;
+}
+
+.new-tag__block input:focus {
+  outline: none;
+  background-color: var(--extra-light);
+  color: var(--extra-dark);
+}
+
+.delete-tag-btn {
+  border-top-left-radius: 0;
+  border-bottom-left-radius: 0;
+}
