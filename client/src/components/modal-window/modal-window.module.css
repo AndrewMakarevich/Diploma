@@ -27,9 +27,14 @@
 }
 
 .close-modal__btn {
-  /* width:25px; */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width:25px;
+  height: 25px;
   border: none;
-  background-color: transparent;
+  background-color: var(--extra-dark);
+  border-radius:50%;
   color: var(--extra-light);
   cursor: pointer;
   font-size: 2rem;
@@ -50,4 +55,11 @@
 
 .last-modal-focusable-el{
   border:none;
+}
+
+@media (max-width: 768px){
+  .modal-window{
+    width: 98%;
+    height: 98%;
+  }
 }

@@ -1,7 +1,9 @@
+import modalStyles from "./edit-picture-modal.module.css";
 import { useEffect, useState } from "react";
 import { IExtendedPictureObj } from "../../../../interfaces/http/response/pictureInterfaces";
 import PictureService from "../../../../services/picture-service";
 import ModalWindow from "../../../modal-window/modal-window";
+import EditPictureForm from "../../forms/edit-picture-form/edit-picture-form";
 
 interface IEditPictureModalProps {
   isOpen: boolean;
@@ -10,18 +12,10 @@ interface IEditPictureModalProps {
 }
 
 const EditPictureModal = ({ isOpen, setIsOpen, currentPictureId }: IEditPictureModalProps) => {
-  const [pictureInfo, setPictureInfo] = useState<IExtendedPictureObj>();
-
-  useEffect(() => {
-    if (currentPictureId) {
-      PictureService.getPicture(currentPictureId).then(({ data }) => setPictureInfo(data));
-    }
-  }, [currentPictureId]);
   return (
-    <ModalWindow isOpen={isOpen} setIsOpen={setIsOpen}>
+    <ModalWindow closeBtnId={modalStyles["close-btn"]} isOpen={isOpen} setIsOpen={setIsOpen}>
       <>
-        Edit picture modal
-        {pictureInfo && JSON.stringify(pictureInfo)}
+        <EditPictureForm pictureId={currentPictureId} />
       </>
     </ModalWindow>
   )

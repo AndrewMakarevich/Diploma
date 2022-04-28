@@ -24,32 +24,32 @@ const QueryModalWindow = ({ stylesById, children }: { stylesById: string, childr
   }
 
   const focusTrap = (e: KeyboardEvent) => {
-    if (e.key === "Tab") {
-
-      if (e.target === lastFocusableElementRef.current) {
-        e.preventDefault();
-        closeModalBtnRef.current!.focus();
-      }
+    if (e.key !== "Tab") {
+      return;
     }
-  }
 
-  const skipEmptyBtn = (e: KeyboardEvent) => {
-    if (e.key === "Tab") {
-      if (e.target === lastFocusableElementRef.current) {
-        e.preventDefault();
-        closeModalBtnRef.current!.focus();
+    if (e.shiftKey) {
+      if (e.target === closeModalBtnRef.current) {
+        lastFocusableElementRef.current!.focus();
       }
+      return;
     }
+
+    if (e.target === lastFocusableElementRef.current) {
+      e.preventDefault();
+      closeModalBtnRef.current!.focus();
+    }
+
   }
 
   useEffect(() => {
     document.addEventListener("keydown", focusTrap);
-    document.addEventListener("keyup", skipEmptyBtn);
+    document.addEventListener("keyup", focusTrap);
     document.addEventListener("keyup", closeModalByEsc);
 
     return () => {
       document.removeEventListener("keydown", focusTrap);
-      document.removeEventListener("keyup", skipEmptyBtn);
+      document.removeEventListener("keyup", focusTrap);
       document.removeEventListener("keyup", closeModalByEsc);
     }
   }, [])

@@ -3,3 +3,7 @@ export interface ITagsByTextResponseObj {
   text: string,
   pictures: number
 }
+
+export interface IDeletePictureTagConnectionResponseObj {
+  message: string
+}

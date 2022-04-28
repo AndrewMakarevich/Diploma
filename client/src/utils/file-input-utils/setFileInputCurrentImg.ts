@@ -1,5 +1,5 @@
-function setFileInputCurrentImg(inputImgRef: React.RefObject<HTMLImageElement>, inputFile: File | undefined, standartImgLink: string | null) {
-  if (inputFile && inputImgRef.current) {
+function setFileInputCurrentImg(inputImgRef?: React.RefObject<HTMLImageElement | null>, inputFile?: File | null, standartImgLink?: string | null) {
+  if (inputFile && inputImgRef?.current) {
     const fr = new FileReader();
     fr.readAsDataURL(inputFile);
     fr.addEventListener('load', () => {
@@ -10,11 +10,14 @@ function setFileInputCurrentImg(inputImgRef: React.RefObject<HTMLImageElement>, 
   }
 
   if (!standartImgLink) {
-    inputImgRef.current?.removeAttribute('src');
+    inputImgRef?.current?.removeAttribute('src');
     return;
   }
 
-  inputImgRef.current!.src = standartImgLink;
+  if (inputImgRef?.current) {
+    inputImgRef.current.src = standartImgLink;
+  }
+
   return;
 }
 export default setFileInputCurrentImg;

@@ -5,7 +5,7 @@ import { IPictureMainData } from "../../../../interfaces/forms/create-picture-in
 import PictureService from "../../../../services/picture-service";
 import ArrowIcon from "../../../../assets/img/icons/arrow-icon/arrow-icon";
 import MatchingTagsList from "../../matching-tags-list/matching-tags-list";
-import PicturesTypesSelect from "../../../inputs/pictures-types-select/pictures-types-select";
+import PicturesTypesSelect from "../../inputs/pictures-types-select/pictures-types-select";
 import useFetching from "../../../../hooks/useFetching";
 import DeleteButton from "../../../../UI/delete-button/delete-button";
 import StandartButton from "../../../../UI/standart-button/standart-button";
@@ -28,7 +28,7 @@ const CreatePictureForm = () => {
     img: undefined,
     mainTitle: '',
     description: '',
-    pictureTypeId: undefined,
+    pictureTypeId: null,
   });
   const [newSections, setNewSections] = useState<newSectionObj[]>([]);
   const [newTags, setNewTags] = useState<newTagObj[]>([]);
@@ -106,7 +106,7 @@ const CreatePictureForm = () => {
           }><ArrowIcon id={formStyles["close-icon"]} /></button>
 
         <div className={formStyles["info-about-img__inputs-section"]}>
-          <PicturesTypesSelect onChange={(e: React.ChangeEvent<HTMLInputElement>) => setMainData({ ...mainData, pictureTypeId: e.target.value })} />
+          <PicturesTypesSelect onChange={(e) => setMainData({ ...mainData, pictureTypeId: e.target.value })} />
           <label className={formStyles["main-title"]}>
             <input
               placeholder="Main title"
@@ -123,7 +123,7 @@ const CreatePictureForm = () => {
 
           <p className={formStyles["new-sections__header"]}>Additional sections</p>
 
-          <NewSectionList setSections={setNewSections} />
+          <NewSectionList sections={newSections} setSections={setNewSections} />
 
           <p className={formStyles["new-tags__section__header"]}>Tags</p>
 

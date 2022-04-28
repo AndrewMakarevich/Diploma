@@ -7,10 +7,7 @@ const CreatePictureModal = ({ isOpen, setIsOpen }:
 
   return (
     <ModalWindow id={modalStyles["modal-window"]} isOpen={isOpen} setIsOpen={setIsOpen}>
-      <>
-        <p>Create picture modal</p>
-        <CreatePictureForm />
-      </>
+      <CreatePictureForm />
     </ModalWindow>
   )
 };

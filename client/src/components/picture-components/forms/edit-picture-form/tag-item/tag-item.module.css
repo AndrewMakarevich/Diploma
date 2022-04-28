@@ -1,0 +1,38 @@
+.tag-item-wrapper{
+  position: relative;
+  display: flex;
+  justify-content: center;
+  row-gap: 5px;
+  flex: 1;
+}
+
+/* .tag-item-input{
+  position:relative;
+} */
+
+.tag-item-wrapper input,
+.tag-item-wrapper p,
+.tag-item-wrapper button {
+  padding: 3px;
+  border: 1px solid var(--extra-light);
+}
+
+.tag-item-wrapper input,
+.tag-item-wrapper p {
+  background-color: transparent;
+  border-top-left-radius: 15px;
+  border-bottom-left-radius: 15px;
+  background-color: var(--extra-dark);
+  color: var(--extra-light);
+  transition: background-color .2s, color .3s;
+}
+
+.tag-item-wrapper input:focus {
+  outline: none;
+  background-color: var(--extra-light);
+  color: var(--extra-dark);
+}
+.delete-tag-btn {
+  border-top-left-radius: 0;
+  border-bottom-left-radius: 0;
+}

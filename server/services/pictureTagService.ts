@@ -109,6 +109,47 @@ class PictureTagService {
 
     return;
   }
+
+  static async deletePictureTagConnection(userId: number, pictureId: number, tagId: number) {
+    if (!pictureId) {
+      throw ApiError.badRequest("Picture's id is required");
+    }
+
+    if (!tagId) {
+      throw ApiError.badRequest("Tag's id is required");
+    }
+
+    const picture = await models.Picture.findOne({ where: { id: pictureId } });
+
+    if (!picture) {
+      throw ApiError.badRequest("Picture with such id doesn't exists");
+    }
+
+    if (+userId !== +picture.userId) {
+      throw ApiError.badRequest("You are not the author of these picture");
+    }
+
+    const tag = await models.PictureTag.findOne({ where: { id: tagId } });
+
+    if (!tag) {
+      throw ApiError.badRequest("Tag with such id doesn't exists");
+    }
+
+    const pictureTagConnection = await models.PicturesTags.findOne({
+      where: {
+        pictureId: picture.id,
+        pictureTagId: tag.id
+      }
+    });
+
+    if (!pictureTagConnection) {
+      throw ApiError.badRequest("Picture doesn't connected with this tag");
+    }
+
+    await pictureTagConnection.destroy();
+
+    return { message: `Connection between tag "${tag.text}" and your picture deleted successfully` };
+  };
 };
 
 export default PictureTagService;

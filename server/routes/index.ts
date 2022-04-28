@@ -6,10 +6,12 @@ import pictureTypeRouter from './pictureTypeRouter';
 import pictureLikeRouter from './pictureLikeRouter';
 import pictureCommentRouter from './pictureCommentRouter';
 import pictureCommentLikeRouter from './pictureCommentLikeRouter';
+import pictureInfoRouter from './pictureInfoRouter';
 const mainRouter = Router();
 
 mainRouter.use('/user', userRouter);
 mainRouter.use('/picture', pictureRouter);
+mainRouter.use('/picture-info', pictureInfoRouter);
 mainRouter.use('/picture-tag', pictureTagRouter);
 mainRouter.use('/picture-type', pictureTypeRouter);
 mainRouter.use('/picture-like', pictureLikeRouter);

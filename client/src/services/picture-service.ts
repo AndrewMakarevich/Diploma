@@ -1,6 +1,6 @@
 import { AxiosResponse } from "axios";
 import { $authHost, $host } from "../http";
-import { IExtendedPictureObj, IGetPicturesResponse } from "../interfaces/http/response/pictureInterfaces";
+import { IEditPictureResponse, IExtendedPictureObj, IGetPicturesResponse } from "../interfaces/http/response/pictureInterfaces";
 
 class PictureService {
   static async getPicture(id: number): Promise<AxiosResponse<IExtendedPictureObj>> {
@@ -29,6 +29,12 @@ class PictureService {
     const response = await $authHost.post('api/picture/create', pictureInfo);
     return response;
   };
+
+  static async editPicture(pictureId: number, pictureInfoToEdit: FormData): Promise<AxiosResponse<IEditPictureResponse>> {
+    const response = await $authHost.put<IEditPictureResponse>(`/api/picture/edit/${pictureId}`, pictureInfoToEdit);
+
+    return response;
+  }
 }
 
 export default PictureService;

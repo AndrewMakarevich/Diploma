@@ -1,16 +1,16 @@
-import { useEffect, useState } from "react";
+import { ComponentProps, useEffect, useState } from "react";
 import selectStyles from "./pictures-types-select.module.css";
-import { pictureTypeObj } from "../../../interfaces/http/response/pictureTypeInrefaces";
-import PictureTypeService from "../../../services/picture-type-service";
+import { pictureTypeObj } from "../../../../interfaces/http/response/pictureTypeInrefaces";
+import PictureTypeService from "../../../../services/picture-type-service";
 
-const PicturesTypesSelect = ({ onChange }: { onChange: Function }) => {
+const PicturesTypesSelect = ({ onChange, value }: ComponentProps<"select">) => {
   const [picturesTypes, setPicturesTypes] = useState<pictureTypeObj[]>();
   useEffect(() => {
     PictureTypeService.getPicturesTypes().then(response => setPicturesTypes(response.data))
   }, []);
 
   return (
-    <select onChange={(e) => onChange(e)} className={selectStyles["select"]}>
+    <select value={value} onChange={onChange} className={selectStyles["select"]}>
       <option value="">Picture's type</option>
       {
         picturesTypes?.length && picturesTypes.map(pictureType =>

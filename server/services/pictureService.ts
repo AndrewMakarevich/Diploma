@@ -254,7 +254,7 @@ class PictureService {
 
     }
 
-    pictureToEdit.update({
+    const editedPicture = await pictureToEdit.update({
       img: imgName,
       mainTitle,
       description,
@@ -269,7 +269,7 @@ class PictureService {
       await PictureTagService.createPictureTagConnection(pictureToEdit.id, pictureTag.text);
     });
 
-    return { message: "Picture edited succesfully" };
+    return { message: "Picture edited succesfully", picture: editedPicture };
   }
 
   static async deletePicture(userId: number, pictureId: number) {

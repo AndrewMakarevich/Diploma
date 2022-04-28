@@ -7,39 +7,35 @@ import listStyles from "./new-section-list.module.css";
 
 
 interface INewSectionListProps {
-  setSections: React.Dispatch<React.SetStateAction<newSectionObj[]>>
+  setSections: React.Dispatch<React.SetStateAction<newSectionObj[]>>;
+  sections: newSectionObj[]
 }
 
-const NewSectionList = ({ setSections }: INewSectionListProps) => {
-  const [newSections, setNewSections] = useState<newSectionObj[]>([]);
+const NewSectionList = ({ setSections, sections }: INewSectionListProps) => {
 
   function addNewSection() {
-    setNewSections([...newSections, { id: Date.now(), title: "", description: "" }]);
+    setSections([...sections, { id: Date.now(), title: "", description: "" }]);
   }
 
   function editNewSection(paramName: string, paramValue: string, sectionToEditId: number) {
-    setNewSections(newSections.map(newSection => {
-      if (newSection.id !== sectionToEditId) {
-        return newSection;
+    setSections(sections.map(section => {
+      if (section.id !== sectionToEditId) {
+        return section;
       }
 
-      return { ...newSection, [paramName]: paramValue }
+      return { ...section, [paramName]: paramValue }
     }));
   }
 
   function deleteNewSection(sectionToDeleteId: number) {
-    setNewSections(newSections.filter(newSection => newSection.id !== sectionToDeleteId));
+    setSections(sections.filter(section => section.id !== sectionToDeleteId));
   }
-
-  useEffect(() => {
-    setSections(newSections);
-  }, [newSections])
 
   return (
     <section>
       {
-        newSections.map(newSection =>
-          <NewSectionItem newSection={newSection} editNewSection={editNewSection} deleteNewSection={deleteNewSection} />
+        sections.map(section =>
+          <NewSectionItem newSection={section} editNewSection={editNewSection} deleteNewSection={deleteNewSection} />
         )
       }
 

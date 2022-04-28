@@ -3,4 +3,5 @@ export interface IPictureMainData {
   img: undefined | File,
   mainTitle: string,
   description: string,
+  pictureTypeId: string | null
 }

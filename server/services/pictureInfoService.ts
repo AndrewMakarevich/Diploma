@@ -1,3 +1,4 @@
+import ApiError from "../apiError/apiError";
 import { IPictureInfo } from "../interfaces/pictureInterfaces";
 import models from "../models/models";
 
@@ -59,6 +60,40 @@ class PictureInfoService {
     }
 
     return;
+  }
+
+  static async deletePictureInfo(userId: number, pictureId: number, pictureInfoId: number) {
+    if (!pictureId) {
+      throw ApiError.badRequest("Picture's id is required");
+    }
+
+    if (!pictureInfoId) {
+      throw ApiError.badRequest("Picture's info section id is required");
+    }
+
+    const picture = await models.Picture.findOne({
+      where: { id: pictureId }
+    });
+
+    if (!picture) {
+      throw ApiError.badRequest("Picture with such id doesnt exists");
+    };
+
+    if (+picture.userId !== +userId) {
+      throw ApiError.badRequest("You are not the author of these picture");
+    }
+
+    const pictureInfo = await models.PictureInfo.findOne({
+      where: { id: pictureInfoId }
+    });
+
+    if (!pictureInfo) {
+      throw ApiError.badRequest("Picture info with such id doesn't exists");
+    };
+
+    await models.PictureInfo.destroy({ where: { id: pictureInfoId } });
+
+    return { message: "Picture info section deleted successfully" };
   }
 }
 

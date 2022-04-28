@@ -52,3 +52,8 @@ export interface IGetPicturesResponse {
   count: number,
   rows: IShortPictureObj[]
 }
+
+export interface IEditPictureResponse {
+  message: string;
+  picture: mainPictureObjectProps
+}
