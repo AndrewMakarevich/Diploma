@@ -11,6 +11,7 @@ import TagList from "./tag-list/tag-list";
 import { AxiosError } from "axios";
 import PicturesTypesSelect from "../../inputs/pictures-types-select/pictures-types-select";
 import DeleteButton from "../../../../UI/delete-button/delete-button";
+import { IExtendedPictureObj } from "../../../../interfaces/http/response/pictureInterfaces";
 
 
 export interface sectionObj {
@@ -18,14 +19,16 @@ export interface sectionObj {
   id: number,
   title: string,
   description: string,
-  alreadyExists?: boolean
+  alreadyExists?: boolean,
+  toDelete?: boolean
 }
 
 export interface tagObj {
   [key: string]: any,
   id: number,
   text: string,
-  alreadyExists?: boolean
+  alreadyExists?: boolean,
+  toDelete?: boolean
 }
 
 interface IEditPictureFormProps {
@@ -63,16 +66,28 @@ const EditPictureForm = ({ pictureId }: IEditPictureFormProps) => {
 
   const groupAndSendData = async () => {
     const formData = new FormData();
-    for (let key in editedPictureInfo) {
 
+    const mainInfoToEdit: { [key: string]: any } = {};
+
+    for (let key in editedPictureInfo) {
       if (editedPictureInfo[key] !== mainPictureInfo[key]) {
-        formData.append(key, editedPictureInfo[key])
+        mainInfoToEdit[key] = editedPictureInfo[key];
       }
     }
 
+    for (let key in mainInfoToEdit) {
+      formData.append(key, mainInfoToEdit[key])
+    }
+
     let filteredPictureSections = editedPictureSections;
+    let pictureSectionsToDelete: number[] = [];
 
     let pictureSectionsToSend = editedPictureSections.map(section => {
+      if (section.toDelete) {
+        pictureSectionsToDelete.push(section.id);
+        return;
+      }
+
       const sameSection = pictureSections.find((el) => +el.id === +section.id);
 
       if (!sameSection) {
@@ -97,6 +112,7 @@ const EditPictureForm = ({ pictureId }: IEditPictureFormProps) => {
 
       if (Object.values(editSectionObj).length) {
         delete editSectionObj.alreadyExists;
+        editSectionObj.id = section.id
         return editSectionObj;
       }
     });
@@ -105,8 +121,13 @@ const EditPictureForm = ({ pictureId }: IEditPictureFormProps) => {
     formData.append("pictureInfos", JSON.stringify(pictureSectionsToSend));
 
     let filteredPictureTags = editedPictureTags;
+    let pictureTagsToDelete: number[] = [];
 
     let pictureTagsToSend = editedPictureTags.map(tag => {
+      if (tag.toDelete) {
+        pictureTagsToDelete.push(tag.id);
+        return;
+      }
       const sameTag = pictureTags.find(tagObj => +tagObj.id === +tag.id);
 
       if (!sameTag) {
@@ -117,7 +138,7 @@ const EditPictureForm = ({ pictureId }: IEditPictureFormProps) => {
         return undefined;
       }
 
-      const tagObject: { [key: string]: string } = {}
+      const tagObject: { [key: string]: any } = {}
 
       for (let key in tag) {
         if (key === 'alreadyExists') {
@@ -130,6 +151,7 @@ const EditPictureForm = ({ pictureId }: IEditPictureFormProps) => {
       }
 
       if (Object.values(tagObject).length) {
+        tagObject.id = tag.id;
         return tagObject;
       }
     });
@@ -137,15 +159,18 @@ const EditPictureForm = ({ pictureId }: IEditPictureFormProps) => {
     pictureTagsToSend = pictureTagsToSend.filter(tag => tag !== undefined);
     formData.append("pictureTags", JSON.stringify(pictureTagsToSend));
 
+    if (!Object.values(mainInfoToEdit).length && !pictureSectionsToSend.length && !pictureTagsToSend.length) {
+      console.log(pictureSectionsToDelete, pictureTagsToDelete);
+      alert("Nothing to change");
+      return;
+    }
+
+    console.log(mainInfoToEdit, pictureSectionsToSend, pictureTagsToSend)
+
     try {
       if (window.confirm("Are you sure you want to submit changes?")) {
         const response = await PictureService.editPicture(pictureId, formData);
-        setMainPictureInfo(response.data.picture);
-        setPictureSections(filteredPictureSections);
-        setEditedPictureSections(filteredPictureSections);
-        setPictureTags(filteredPictureTags);
-        setEditedPictureTags(filteredPictureTags);
-        alert(response.data.message);
+        setPictureParams(response.data.picture);
       }
 
     } catch (e: Error | AxiosError | any) {
@@ -162,30 +187,32 @@ const EditPictureForm = ({ pictureId }: IEditPictureFormProps) => {
   const clearAllChanges = async () => {
     if (window.confirm("Are you sure you want to clear all changes?")) {
       setEditedPictureInfo(mainPictureInfo);
-      setEditedPictureSections(pictureSections);
-      setEditedPictureTags(pictureTags);
+      setEditedPictureSections(pictureSections.map(section => ({ ...section, alreadyExists: true })));
+      setEditedPictureTags(pictureTags.map(tag => ({ ...tag, alreadyExists: true })));
     }
   }
+
+  const setPictureParams = (data: IExtendedPictureObj) => {
+    const mainInfo = {
+      img: data.img,
+      mainTitle: data.mainTitle,
+      description: data.description,
+      pictureTypeId: data.pictureTypeId
+    }
+    setMainPictureInfo(mainInfo);
+    setEditedPictureInfo(mainInfo);
+
+    setPictureSections(data.pictureInfos);
+    setEditedPictureSections(data.pictureInfos.map(info => ({ ...info, alreadyExists: true })));
+
+    setPictureTags(data.tags);
+    setEditedPictureTags(data.tags.map(tag => ({ ...tag, alreadyExists: true })));
+  };
 
   useEffect(() => {
     if (pictureId) {
       PictureService.getPicture(pictureId)
-        .then(({ data }) => {
-          const mainInfo = {
-            img: data.img,
-            mainTitle: data.mainTitle,
-            description: data.description,
-            pictureTypeId: data.pictureTypeId
-          }
-          setMainPictureInfo(mainInfo);
-          setEditedPictureInfo(mainInfo);
-
-          setPictureSections(data.pictureInfos);
-          setEditedPictureSections(data.pictureInfos.map(info => ({ ...info, alreadyExists: true })));
-
-          setPictureTags(data.tags);
-          setEditedPictureTags(data.tags.map(tag => ({ ...tag, alreadyExists: true })));
-        });
+        .then(({ data }) => setPictureParams(data));
     }
   }, [pictureId]);
 
@@ -254,6 +281,7 @@ const EditPictureForm = ({ pictureId }: IEditPictureFormProps) => {
           <DeleteButton type="button" onClick={clearAllChanges}>Clear changes</DeleteButton>
 
           <StandartButton type="submit" onClick={(e) => {
+            e.preventDefault();
             groupAndSendData();
           }}
           >Submit changes</StandartButton>

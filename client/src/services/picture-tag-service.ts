@@ -9,11 +9,11 @@ class PictureTagService {
     return response;
   }
 
-  static async deletePictureTagConnection(pictureId: number, tagId: number): Promise<AxiosResponse<IDeletePictureTagConnectionResponseObj>> {
+  static async deletePictureTagConnection(pictureId: number, tagIdValueOrArray: number | number[]): Promise<AxiosResponse<IDeletePictureTagConnectionResponseObj>> {
     const response = await $authHost.delete<IDeletePictureTagConnectionResponseObj>("/api/picture-tag/delete-connection", {
       params: {
         pictureId,
-        tagId
+        tagIdValueOrArray
       }
     });
 

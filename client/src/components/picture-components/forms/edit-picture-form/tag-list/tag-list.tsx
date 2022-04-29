@@ -16,8 +16,8 @@ const TagList = ({ pictureId, tagsArr, setTagsArr, initialTagsArr, setInitialTag
   const addNewTag = () => {
     setTagsArr([...tagsArr, { id: Date.now(), text: "" }]);
   };
-  const editNewTag = (text: string, tagId: number) => {
 
+  const editNewTag = (text: string, tagId: number) => {
     setTagsArr(tagsArr.map(tag => {
       if (+tag.id === +tagId) {
         return { ...tag, text }
@@ -27,22 +27,32 @@ const TagList = ({ pictureId, tagsArr, setTagsArr, initialTagsArr, setInitialTag
     }));
   };
 
-  const deleteTag = async (tagId: number, alreadyExists?: boolean) => {
-    if (alreadyExists) {
-      if (window.confirm("Are you sure you want to delete this tag?")) {
-        await PictureTagService.deletePictureTagConnection(pictureId, tagId);
-        setInitialTagsArr(initialTagsArr.filter(tag => +tag.id !== +tagId))
+  const resetTagToDeleteOption = (option: boolean, tagId: number) => {
+    setTagsArr(tagsArr.map(tag => {
+      if (+tag.id === tagId) {
+        return { ...tag, toDelete: option }
       }
-    };
-    setTagsArr(tagsArr.filter(tag => +tag.id !== +tagId))
+      return tag
+    }));
+  }
 
+  const deleteTag = async (tag: tagObj, alreadyExists?: boolean) => {
+    if (!tag.text.split(" ").join("") && !alreadyExists) {
+      setTagsArr(tagsArr.filter(tagObj => +tagObj.id !== +tag.id));
+      return;
+    }
+    resetTagToDeleteOption(true, tag.id)
   };
+
+  const reestablishTag = async (tagId: number) => {
+    resetTagToDeleteOption(false, tagId);
+  }
   return (
     <section className={listStyles["tag-list-wrapper"]}>
-      <div className={listStyles["tag-list"]}>
+      <div className={`${listStyles["tag-list"]}`}>
         {
           tagsArr.map(tag => (
-            <TagItem tag={tag} deleteTag={deleteTag} editTag={editNewTag} />
+            <TagItem tag={tag} deleteTag={deleteTag} editTag={editNewTag} reestablishTag={reestablishTag} />
           ))
         }
       </div>

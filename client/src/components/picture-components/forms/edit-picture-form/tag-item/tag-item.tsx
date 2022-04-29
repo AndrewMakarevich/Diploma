@@ -3,16 +3,18 @@ import itemStyles from "./tag-item.module.css";
 import MatchingTagsList from "../../../matching-tags-list/matching-tags-list";
 import { tagObj } from "../edit-picture-form";
 import DeleteButton from "../../../../../UI/delete-button/delete-button";
+import StandartButton from "../../../../../UI/standart-button/standart-button";
 
 interface ITagItemProps {
   tag: tagObj,
-  deleteTag: (tagId: number, alreadyExists?: boolean) => void,
+  deleteTag: (tag: tagObj, alreadyExists?: boolean) => void,
+  reestablishTag: (tagId: number) => void
   editTag: (text: string, tagId: number) => void
 }
 
-const TagItem = ({ tag, deleteTag, editTag }: ITagItemProps) => {
+const TagItem = ({ tag, deleteTag, reestablishTag, editTag }: ITagItemProps) => {
   const tagInputRef = useRef<HTMLInputElement>(null);
-  return <div className={itemStyles["tag-item-wrapper"]}>
+  return <div className={`${itemStyles["tag-item-wrapper"]} ${tag.toDelete ? itemStyles["to-delete"] : ""}`}>
     {
       tag.alreadyExists ?
         <p className={itemStyles["tag-item-input"]}>{tag.text}</p>
@@ -22,7 +24,13 @@ const TagItem = ({ tag, deleteTag, editTag }: ITagItemProps) => {
           <MatchingTagsList tagObj={tag} setTagValue={editTag} tagInputRef={tagInputRef.current} />
         </>
     }
-    <DeleteButton className={itemStyles["delete-tag-btn"]} type="button" onClick={() => deleteTag(tag.id, tag.alreadyExists)}>Delete</DeleteButton>
+    {
+      tag.toDelete ?
+        <StandartButton className={itemStyles["reestablish-btn"]} onClick={() => reestablishTag(tag.id)}>Reestablish</StandartButton>
+        :
+        null
+    }
+    <DeleteButton className={itemStyles["delete-tag-btn"]} type="button" onClick={() => deleteTag(tag, tag.alreadyExists)}>Delete</DeleteButton>
   </div>
 };
 

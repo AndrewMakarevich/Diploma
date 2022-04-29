@@ -29,31 +29,32 @@ const SectionList = ({ pictureId, sectionsArr, setSectionsArr, initialSectionsAr
     }));
   };
 
-  const deleteSection = async (sectionId: number, alreadyExists?: boolean) => {
-    try {
-      if (alreadyExists) {
-
-        if (window.confirm(`Are you sure you want to delete this section?`)) {
-          await PictureInfoService.deletePictureInfo(pictureId, +sectionId);
-          setInitialSectionsArr(initialSectionsArr.filter(section => +section.id !== +sectionId));
-        }
+  const resetSectionToDeleteOption = (option: boolean, sectionId: number) => {
+    setSectionsArr(sectionsArr.map(section => {
+      if (+section.id === +sectionId) {
+        return { ...section, toDelete: option }
       }
+      return section
+    }));
+  }
 
-      setSectionsArr(sectionsArr.filter(section => +section.id !== +sectionId));
-    } catch (e: any | AxiosError | Error) {
-
-      if (e.isAxiosError) {
-        alert(e.response.data.message)
-      }
+  const deleteSection = async (section: sectionObj, alreadyExists?: boolean) => {
+    if (!section.title.split(" ").join("") && !section.description.split(" ").join("") && !alreadyExists) {
+      setSectionsArr(sectionsArr.filter(sectionObj => +sectionObj.id !== +section.id));
+      return;
     }
-
+    resetSectionToDeleteOption(true, section.id);
   };
+
+  const reestablishSection = (sectionId: number) => {
+    resetSectionToDeleteOption(false, sectionId);
+  }
 
   return (
     <section className={listStyles["section-list"]}>
       {
         sectionsArr.map(section => (
-          <SectionItem section={section} deleteSection={deleteSection} editSection={editSection} />
+          <SectionItem section={section} deleteSection={deleteSection} editSection={editSection} reestablishSection={reestablishSection} />
         ))
       }
       <StandartButton

@@ -9,12 +9,13 @@ class PictureService {
     return response;
   };
 
-  static async getPictures(userId?: number, queryString?: string, sort?: string | string[], page?: number, limit?: number): Promise<AxiosResponse<IGetPicturesResponse>> {
+  static async getPictures(userId?: number, pictureTypeId?: number, queryString?: string, sort?: string | string[], page?: number, limit?: number): Promise<AxiosResponse<IGetPicturesResponse>> {
     const response =
       await $host.get<IGetPicturesResponse>('api/picture/get-many',
         {
           params: {
             userId: userId || '',
+            pictureTypeId: pictureTypeId || '',
             queryString: queryString || '',
             sort: sort || '',
             page: page || 1,

@@ -17,3 +17,39 @@
   border: none;
   border-radius: 15px;
 }
+
+.to-delete{
+  position:relative;
+  border:2px solid white;
+}
+
+.to-delete:before{
+  content:"Removed";
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  position: absolute;
+  top:0;
+  left:0;
+  width: 100%;
+  height: 100%;
+  border-radius: 15px;
+  background-color: rgba(0, 0, 0, 0.712);
+  font-weight: 600;
+  color:var(--extra-light);
+}
+
+.reestablish-btn{
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  top:0;
+  left:0;
+  opacity: 0;
+  transition: opacity .2s;
+}
+
+.reestablish-btn:hover,
+.reestablish-btn:focus{
+  opacity:1;
+}

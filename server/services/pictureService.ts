@@ -44,9 +44,8 @@ class PictureService {
     return picture;
   }
 
-  static async getPictures(userId: number, query: string | undefined, limit: number = 10, page: number = 1, sort: string) {
+  static async getPictures(userId: number, pictureTypeId: number, query: string | undefined, limit: number = 10, page: number = 1, sort: string) {
 
-    console.log(userId);
     if (!limit) {
       limit = 10;
     }
@@ -71,7 +70,15 @@ class PictureService {
       orderParam = ["createdAt", "DESC"]
     }
 
-    let whereStatement: {} = { userId: userId || { [Op.not]: null } };
+    let whereStatement: { [key: string]: any } = {};
+
+    if (userId) {
+      whereStatement.userId = userId;
+    }
+
+    if (pictureTypeId) {
+      whereStatement.pictureTypeId = pictureTypeId
+    }
 
     const onlyByAuthorNickname = /^@/;
     const onlyByTags = /^#/
@@ -254,7 +261,7 @@ class PictureService {
 
     }
 
-    const editedPicture = await pictureToEdit.update({
+    await pictureToEdit.update({
       img: imgName,
       mainTitle,
       description,
@@ -269,7 +276,7 @@ class PictureService {
       await PictureTagService.createPictureTagConnection(pictureToEdit.id, pictureTag.text);
     });
 
-    return { message: "Picture edited succesfully", picture: editedPicture };
+    return { message: "Picture edited succesfully", picture: await this.getPictureById(pictureId) };
   }
 
   static async deletePicture(userId: number, pictureId: number) {

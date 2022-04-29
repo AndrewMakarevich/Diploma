@@ -55,5 +55,5 @@ export interface IGetPicturesResponse {
 
 export interface IEditPictureResponse {
   message: string;
-  picture: mainPictureObjectProps
+  picture: IExtendedPictureObj
 }

@@ -4,6 +4,7 @@ import PictureService from "../services/picture-service";
 
 export interface IQueryParamsObj {
   userId: number,
+  pictureTypeId: number,
   queryString: string,
   sort: string | string[] | undefined,
   page: number,
@@ -17,6 +18,7 @@ class PictureStore {
     this.pictures = { count: 0, rows: [] };
     this.queryParams = {
       userId: 0,
+      pictureTypeId: 0,
       queryString: "",
       sort: undefined,
       page: 1,
@@ -33,6 +35,7 @@ class PictureStore {
       const response =
         await PictureService.getPictures(
           this.queryParams.userId,
+          this.queryParams.pictureTypeId,
           this.queryParams.queryString,
           this.queryParams.sort,
           this.queryParams.page,

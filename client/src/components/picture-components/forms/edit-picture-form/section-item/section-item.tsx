@@ -1,21 +1,28 @@
 import itemStyles from "./section-item.module.css";
 import { sectionObj } from "../edit-picture-form";
 import DeleteButton from "../../../../../UI/delete-button/delete-button";
+import StandartButton from "../../../../../UI/standart-button/standart-button";
 
 interface ISectionItemProps {
   section: sectionObj,
-  deleteSection: (sectionId: number, alreadyExists?: boolean) => void,
+  deleteSection: (section: sectionObj, alreadyExists?: boolean) => void,
+  reestablishSection: (sectionId: number) => void,
   editSection: (paramName: string, paramValue: string, sectionId: number) => void
 }
 
-const SectionItem = ({ section, deleteSection, editSection }: ISectionItemProps) => {
+const SectionItem = ({ section, deleteSection, reestablishSection, editSection }: ISectionItemProps) => {
   return (
-    <div className={itemStyles["item-wrapper"]}>
+    <div className={`${itemStyles["item-wrapper"]} ${section.toDelete ? itemStyles["to-delete"] : ""}`}>
       <textarea onChange={(e) => editSection("title", e.target.value, section.id)} value={section.title} />
       <textarea onChange={(e) => editSection("description", e.target.value, section.id)} value={section.description} />
-      <DeleteButton onClick={(e) => {
-        e.preventDefault();
-        deleteSection(section.id, section.alreadyExists);
+      {
+        section.toDelete ?
+          <StandartButton type="button" className={itemStyles["reestablish-btn"]} onClick={() => reestablishSection(section.id)}>reestablish</StandartButton>
+          : null
+      }
+
+      <DeleteButton type="button" onClick={(e) => {
+        deleteSection(section, section.alreadyExists);
       }}>Delete section</DeleteButton>
     </div>
   )

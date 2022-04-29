@@ -62,13 +62,18 @@ class PictureInfoService {
     return;
   }
 
-  static async deletePictureInfo(userId: number, pictureId: number, pictureInfoId: number) {
+  static async deletePictureInfo(userId: number, pictureId: number, pictureInfoIdValueOrArray: string) {
     if (!pictureId) {
       throw ApiError.badRequest("Picture's id is required");
     }
 
-    if (!pictureInfoId) {
-      throw ApiError.badRequest("Picture's info section id is required");
+    let pictureInfoIdArrOrVal: number | number[];
+    console.log(pictureInfoIdValueOrArray);
+
+    try {
+      pictureInfoIdArrOrVal = JSON.parse(pictureInfoIdValueOrArray);
+    } catch (e: any) {
+      throw ApiError.badRequest(e.message);
     }
 
     const picture = await models.Picture.findOne({
@@ -83,16 +88,32 @@ class PictureInfoService {
       throw ApiError.badRequest("You are not the author of these picture");
     }
 
-    const pictureInfo = await models.PictureInfo.findOne({
-      where: { id: pictureInfoId }
-    });
+    async function deletePictureInfoById(id: number) {
+      const pictureInfo = await models.PictureInfo.findOne({
+        where: { id }
+      });
 
-    if (!pictureInfo) {
-      throw ApiError.badRequest("Picture info with such id doesn't exists");
-    };
+      if (!pictureInfo) {
+        throw ApiError.badRequest("Picture info with such id doesn't exists");
+      };
 
-    await models.PictureInfo.destroy({ where: { id: pictureInfoId } });
+      await models.PictureInfo.destroy({ where: { id } });
 
+    }
+
+    if (Array.isArray(pictureInfoIdArrOrVal)) {
+      for (let pictureInfoId of pictureInfoIdArrOrVal) {
+        try {
+          await deletePictureInfoById(pictureInfoId)
+        } catch (e) {
+          continue;
+        }
+      }
+      return { message: "Picture info sections deleted successfully" };
+    }
+
+
+    await deletePictureInfoById(pictureInfoIdArrOrVal);
     return { message: "Picture info section deleted successfully" };
   }
 }

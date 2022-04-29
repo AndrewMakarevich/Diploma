@@ -15,10 +15,10 @@ class PictureTagController {
 
   static async deletePictureTagConnection(req: Request, res: Response, next: NextFunction) {
     try {
-      const { pictureId, tagId } = req.query;
+      const { pictureId, tagIdValueOrArray } = req.query;
       const userId = (req as any).user.id;
 
-      const response = await PictureTagService.deletePictureTagConnection(Number(userId), Number(pictureId), Number(tagId));
+      const response = await PictureTagService.deletePictureTagConnection(Number(userId), Number(pictureId), tagIdValueOrArray as string);
 
       return res.json(response);
     } catch (e) {

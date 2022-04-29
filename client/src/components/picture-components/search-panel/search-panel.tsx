@@ -5,6 +5,7 @@ import { Context } from "../../..";
 import { useContext } from "react";
 import { observer } from "mobx-react-lite";
 import { runInAction } from "mobx";
+import PicturesTypesSelect from "../inputs/pictures-types-select/pictures-types-select";
 
 interface ISearchPanelProps {
   onChange: (delayed: boolean) => Promise<void>
@@ -12,26 +13,23 @@ interface ISearchPanelProps {
 
 const SearchPanel = ({ onChange: getPictureList }: ISearchPanelProps) => {
   const { pictureStore } = useContext(Context);
+
+  const setQueryParam = async (paramName: string, event: React.ChangeEvent<any>, delayed: boolean) => {
+    runInAction(() => {
+      pictureStore.queryParams = { ...pictureStore.queryParams, [paramName]: event.target.value, page: 1 }
+    });
+    await getPictureList(delayed);
+  }
+
   return (
     <article className={panelStyles["search-panel"]}>
       <SearchInput
         value={pictureStore.queryParams.queryString}
-        onChange={async (e: React.ChangeEvent<HTMLInputElement>) => {
-          runInAction(() => {
-            pictureStore.queryParams = { ...pictureStore.queryParams, queryString: e.target.value, page: 1 }
-          });
-          await getPictureList(true);
-        }
-        }></SearchInput>
+        onChange={(e) => setQueryParam("queryString", e, true)}></SearchInput>
 
-      <PictureSortSelect
-        onChange={(e) => {
-          runInAction(() => {
-            pictureStore.queryParams = { ...pictureStore.queryParams, sort: e.target.value }
-          });
-          getPictureList(false)
-        }
-        } />
+      <PicturesTypesSelect onChange={(e) => setQueryParam("pictureTypeId", e, false)} />
+
+      <PictureSortSelect onChange={(e) => setQueryParam("sort", e, false)} />
     </article>
   )
 };

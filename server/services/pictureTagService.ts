@@ -110,13 +110,17 @@ class PictureTagService {
     return;
   }
 
-  static async deletePictureTagConnection(userId: number, pictureId: number, tagId: number) {
+  static async deletePictureTagConnection(userId: number, pictureId: number, tagIdValueOrArray: string) {
     if (!pictureId) {
       throw ApiError.badRequest("Picture's id is required");
     }
 
-    if (!tagId) {
-      throw ApiError.badRequest("Tag's id is required");
+    let tagIdValOrArr: number | number[];
+
+    try {
+      tagIdValOrArr = JSON.parse(tagIdValueOrArray);
+    } catch (e: any) {
+      throw ApiError.badRequest(e.message);
     }
 
     const picture = await models.Picture.findOne({ where: { id: pictureId } });
@@ -129,26 +133,42 @@ class PictureTagService {
       throw ApiError.badRequest("You are not the author of these picture");
     }
 
-    const tag = await models.PictureTag.findOne({ where: { id: tagId } });
+    async function deletePictureTagConnectionByTagId(tagId: number, pictureId: number) {
+      const tag = await models.PictureTag.findOne({ where: { id: tagId } });
 
-    if (!tag) {
-      throw ApiError.badRequest("Tag with such id doesn't exists");
-    }
-
-    const pictureTagConnection = await models.PicturesTags.findOne({
-      where: {
-        pictureId: picture.id,
-        pictureTagId: tag.id
+      if (!tag) {
+        throw ApiError.badRequest("Tag with such id doesn't exists");
       }
-    });
 
-    if (!pictureTagConnection) {
-      throw ApiError.badRequest("Picture doesn't connected with this tag");
+      const pictureTagConnection = await models.PicturesTags.findOne({
+        where: {
+          pictureId: pictureId,
+          pictureTagId: tag.id
+        }
+      });
+
+      if (!pictureTagConnection) {
+        throw ApiError.badRequest("Picture doesn't connected with this tag");
+      }
+
+      await pictureTagConnection.destroy();
+      return { message: `Connection between tag "${tag.text}" and your picture deleted successfully` };
     }
 
-    await pictureTagConnection.destroy();
+    if (Array.isArray(tagIdValOrArr)) {
+      for (let tagId of tagIdValOrArr) {
+        try {
+          await deletePictureTagConnectionByTagId(tagId, picture.id);
+        } catch (e) {
+          continue;
+        }
+      }
 
-    return { message: `Connection between tag "${tag.text}" and your picture deleted successfully` };
+      return { message: "Tags from this picture deleted successfully" };
+    }
+
+    const destroyConnectionMessage = await deletePictureTagConnectionByTagId(tagIdValOrArr, picture.id);
+    return destroyConnectionMessage;
   };
 };
 

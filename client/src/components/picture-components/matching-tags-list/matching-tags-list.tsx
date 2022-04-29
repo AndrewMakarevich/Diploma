@@ -58,7 +58,7 @@ const MatchingTagsList = ({ tagInputRef, tagObj, setTagValue }: IMatchingTagsLis
     }
   }, [tagInputRef]);
 
-  if (canBeShown && tagObj.text && tagsArray?.data.length && !tagsIsLoading) {
+  if (canBeShown && tagObj.text && tagsArray?.data?.length && !tagsIsLoading) {
     return (
       <article ref={matchingTagsListRef} className={componentStyles["tags-list"]}>
         {
