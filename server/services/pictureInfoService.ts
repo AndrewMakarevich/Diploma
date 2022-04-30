@@ -68,12 +68,15 @@ class PictureInfoService {
     }
 
     let pictureInfoIdArrOrVal: number | number[];
-    console.log(pictureInfoIdValueOrArray);
 
     try {
       pictureInfoIdArrOrVal = JSON.parse(pictureInfoIdValueOrArray);
     } catch (e: any) {
-      throw ApiError.badRequest(e.message);
+      if (Array.isArray(pictureInfoIdValueOrArray)) {
+        pictureInfoIdArrOrVal = pictureInfoIdValueOrArray;
+      } else {
+        throw ApiError.badRequest(e.message);
+      }
     }
 
     const picture = await models.Picture.findOne({

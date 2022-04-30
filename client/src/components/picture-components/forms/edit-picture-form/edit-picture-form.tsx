@@ -12,6 +12,8 @@ import { AxiosError } from "axios";
 import PicturesTypesSelect from "../../inputs/pictures-types-select/pictures-types-select";
 import DeleteButton from "../../../../UI/delete-button/delete-button";
 import { IExtendedPictureObj } from "../../../../interfaces/http/response/pictureInterfaces";
+import PictureInfoService from "../../../../services/picture-info-service";
+import PictureTagService from "../../../../services/picture-tag-service";
 
 
 export interface sectionObj {
@@ -79,12 +81,16 @@ const EditPictureForm = ({ pictureId }: IEditPictureFormProps) => {
       formData.append(key, mainInfoToEdit[key])
     }
 
-    let filteredPictureSections = editedPictureSections;
-    let pictureSectionsToDelete: number[] = [];
+    let pictureSectionsToDeleteOnServer: number[] = [];
+    let pictureSectionsToDeleteLocally: number[] = [];
 
     let pictureSectionsToSend = editedPictureSections.map(section => {
       if (section.toDelete) {
-        pictureSectionsToDelete.push(section.id);
+        if (section.alreadyExists) {
+          pictureSectionsToDeleteOnServer.push(section.id);
+          return;
+        }
+        pictureSectionsToDeleteLocally.push(section.id);
         return;
       }
 
@@ -94,14 +100,13 @@ const EditPictureForm = ({ pictureId }: IEditPictureFormProps) => {
         if (section.title.split(' ').join('') && section.description.split(' ').join('')) {
           return section;
         }
-        filteredPictureSections = filteredPictureSections.filter(editedSection => +editedSection.id !== +section.id)
         return undefined;
       };
 
       const editSectionObj: { [key: string]: any } = {};
 
       for (let sectionKey in section) {
-        if (sectionKey === 'alreadyExists') {
+        if (sectionKey === 'alreadyExists' || sectionKey === "toDelete" || sectionKey === "id") {
           continue;
         }
 
@@ -111,7 +116,6 @@ const EditPictureForm = ({ pictureId }: IEditPictureFormProps) => {
       }
 
       if (Object.values(editSectionObj).length) {
-        delete editSectionObj.alreadyExists;
         editSectionObj.id = section.id
         return editSectionObj;
       }
@@ -120,12 +124,16 @@ const EditPictureForm = ({ pictureId }: IEditPictureFormProps) => {
     pictureSectionsToSend = pictureSectionsToSend.filter(section => section !== undefined)
     formData.append("pictureInfos", JSON.stringify(pictureSectionsToSend));
 
-    let filteredPictureTags = editedPictureTags;
-    let pictureTagsToDelete: number[] = [];
+    let pictureTagsToDeleteOnServer: number[] = [];
+    let pictureTagsToDeleteLocally: number[] = [];
 
     let pictureTagsToSend = editedPictureTags.map(tag => {
       if (tag.toDelete) {
-        pictureTagsToDelete.push(tag.id);
+        if (tag.alreadyExists) {
+          pictureTagsToDeleteOnServer.push(tag.id);
+          return;
+        }
+        pictureTagsToDeleteLocally.push(tag.id);
         return;
       }
       const sameTag = pictureTags.find(tagObj => +tagObj.id === +tag.id);
@@ -134,14 +142,13 @@ const EditPictureForm = ({ pictureId }: IEditPictureFormProps) => {
         if (tag.text.split(" ").join("")) {
           return tag;
         }
-        filteredPictureTags = filteredPictureTags.filter(editedTag => +editedTag.id !== +tag.id);
         return undefined;
       }
 
       const tagObject: { [key: string]: any } = {}
 
       for (let key in tag) {
-        if (key === 'alreadyExists') {
+        if (key === 'alreadyExists' || key === 'toDelete' || key === 'id') {
           continue;
         }
 
@@ -159,18 +166,71 @@ const EditPictureForm = ({ pictureId }: IEditPictureFormProps) => {
     pictureTagsToSend = pictureTagsToSend.filter(tag => tag !== undefined);
     formData.append("pictureTags", JSON.stringify(pictureTagsToSend));
 
-    if (!Object.values(mainInfoToEdit).length && !pictureSectionsToSend.length && !pictureTagsToSend.length) {
-      console.log(pictureSectionsToDelete, pictureTagsToDelete);
+    if (
+      !Object.values(mainInfoToEdit).length &&
+      !pictureSectionsToSend.length &&
+      !pictureTagsToSend.length &&
+      !pictureSectionsToDeleteOnServer.length &&
+      !pictureSectionsToDeleteLocally.length &&
+      !pictureTagsToDeleteOnServer.length &&
+      !pictureTagsToDeleteLocally.length) {
       alert("Nothing to change");
       return;
     }
 
-    console.log(mainInfoToEdit, pictureSectionsToSend, pictureTagsToSend)
-
     try {
       if (window.confirm("Are you sure you want to submit changes?")) {
-        const response = await PictureService.editPicture(pictureId, formData);
-        setPictureParams(response.data.picture);
+        if (Object.values(mainInfoToEdit).length || pictureSectionsToSend.length || pictureTagsToSend.length) {
+          if (pictureSectionsToDeleteOnServer.length) {
+            await PictureInfoService.deletePictureInfo(pictureId, pictureSectionsToDeleteOnServer);
+          }
+          if (pictureTagsToDeleteOnServer.length) {
+            await PictureTagService.deletePictureTagConnection(pictureId, pictureTagsToDeleteOnServer);
+          }
+
+          const response = await PictureService.editPicture(pictureId, formData);
+
+          setPictureParams(response.data.picture);
+          return;
+        }
+        let filteredTags: tagObj[] = [];
+        let filteredSections: sectionObj[] = [];
+
+        // console.log(pictureSectionsToDeleteOnServer);
+        // console.log(pictureSectionsToDeleteLocally);
+
+        // console.log(pictureTagsToDeleteOnServer);
+        // console.log(pictureTagsToDeleteLocally);
+
+        if (pictureTagsToDeleteOnServer.length) {
+          await PictureTagService.deletePictureTagConnection(pictureId, pictureTagsToDeleteOnServer);
+          filteredTags = pictureTags.filter(tag => !pictureTagsToDeleteOnServer.some((tagToDeleteOnServerId) => tagToDeleteOnServerId === tag.id));
+        }
+
+        if (pictureTagsToDeleteLocally.length) {
+          filteredTags = pictureTags.filter(tag => !pictureTagsToDeleteLocally.some((tagToDeleteLocallyId) => tagToDeleteLocallyId === tag.id));
+        }
+
+        if (pictureSectionsToDeleteOnServer.length) {
+          console.log("AAAAAAAAAAAAAAA");
+          await PictureInfoService.deletePictureInfo(pictureId, pictureSectionsToDeleteOnServer);
+          filteredSections = pictureSections.filter(section => !pictureSectionsToDeleteOnServer.some(sectionToDeleteOnServerId => sectionToDeleteOnServerId === section.id));
+        }
+
+        if (pictureSectionsToDeleteLocally.length) {
+          filteredSections = pictureSections.filter(section => !pictureSectionsToDeleteLocally.some(sectionToDeleteLocallyId => sectionToDeleteLocallyId === section.id));
+        }
+
+        if (filteredTags.length) {
+          setPictureTags(filteredTags);
+          setEditedPictureTags(filteredTags);
+        }
+
+        if (filteredSections.length) {
+          setPictureSections(filteredSections);
+          setEditedPictureSections(filteredSections);
+        }
+
       }
 
     } catch (e: Error | AxiosError | any) {

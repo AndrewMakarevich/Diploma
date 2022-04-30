@@ -120,7 +120,11 @@ class PictureTagService {
     try {
       tagIdValOrArr = JSON.parse(tagIdValueOrArray);
     } catch (e: any) {
-      throw ApiError.badRequest(e.message);
+      if (Array.isArray(tagIdValueOrArray)) {
+        tagIdValOrArr = tagIdValueOrArray;
+      } else {
+        throw ApiError.badRequest(e.message);
+      }
     }
 
     const picture = await models.Picture.findOne({ where: { id: pictureId } });
