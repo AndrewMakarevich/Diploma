@@ -3,3 +3,10 @@
   flex-wrap: wrap;
   gap: 5px 10px;
 }
+
+.picture-types-select{
+  border-radius:15px;
+  border:none;
+  background-color:var(--extra-light);
+  color: var(--extra-dark);
+}

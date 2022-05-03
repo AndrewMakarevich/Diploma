@@ -6,6 +6,7 @@ export interface IPictureInstance extends Model {
   img: string,
   mainTitle: string,
   description: string,
+  pictureTypeId: number | null,
   createdAt: string,
   updatedAt: string
 }

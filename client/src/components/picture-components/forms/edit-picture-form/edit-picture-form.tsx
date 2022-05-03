@@ -8,12 +8,12 @@ import { IEditedPictureMainDataEditForm, IPictureMainDataEditForm } from "../../
 import SectionList from "./section-list/section-list";
 import StandartButton from "../../../../UI/standart-button/standart-button";
 import TagList from "./tag-list/tag-list";
-import { AxiosError } from "axios";
 import PicturesTypesSelect from "../../inputs/pictures-types-select/pictures-types-select";
 import DeleteButton from "../../../../UI/delete-button/delete-button";
 import { IExtendedPictureObj } from "../../../../interfaces/http/response/pictureInterfaces";
 import PictureInfoService from "../../../../services/picture-info-service";
 import PictureTagService from "../../../../services/picture-tag-service";
+import DeletePictureBtn from "../../btns/delete-picture-btn";
 
 
 export interface sectionObj {
@@ -34,10 +34,11 @@ export interface tagObj {
 }
 
 interface IEditPictureFormProps {
-  pictureId: number
+  pictureId: number,
+  setModalIsOpen: React.Dispatch<React.SetStateAction<boolean>>
 }
 
-const EditPictureForm = ({ pictureId }: IEditPictureFormProps) => {
+const EditPictureForm = ({ pictureId, setModalIsOpen }: IEditPictureFormProps) => {
   const [mainPictureInfo, setMainPictureInfo] = useState<IPictureMainDataEditForm>({
     img: null,
     mainTitle: "",
@@ -196,12 +197,6 @@ const EditPictureForm = ({ pictureId }: IEditPictureFormProps) => {
         let filteredTags: tagObj[] = [];
         let filteredSections: sectionObj[] = [];
 
-        // console.log(pictureSectionsToDeleteOnServer);
-        // console.log(pictureSectionsToDeleteLocally);
-
-        // console.log(pictureTagsToDeleteOnServer);
-        // console.log(pictureTagsToDeleteLocally);
-
         if (pictureTagsToDeleteOnServer.length) {
           await PictureTagService.deletePictureTagConnection(pictureId, pictureTagsToDeleteOnServer);
           filteredTags = pictureTags.filter(tag => !pictureTagsToDeleteOnServer.some((tagToDeleteOnServerId) => tagToDeleteOnServerId === tag.id));
@@ -212,7 +207,6 @@ const EditPictureForm = ({ pictureId }: IEditPictureFormProps) => {
         }
 
         if (pictureSectionsToDeleteOnServer.length) {
-          console.log("AAAAAAAAAAAAAAA");
           await PictureInfoService.deletePictureInfo(pictureId, pictureSectionsToDeleteOnServer);
           filteredSections = pictureSections.filter(section => !pictureSectionsToDeleteOnServer.some(sectionToDeleteOnServerId => sectionToDeleteOnServerId === section.id));
         }
@@ -233,7 +227,7 @@ const EditPictureForm = ({ pictureId }: IEditPictureFormProps) => {
 
       }
 
-    } catch (e: Error | AxiosError | any) {
+    } catch (e: any) {
       if (e.isAxiosError) {
         alert(e.response.data.message);
         return;
@@ -277,7 +271,8 @@ const EditPictureForm = ({ pictureId }: IEditPictureFormProps) => {
   }, [pictureId]);
 
   return (
-    <form>
+    <form className={formStyles["form"]}>
+      <DeletePictureBtn className={formStyles["delete-picture-btn"]} pictureId={pictureId} pictureMainTitle={mainPictureInfo.mainTitle} setModalIsOpen={setModalIsOpen} />
       <section className={formStyles["img-section"]}>
         <label className={formStyles["img-input-label"]}>
           <input
@@ -306,7 +301,9 @@ const EditPictureForm = ({ pictureId }: IEditPictureFormProps) => {
           <ArrowIcon id={formStyles["close-icon"]} />
         </button>
         <div className={formStyles["info-wrapper"]}>
-          <PicturesTypesSelect value={editedPictureInfo.pictureTypeId || ""} onChange={(e) => setEditedPictureInfo({ ...editedPictureInfo, pictureTypeId: e.target.value })} />
+          <PicturesTypesSelect
+            value={editedPictureInfo.pictureTypeId || ""}
+            onChange={(e) => setEditedPictureInfo({ ...editedPictureInfo, pictureTypeId: e.target.value })} />
           <div className={formStyles["main-info"]}>
             <fieldset>
               <legend>Main info</legend>

@@ -1,6 +1,6 @@
 import { AxiosResponse } from "axios";
 import { $authHost, $host } from "../http";
-import { IEditPictureResponse, IExtendedPictureObj, IGetPicturesResponse } from "../interfaces/http/response/pictureInterfaces";
+import { ICreatePictureResponse, IDeletePictureResponse, IEditPictureResponse, IExtendedPictureObj, IGetPicturesResponse } from "../interfaces/http/response/pictureInterfaces";
 
 class PictureService {
   static async getPicture(id: number): Promise<AxiosResponse<IExtendedPictureObj>> {
@@ -26,13 +26,20 @@ class PictureService {
     return response;
   };
 
-  static async createPicture(pictureInfo: FormData) {
-    const response = await $authHost.post('api/picture/create', pictureInfo);
+  static async createPicture(pictureInfo: FormData): Promise<AxiosResponse<ICreatePictureResponse>> {
+    const response = await $authHost.post<ICreatePictureResponse>('api/picture/create', pictureInfo);
+
     return response;
   };
 
   static async editPicture(pictureId: number, pictureInfoToEdit: FormData): Promise<AxiosResponse<IEditPictureResponse>> {
     const response = await $authHost.put<IEditPictureResponse>(`/api/picture/edit/${pictureId}`, pictureInfoToEdit);
+
+    return response;
+  }
+
+  static async deletePicture(pictureId: number): Promise<AxiosResponse<IDeletePictureResponse>> {
+    const response = await $authHost.delete<IDeletePictureResponse>(`api/picture/delete/${pictureId}`);
 
     return response;
   }

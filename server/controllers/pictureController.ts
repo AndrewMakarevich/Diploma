@@ -8,6 +8,7 @@ class PictureController {
   static async getPictureById(req: Request, res: Response, next: NextFunction) {
     try {
       const { id } = req.params;
+      console.log(id);
       const response = await PictureService.getPictureById(Number(id));
 
       return res.json(response);

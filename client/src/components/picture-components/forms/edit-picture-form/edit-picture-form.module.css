@@ -1,4 +1,12 @@
-p{
+.delete-picture-btn{
+  position: absolute;
+  bottom: 10px;
+  left:10px;
+  background-color: rgb(223, 65, 65);
+  z-index: 9;
+}
+
+.form p{
   color: var(--extra-light);
 }
 .img-input-label{

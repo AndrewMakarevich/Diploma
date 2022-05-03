@@ -14,10 +14,14 @@ interface ISearchPanelProps {
 const SearchPanel = ({ onChange: getPictureList }: ISearchPanelProps) => {
   const { pictureStore } = useContext(Context);
 
-  const setQueryParam = async (paramName: string, event: React.ChangeEvent<any>, delayed: boolean) => {
+  const setQueryParam = async (paramName: string, paramValue: string, delayed: boolean) => {
     runInAction(() => {
-      pictureStore.queryParams = { ...pictureStore.queryParams, [paramName]: event.target.value, page: 1 }
+      pictureStore.queryParams = { ...pictureStore.queryParams, [paramName]: paramValue, page: 1 }
     });
+
+    if (paramValue === "@" || paramValue === "#") {
+      return;
+    }
     await getPictureList(delayed);
   }
 
@@ -25,11 +29,11 @@ const SearchPanel = ({ onChange: getPictureList }: ISearchPanelProps) => {
     <article className={panelStyles["search-panel"]}>
       <SearchInput
         value={pictureStore.queryParams.queryString}
-        onChange={(e) => setQueryParam("queryString", e, true)}></SearchInput>
+        onChange={(e) => setQueryParam("queryString", e.target.value, true)}></SearchInput>
 
-      <PicturesTypesSelect onChange={(e) => setQueryParam("pictureTypeId", e, false)} />
+      <PicturesTypesSelect className={panelStyles["picture-types-select"]} onChange={(e) => setQueryParam("pictureTypeId", e.target.value, false)} />
 
-      <PictureSortSelect onChange={(e) => setQueryParam("sort", e, false)} />
+      <PictureSortSelect onChange={(e) => setQueryParam("sort", e.target.value, false)} />
     </article>
   )
 };

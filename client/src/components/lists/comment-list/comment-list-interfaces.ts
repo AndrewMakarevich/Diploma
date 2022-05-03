@@ -5,7 +5,7 @@ export interface ICommentListProps {
   pictureId: string | number,
   pictureAuthorId: string | number,
   commentId?: string | number,
-  commentsAmount?: string | number | null,
+  commentsAmount: string | number,
 }
 
 export interface ICommentItemProps {

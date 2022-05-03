@@ -10,8 +10,9 @@ import PictureTagService from "./pictureTagService";
 import PictureInfoService from "./pictureInfoService";
 import PictureValidator from "../validator/pictureValidator";
 import PictureTypeService from "./pictureTypeService";
-import sequelize, { OrderItem } from "sequelize";
+import sequelize, { OrderItem, Sequelize } from "sequelize";
 import { Op } from "sequelize";
+import { ICreatePictureService } from "../interfaces/services/pictureServicesInterfaces";
 
 
 
@@ -20,6 +21,9 @@ class PictureService {
     const picture = await models.Picture.findOne({
       where:
         { id: pictureId },
+      attributes: {
+        include: [[Sequelize.fn("COUNT", sequelize.col("comments")), "rootCommentsAmount"]]
+      },
       include: [
         {
           model: models.User,
@@ -38,8 +42,18 @@ class PictureService {
           through: {
             attributes: []
           }
+        },
+        {
+          model: models.Comment,
+          as: "comments",
+          where: {
+            commentId: null
+          },
+          required: false,
+          attributes: []
         }
-      ]
+      ],
+      group: ["picture.id", "user.id", "pictureInfos.id", "tags.id"]
     });
     return picture;
   }
@@ -108,8 +122,6 @@ class PictureService {
       }
     }
 
-    console.log(whereStatement);
-
     let pictures = await models.Picture.findAll({
       where: whereStatement,
 
@@ -167,7 +179,7 @@ class PictureService {
     description: string,
     pictureTypeId: number,
     pictureInfos: IPictureInfo[],
-    pictureTags: IPictureTag[]) {
+    pictureTags: IPictureTag[]): Promise<ICreatePictureService> {
 
     if (!img || !mainTitle) {
       throw ApiError.badRequest("Image and main title are required");
@@ -199,7 +211,6 @@ class PictureService {
       description,
       pictureTypeId
     });
-
     pictureInfos && Array.isArray(pictureInfos) && pictureInfos.forEach(async (pictureInfo) => {
       await PictureInfoService.createPictureInfo(createdPicture.id, pictureInfo);
     });
@@ -208,7 +219,15 @@ class PictureService {
       await PictureTagService.createPictureTagConnection(createdPicture.id, pictureTag.text);
     });
 
-    return { message: "Picture added successfully" };
+    return {
+      message: "Picture added successfully",
+      picture: {
+        ...(createdPicture as any).dataValues,
+        user: { nickname: creator.nickname },
+        commentsAmount: 0,
+        likesAmount: 0
+      }
+    };
   }
 
   static async editPicture(

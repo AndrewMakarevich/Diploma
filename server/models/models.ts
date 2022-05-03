@@ -92,28 +92,28 @@ const Role = sequelize.define<IRoleInstance>('role', {
     deleteOtherAccount: { type: DataTypes.BOOLEAN, allowNull: false, defaultValue: false },
 });
 
-User.hasMany(UserToken);
+User.hasMany(UserToken, { onDelete: "cascade" });
 UserToken.belongsTo(User);
 
 Role.hasMany(User);
 User.belongsTo(Role);
 
-User.hasOne(ResetPasswordBundle);
+User.hasOne(ResetPasswordBundle, { onDelete: "cascade" });
 ResetPasswordBundle.belongsTo(User);
 
-User.hasMany(Comment);
+User.hasMany(Comment, { onDelete: "cascade" });
 Comment.belongsTo(User);
 
-Comment.hasMany(CommentLike);
+Comment.hasMany(CommentLike, { onDelete: "cascade" });
 CommentLike.belongsTo(Comment);
 
-User.hasMany(CommentLike);
+User.hasMany(CommentLike, { onDelete: "cascade" });
 CommentLike.belongsTo(User);
 
 Comment.hasMany(Comment, { onDelete: "cascade" });
 Comment.belongsTo(Comment);
 
-User.hasMany(Picture);
+User.hasMany(Picture, { onDelete: "cascade" });
 Picture.belongsTo(User);
 
 Picture.belongsToMany(PictureTag, { through: PicturesTags, as: "tags", onDelete: 'cascade' });
@@ -125,13 +125,13 @@ PictureInfo.belongsTo(Picture);
 Picture.hasMany(PictureLike, { onDelete: "cascade" });
 PictureLike.belongsTo(Picture);
 
-User.hasMany(PictureLike);
+User.hasMany(PictureLike, { onDelete: "cascade" });
 PictureLike.belongsTo(User);
 
 PictureType.hasMany(Picture);
 Picture.belongsTo(PictureType);
 
-Picture.hasMany(Comment);
+Picture.hasMany(Comment, { onDelete: "cascade" });
 Comment.belongsTo(Picture);
 
 User.hasMany(PictureType);

@@ -19,6 +19,7 @@ export interface IShortPictureObj extends mainPictureObjectProps {
 }
 
 export interface IExtendedPictureObj extends mainPictureObjectProps {
+  rootCommentsAmount: number,
   user: {
     id: string | number,
     nickname: string,
@@ -48,6 +49,11 @@ export interface IExtendedPictureObj extends mainPictureObjectProps {
   // }[]
 }
 
+export interface ICreatePictureResponse {
+  message: string,
+  picture: IShortPictureObj
+}
+
 export interface IGetPicturesResponse {
   count: number,
   rows: IShortPictureObj[]
@@ -56,4 +62,8 @@ export interface IGetPicturesResponse {
 export interface IEditPictureResponse {
   message: string;
   picture: IExtendedPictureObj
+}
+
+export interface IDeletePictureResponse {
+  message: string;
 }

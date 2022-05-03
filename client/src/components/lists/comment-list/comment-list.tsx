@@ -1,4 +1,4 @@
-import { Fragment, useCallback, useEffect, useState } from "react";
+import { Fragment, useCallback, useEffect, useMemo, useState } from "react";
 import { IGetCommentByIdResponseObj, IGetCommentsResponseObj } from "../../../interfaces/http/response/pictureCommentInterfaces";
 import StandartButton from "../../../UI/standart-button/standart-button";
 import GetPictureCommentsButton from "../../btns/get-picture-comments-btn/get-picture-comments-btn";
@@ -7,17 +7,17 @@ import CommentItem from "./comment-item/comment-item";
 import { ICommentListProps } from "./comment-list-interfaces";
 import listStyles from "./comment-list.module.css";
 
-const PictureCommentList = ({ pictureId, pictureAuthorId, commentId, commentsAmount }: ICommentListProps) => {
-  const [commentsAmountValue, setCommentsAmountValue] = useState<string | number | undefined | null>();
+const PictureCommentList = ({ pictureId, pictureAuthorId, commentId, commentsAmount = 0 }: ICommentListProps) => {
+  const [commentsAmountValue, setCommentsAmountValue] = useState<number>(0);
   const [commentsListIsOpen, setCommentsListIsOpen] = useState(true);
   const [addCommentFormOpen, setAddCommentFormOpen] = useState(false);
   const [comments, setComments] = useState<IGetCommentsResponseObj>({ count: 0, rows: [] });
-  const [commentsPaginationParams, setCommentsPaginationParams] = useState({ page: 1, limit: 1 });
+  const [commentsPaginationParams, setCommentsPaginationParams] = useState({ page: 1, limit: 4 });
 
   const actualizeListAfterItemDelete = useCallback((commentId: string | number) => {
     if (comments.rows.length) {
       setComments({ ...comments, count: +comments.count - 1, rows: comments.rows.filter(comment => comment.id != commentId) });
-      setCommentsAmountValue(commentsAmountValue ? Number(commentsAmountValue) - 1 : null);
+      setCommentsAmountValue(commentsAmountValue ? Number(commentsAmountValue) - 1 : 0);
     }
   }, [comments, commentsAmountValue]);
 
@@ -26,11 +26,23 @@ const PictureCommentList = ({ pictureId, pictureAuthorId, commentId, commentsAmo
       setComments({ ...comments, rows: [{ ...comment, commentLikes: [] }, ...comments.rows] });
     }
     setCommentsAmountValue(commentsAmountValue ? Number(commentsAmountValue) + 1 : 1);
-  }, [comments, commentsAmountValue])
+  }, [comments, commentsAmountValue]);
+
+  const amountAndRecievedCommentsDiff = useMemo(() => {
+    return +commentsAmountValue - comments.rows.length;
+  }, [comments, commentsAmountValue]);
+  const getShowCommentsBtnText = (amountAndRecievedCommentsDiff < commentsPaginationParams.limit ?
+    amountAndRecievedCommentsDiff
+    :
+    commentsPaginationParams.limit)
+    +
+    ` comments ${amountAndRecievedCommentsDiff ? `(${amountAndRecievedCommentsDiff} remaining)` : ""}`
+
+  console.log(getShowCommentsBtnText);
 
   useEffect(() => {
-    setCommentsAmountValue(commentsAmount);
-  }, [commentsAmount])
+    setCommentsAmountValue(+commentsAmount);
+  }, [commentsAmount]);
 
   return (
     <div className={`${listStyles["comment-list__wrapper"]} ${commentId ? listStyles["nested"] : ""}`}>
@@ -49,7 +61,7 @@ const PictureCommentList = ({ pictureId, pictureAuthorId, commentId, commentsAmo
           className={`
           ${listStyles["answer-comment-btn"]} 
           ${commentId ? listStyles["sub-btn"] : ""} 
-          ${commentsAmountValue == 0 ? listStyles["pairless-btn"] : ""}`}
+          ${commentsAmountValue ? "" : listStyles["pairless-btn"]}`}
           onClick={() => {
             setAddCommentFormOpen(!addCommentFormOpen);
           }}>
@@ -57,7 +69,8 @@ const PictureCommentList = ({ pictureId, pictureAuthorId, commentId, commentsAmo
 
         </StandartButton>
         {
-          commentsAmountValue === null || commentsAmountValue === undefined || commentsAmountValue ?
+
+          commentsAmountValue ?
             //If comments arent recieved from server yet, show button to send request
             !comments.rows.length ?
               <GetPictureCommentsButton
@@ -69,7 +82,7 @@ const PictureCommentList = ({ pictureId, pictureAuthorId, commentId, commentsAmo
                 limit={commentsPaginationParams.limit}
                 pictureComments={comments}
                 setPictureComments={setComments} >
-                Get {commentsAmountValue} comments
+                Get {getShowCommentsBtnText}
               </GetPictureCommentsButton>
               :
               //In other way, give ability to hide and show comments list
@@ -78,12 +91,11 @@ const PictureCommentList = ({ pictureId, pictureAuthorId, commentId, commentsAmo
                 onClick={() => setCommentsListIsOpen(!commentsListIsOpen)}>
                 {
                   commentsListIsOpen ?
-                    `Hide ${commentsAmountValue || ""} comments`
+                    `Hide ${comments.rows.length} comment${comments.rows.length === 1 ? "" : "s"}`
                     :
-                    `Show ${commentsAmountValue || ""} comments`
+                    `Show ${comments.rows.length} comment${comments.rows.length === 1 ? "" : "s"}`
                 }
               </StandartButton>
-
             :
             null
         }
@@ -114,7 +126,7 @@ const PictureCommentList = ({ pictureId, pictureAuthorId, commentId, commentsAmo
             limit={commentsPaginationParams.limit}
             pictureComments={comments}
             setPictureComments={setComments} >
-            Get more comments ({+comments.count - ((commentsPaginationParams.page - 1) * commentsPaginationParams.limit)} remaining)
+            Getol {getShowCommentsBtnText}
           </GetPictureCommentsButton>
           :
           null

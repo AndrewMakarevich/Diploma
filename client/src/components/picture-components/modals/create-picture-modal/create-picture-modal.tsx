@@ -7,7 +7,7 @@ const CreatePictureModal = ({ isOpen, setIsOpen }:
 
   return (
     <ModalWindow id={modalStyles["modal-window"]} isOpen={isOpen} setIsOpen={setIsOpen}>
-      <CreatePictureForm />
+      <CreatePictureForm setModalIsOpen={setIsOpen} />
     </ModalWindow>
   )
 };

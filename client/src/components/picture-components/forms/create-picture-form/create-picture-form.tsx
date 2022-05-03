@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from "react";
+import { useContext, useEffect, useRef, useState } from "react";
 import formStyles from "./create-picture-form.module.css";
 import setFileInputCurrentImg from "../../../../utils/file-input-utils/setFileInputCurrentImg";
 import { IPictureMainData } from "../../../../interfaces/forms/create-picture-interfaces";
@@ -11,6 +11,7 @@ import DeleteButton from "../../../../UI/delete-button/delete-button";
 import StandartButton from "../../../../UI/standart-button/standart-button";
 import NewTagList from "./new-tag-list/new-tag-list";
 import NewSectionList from "./new-section-list/new-section-list";
+import { Context } from "../../../..";
 
 export interface newSectionObj {
   [key: string]: any,
@@ -23,7 +24,12 @@ export interface newTagObj {
   text: string
 }
 
-const CreatePictureForm = () => {
+interface ICreatePictureFormProps {
+  setModalIsOpen: React.Dispatch<React.SetStateAction<boolean>>
+}
+
+const CreatePictureForm = ({ setModalIsOpen }: ICreatePictureFormProps) => {
+  const { pictureStore } = useContext(Context);
   const [mainData, setMainData] = useState<IPictureMainData>({
     img: undefined,
     mainTitle: '',
@@ -69,6 +75,8 @@ const CreatePictureForm = () => {
     try {
       const response = await PictureService.createPicture(groupData());
       alert(response.data.message);
+      pictureStore.addPictureLocally(response.data.picture);
+      setModalIsOpen(false);
     } catch (e: any) {
       alert(e.response?.data?.message);
     }

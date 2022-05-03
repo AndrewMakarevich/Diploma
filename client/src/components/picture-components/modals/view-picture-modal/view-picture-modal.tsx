@@ -124,7 +124,7 @@ const ViewPictureModal = ({ isOpen, setIsOpen, currentPictureId }: IViewPictureM
                       </button>
                     ))}
                   </ul>
-                  <PictureCommentList pictureId={currentPictureId} pictureAuthorId={pictureInfo.userId} />
+                  <PictureCommentList pictureId={currentPictureId} pictureAuthorId={pictureInfo.userId} commentsAmount={pictureInfo.rootCommentsAmount} />
                 </section>
 
               </div>

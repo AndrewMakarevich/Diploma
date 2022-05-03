@@ -75,8 +75,6 @@ const PictureList = ({ userId, isPersonalGallery }: IPictureListProps) => {
           :
           <ViewPictureModal isOpen={viewPictureModalIsOpen} setIsOpen={setViewPictureModalIsOpen} currentPictureId={currentPictureId} />
       }
-
-      <h1>Picture List</h1>
       <SearchPanel onChange={getPictureListWithCurrentQueryParams} />
       <section className={listStyles["picture-list"]}>
         {

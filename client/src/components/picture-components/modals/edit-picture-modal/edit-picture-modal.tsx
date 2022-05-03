@@ -12,7 +12,7 @@ const EditPictureModal = ({ isOpen, setIsOpen, currentPictureId }: IEditPictureM
   return (
     <ModalWindow closeBtnId={modalStyles["close-btn"]} isOpen={isOpen} setIsOpen={setIsOpen}>
       <>
-        <EditPictureForm pictureId={currentPictureId} />
+        <EditPictureForm pictureId={currentPictureId} setModalIsOpen={setIsOpen} />
       </>
     </ModalWindow>
   )
