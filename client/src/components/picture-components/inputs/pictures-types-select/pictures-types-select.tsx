@@ -10,7 +10,7 @@ const PicturesTypesSelect = ({ onChange, value, className }: ComponentProps<"sel
   }, []);
 
   return (
-    <select value={value} onChange={onChange} className={selectStyles["select"] || className}>
+    <select value={value} onChange={onChange} className={className || selectStyles["select"]}>
       <option value="">Picture's type</option>
       {
         picturesTypes?.length && picturesTypes.map(pictureType =>

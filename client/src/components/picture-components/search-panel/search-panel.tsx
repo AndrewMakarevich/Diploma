@@ -31,9 +31,9 @@ const SearchPanel = ({ onChange: getPictureList }: ISearchPanelProps) => {
         value={pictureStore.queryParams.queryString}
         onChange={(e) => setQueryParam("queryString", e.target.value, true)}></SearchInput>
 
-      <PicturesTypesSelect className={panelStyles["picture-types-select"]} onChange={(e) => setQueryParam("pictureTypeId", e.target.value, false)} />
+      <PicturesTypesSelect className={panelStyles["picture-types-select"]} value={pictureStore.queryParams.pictureTypeId} onChange={(e) => setQueryParam("pictureTypeId", e.target.value, false)} />
 
-      <PictureSortSelect onChange={(e) => setQueryParam("sort", e.target.value, false)} />
+      <PictureSortSelect value={pictureStore.queryParams.sort} onChange={(e) => setQueryParam("sort", e.target.value, false)} />
     </article>
   )
 };

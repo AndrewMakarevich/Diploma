@@ -98,19 +98,22 @@ class PictureService {
     const onlyByTags = /^#/
 
     if (!query || query === "@" || query === "#") {
-      // whereStatement = {};
     } else {
 
       if (onlyByAuthorNickname.test(query)) {
+
         whereStatement = {
+          ...whereStatement,
           "$user.nickname$": { [Op.iRegexp]: `${query.split("@")[1] || ""}` }
         }
       } else if (onlyByTags.test(query)) {
         whereStatement = {
+          ...whereStatement,
           "$tags.text$": { [Op.iRegexp]: `${query.split("#")[1] || ""}` }
         }
       } else {
         whereStatement = {
+          ...whereStatement,
           [Op.or]: {
             mainTitle: { [Op.iRegexp]: `${query || ""}` },
             description: { [Op.iRegexp]: `${query || ""}` },
@@ -121,6 +124,8 @@ class PictureService {
         };
       }
     }
+
+    console.log(whereStatement);
 
     let pictures = await models.Picture.findAll({
       where: whereStatement,
