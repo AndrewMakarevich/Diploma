@@ -11,7 +11,6 @@ const MyGallery = () => {
 
   return (
     <article className={articleStyles["my-gallery-article"]}>
-      <h1>Pictures gallery</h1>
       <button onClick={() => setIsOpen(true)}>create picture</button>
       <CreatePictureModal isOpen={isOpen} setIsOpen={setIsOpen} />
       <PictureList userId={userStore.userData.id} isPersonalGallery={true} />

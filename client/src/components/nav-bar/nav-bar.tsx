@@ -4,7 +4,7 @@ import { useContext, useState } from "react";
 import { Link, useSearchParams } from "react-router-dom";
 import { Context } from "../..";
 import { getParams, getParamsEnums } from "../../consts/popup-routes";
-import { guestPaths, userPaths } from "../routes/paths";
+import { routePaths } from "../routes/paths";
 import LogoutBtn from '../btns/logout-btn/logout-btn';
 
 const NavBar = () => {
@@ -52,18 +52,12 @@ const NavBar = () => {
         ${burgerState ? "" : navBarStyles["nav-bar__list-unactive"]}`
       }>
         <li className={navBarStyles["nav-bar__list-item"]}>
-          {
-            guestPaths.map(({ id, inNavBar, path, name }) =>
-              inNavBar ? <Link key={id} className={navBarStyles['nav-bar__link']} to={path}>{name}</Link> : null)
-          }
+          <Link className={navBarStyles['nav-bar__link']} to={routePaths.mainPage}>Home</Link>
         </li>
         {
           userStore.isAuth ?
             <li className={navBarStyles["nav-bar__list-item"]}>
-              {
-                userPaths.map(({ id, inNavBar, path, name }) =>
-                  inNavBar ? <Link key={id} className={navBarStyles['nav-bar__link']} to={path}>{name}</Link> : null)
-              }
+              <Link className={navBarStyles['nav-bar__link']} to={routePaths.personalCabinet.main}>Personal cabinet</Link>
             </li>
             :
             null

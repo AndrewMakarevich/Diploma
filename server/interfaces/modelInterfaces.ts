@@ -1,6 +1,7 @@
 import { Model } from "sequelize";
 import { Optional } from "sequelize/dist";
 export interface IUser {
+    [key: string]: any,
     id: number,
     nickname: string,
     email: string,
@@ -50,7 +51,7 @@ export interface IResetPasswordBundleInstance extends Model {
     updatedAt: string
 }
 
-export interface IRoleInstance extends Model {
+export interface IRole {
     id: number;
     name: string;
     readComment: boolean,
@@ -66,6 +67,9 @@ export interface IRoleInstance extends Model {
     deleteOtherAccount: boolean
     createdAt?: Date;
     updatedAt?: Date;
+}
+
+export interface IRoleInstance extends IRole, Model {
 };
 
 export interface IPermissionsInstance extends Model {

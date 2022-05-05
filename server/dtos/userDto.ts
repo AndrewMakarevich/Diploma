@@ -1,4 +1,4 @@
-import { IUser } from "../interfaces/modelInterfaces";
+import { IRole, IUser } from "../interfaces/modelInterfaces";
 
 export interface IUserDto {
   id: number;
@@ -22,6 +22,7 @@ class UserDto implements IUserDto {
 export class ExtendedUserDto {
   id: number
   roleId: number;
+  role: IRole;
   nickname: string;
   email: string;
   firstName: string;
@@ -37,6 +38,7 @@ export class ExtendedUserDto {
   constructor(user: IUser) {
     this.id = user.id;
     this.roleId = user.roleId!;
+    this.role = user.role;
     this.nickname = user.nickname;
     this.email = user.email;
     this.firstName = user.firstName;

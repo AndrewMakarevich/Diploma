@@ -10,6 +10,7 @@ const UserPage = () => {
   const [userInfo, setUserInfo] = useState<userResObject>({
     id: 0,
     roleId: 0,
+    role: null,
     nickname: "",
     email: "",
     firstName: "",

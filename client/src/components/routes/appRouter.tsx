@@ -1,45 +1,62 @@
 import { observer } from "mobx-react-lite";
-import { useContext } from "react";
+import { useContext, useEffect, useState } from "react";
 import { Navigate, Route, Routes } from "react-router-dom";
 import { Context } from "../..";
-import { guestPaths, userPaths } from "./paths";
+import { guestPaths, routePaths, userPaths } from "./paths";
 import appRouterStyles from "./appRouter.module.css";
+import HomePage from "../../pages/home-page/home-page";
+import UserPage from "../../pages/user-page/user-page";
+import MyGallery from "../my-gallery/my-gallery";
+import AdminCabinet from "../../pages/admin-cabinet/admin-cabinet";
+import UserCabinet from "../../pages/user-cabinet/user-cabinet";
+import useFetching from "../../hooks/useFetching";
 
-interface subPaths {
-  id: number;
-  name: string;
-  path: string;
-  component: () => JSX.Element;
-  subPaths?: subPaths[]
-}
+// interface subPaths {
+//   id: number;
+//   name: string;
+//   path: string;
+//   component: () => JSX.Element;
+//   subPaths?: subPaths[]
+// }
 
 const AppRouter = () => {
   const { userStore } = useContext(Context);
-  const createPaths = (id: number, path: string, Component: () => JSX.Element, subPathsArr?: subPaths[]) => {
-    if (!subPathsArr || !subPathsArr.length) {
-      return <Route key={id} path={path} element={<Component />}></Route>
-    }
+  const [authLoading, setAuthLoading] = useState(true);
 
-    return <Route key={id} path={path} element={<Component />}>
-      {subPathsArr.map(pathObj =>
-        createPaths(pathObj.id, pathObj.path, pathObj.component, pathObj.subPaths)
-      )}</Route>
+  useEffect(() => {
+    console.log(authLoading)
+  }, [authLoading])
+
+  useEffect(() => {
+    userStore.autoAuth().then(() => { setAuthLoading(false) }, () => { setAuthLoading(false) });
+  }, []);
+
+  if (authLoading) {
+    return null;
   }
 
   return (
     <div className={appRouterStyles["app-router-wrapper"]}>
       <Routes>
         <Route path='/*' element={<Navigate to='/' />} />
+        <Route path={routePaths.mainPage} element={<HomePage />} />
+        <Route path={routePaths.userPage} element={<UserPage />} />
         {
-          userStore.isAuth && userPaths.map(({ id, path, component: Component, subPaths }) => {
-            return (
-              createPaths(id, path, Component, subPaths)
-            )
-          })
+          userStore.isAuth ?
+            <Route path={routePaths.personalCabinet.main} element={<UserCabinet />}>
+              <Route index element={<MyGallery />} />
+              {
+                userStore.isAdmin ?
+                  <Route path={routePaths.personalCabinet.adminPanel} element={<AdminCabinet />} />
+                  :
+                  null
+              }
+
+            </Route>
+            :
+            null
         }
-        {
-          guestPaths.map(({ id, path, component: Component }) => <Route key={id} path={path} element={<Component />} />)
-        }
+
       </Routes>
     </div>
 

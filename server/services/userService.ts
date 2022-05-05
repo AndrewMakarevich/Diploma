@@ -284,7 +284,13 @@ class UserService {
       throw ApiError.badRequest('User\'s id is not defined');
     }
 
-    const user = await models.User.findOne({ where: { id } });
+    const user = await models.User.findOne({
+      where: { id },
+      include: {
+        model: models.Role,
+        as: "role"
+      }
+    });
 
     if (!user) {
       throw ApiError.badRequest("User with such id doesn't exists");

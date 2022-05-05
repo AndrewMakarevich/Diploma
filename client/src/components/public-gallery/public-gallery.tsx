@@ -8,7 +8,6 @@ interface IPublicGallryProps {
 const PublicGallery = ({ userId = 0 }: IPublicGallryProps) => {
   return (
     <article>
-      Public gallery
       <PictureList userId={userId} isPersonalGallery={false} />
     </article>
   )

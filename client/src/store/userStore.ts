@@ -24,6 +24,28 @@ export default class UserStore {
     return this._isAuth;
   };
 
+  get isAdmin() {
+    if (!this.userData.role) {
+      return false;
+    }
+
+    const {
+      id,
+      name,
+      readComment,
+      loadPicture,
+      addComment,
+      addLike,
+      createdAt,
+      updatedAt,
+      ...adminPermissions } = this.userData.role;
+
+    const userIsAdmin = Object.values(adminPermissions)
+      .some(adminParamValue => adminParamValue === true);
+
+    return userIsAdmin
+  }
+
   async registration(email: string, nickname: string, password: string) {
     try {
       const response = await AuthService.registrate(email, nickname, password);

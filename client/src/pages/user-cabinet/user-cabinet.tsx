@@ -12,8 +12,16 @@ const UserCabinet = () => {
   return (
     <div className={userCabinetStyles["user-cabinet__wrapper"]}>
       <UserPageHeader userInfo={userStore.userData} isPersonalCabinet={true} />
-      <Link to={routePaths.personalCabinet.adminPanel}>Admin panel</Link>
-      <Link to={routePaths.personalCabinet.myGallery}>My Gallery</Link>
+      <nav className={userCabinetStyles["cabinet-navbar"]}>
+        {
+          userStore.isAdmin ?
+            <Link to={routePaths.personalCabinet.adminPanel}>Admin panel</Link>
+            :
+            null
+        }
+
+        <Link to={routePaths.personalCabinet.main}>My Gallery</Link>
+      </nav>
       <Outlet />
     </div>
   )

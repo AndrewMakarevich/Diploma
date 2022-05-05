@@ -49,23 +49,22 @@ const PictureList = ({ userId, isPersonalGallery }: IPictureListProps) => {
   }, [delayedFetchPictures, fetchPictures]);
 
   useEffect(() => {
-    runInAction(() => {
-      pictureStore.queryParams = { ...pictureStore.queryParams, userId }
-    });
     if (userId) {
+      runInAction(() => {
+        pictureStore.queryParams = { ...pictureStore.queryParams, userId, page: 1 }
+      });
       getPictureListWithCurrentQueryParams(false);
     }
   }, [userId, pictureStore, getPictureListWithCurrentQueryParams]);
 
   useEffect(() => {
     if (!isPersonalGallery) {
+      runInAction(() => {
+        pictureStore.queryParams = { ...pictureStore.queryParams, userId: 0, page: 1 }
+      });
       getPictureListWithCurrentQueryParams(false);
     }
   }, []);
-
-  if (fetchPicturesLoading || delayedFetchPictures) {
-
-  }
 
   return (
     <article className={`${listStyles["picture-list__wrapper"]} ${fetchPicturesLoading || delayedFetchPicturesLoading ? listStyles["loading-list"] : ""}`}>
