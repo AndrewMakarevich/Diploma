@@ -1,12 +1,12 @@
 import { ComponentProps, useEffect, useState } from "react";
 import selectStyles from "./pictures-types-select.module.css";
-import { pictureTypeObj } from "../../../../interfaces/http/response/pictureTypeInrefaces";
+import { pictureTypeObj } from "../../../../interfaces/http/response/picture-type-interfaces";
 import PictureTypeService from "../../../../services/picture-type-service";
 
 const PicturesTypesSelect = ({ onChange, value, className }: ComponentProps<"select">) => {
   const [picturesTypes, setPicturesTypes] = useState<pictureTypeObj[]>();
   useEffect(() => {
-    PictureTypeService.getPicturesTypes().then(response => setPicturesTypes(response.data))
+    PictureTypeService.getPicturesTypes().then(response => setPicturesTypes(response.data.rows))
   }, []);
 
   return (

@@ -38,8 +38,14 @@ class PictureService {
     return response;
   }
 
-  static async deletePicture(pictureId: number): Promise<AxiosResponse<IDeletePictureResponse>> {
-    const response = await $authHost.delete<IDeletePictureResponse>(`api/picture/delete/${pictureId}`);
+  static async deleteOwnPicture(pictureId: number): Promise<AxiosResponse<IDeletePictureResponse>> {
+    const response = await $authHost.delete<IDeletePictureResponse>(`/delete-own/${pictureId}`);
+
+    return response;
+  }
+
+  static async deleteElsesPicture(pictureId: number): Promise<AxiosResponse<IDeletePictureResponse>> {
+    const response = await $authHost.delete<IDeletePictureResponse>(`/delete-elses/${pictureId}`);
 
     return response;
   }

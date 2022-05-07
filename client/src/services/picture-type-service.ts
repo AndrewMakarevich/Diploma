@@ -1,10 +1,16 @@
 import { AxiosResponse } from "axios";
 import { $host } from "../http";
-import { pictureTypeObj } from "../interfaces/http/response/pictureTypeInrefaces";
+import { IGetPictureTypesResponseObj } from "../interfaces/http/response/picture-type-interfaces";
 
 class PictureTypeService {
-  static async getPicturesTypes(): Promise<AxiosResponse<pictureTypeObj[]>> {
-    const response = await $host.get<pictureTypeObj[]>('/api/picture-type/get-all');
+  static async getPicturesTypes(queryString?: string, page?: number, limit?: number): Promise<AxiosResponse<IGetPictureTypesResponseObj>> {
+    const response = await $host.get<IGetPictureTypesResponseObj>('/api/picture-type/get-all', {
+      params: {
+        queryString,
+        page,
+        limit
+      }
+    });
 
     return response;
   }

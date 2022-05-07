@@ -39,21 +39,28 @@ const PictureList = ({ userId, isPersonalGallery }: IPictureListProps) => {
   } = useDelayFetching(getPictures, 500);
 
 
-  const getPictureListWithCurrentQueryParams = useCallback(async (delayed: boolean) => {
-    if (delayed) {
-      await delayedFetchPictures();
+  const getPictureListWithCurrentQueryParams = useCallback(async (target?: EventTarget) => {
+    if (target instanceof HTMLButtonElement || target instanceof HTMLSelectElement || !target) {
+      await fetchPictures();
       return;
     }
+    await delayedFetchPictures();
 
-    await fetchPictures();
   }, [delayedFetchPictures, fetchPictures]);
+
+  const setPage = async (target: EventTarget, page: number) => {
+    runInAction(() => {
+      pictureStore.queryParams = { ...pictureStore.queryParams, page }
+    })
+    getPictureListWithCurrentQueryParams(target);
+  }
 
   useEffect(() => {
     if (userId) {
       runInAction(() => {
         pictureStore.queryParams = { ...pictureStore.queryParams, userId, page: 1 }
       });
-      getPictureListWithCurrentQueryParams(false);
+      getPictureListWithCurrentQueryParams();
     }
   }, [userId, pictureStore, getPictureListWithCurrentQueryParams]);
 
@@ -62,7 +69,7 @@ const PictureList = ({ userId, isPersonalGallery }: IPictureListProps) => {
       runInAction(() => {
         pictureStore.queryParams = { ...pictureStore.queryParams, userId: 0, page: 1 }
       });
-      getPictureListWithCurrentQueryParams(false);
+      getPictureListWithCurrentQueryParams();
     }
   }, []);
 
@@ -86,13 +93,7 @@ const PictureList = ({ userId, isPersonalGallery }: IPictureListProps) => {
         count={pictureStore.pictures.count}
         limit={pictureStore.queryParams.limit}
         page={pictureStore.queryParams.page}
-        setPage={(page: number, delayed: boolean = false) => {
-          runInAction(() => {
-            pictureStore.queryParams = { ...pictureStore.queryParams, page }
-          })
-
-          getPictureListWithCurrentQueryParams(delayed)
-        }} />
+        setPage={setPage} />
     </article>
   )
 };

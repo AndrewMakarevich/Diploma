@@ -2,22 +2,16 @@ import { observer } from "mobx-react-lite";
 import { useContext, useEffect, useState } from "react";
 import { Navigate, Route, Routes } from "react-router-dom";
 import { Context } from "../..";
-import { guestPaths, routePaths, userPaths } from "./paths";
+import { routePaths } from "./paths";
 import appRouterStyles from "./appRouter.module.css";
 import HomePage from "../../pages/home-page/home-page";
 import UserPage from "../../pages/user-page/user-page";
 import MyGallery from "../my-gallery/my-gallery";
-import AdminCabinet from "../../pages/admin-cabinet/admin-cabinet";
 import UserCabinet from "../../pages/user-cabinet/user-cabinet";
-import useFetching from "../../hooks/useFetching";
+import AdminPanel from "../admin-components/admin-panel/admin-panel";
+import PictureTypesModerationPanel from "../admin-components/picture-types-moderation-panel/picture-types-moderation-panel";
+import PictureTagsModerationPanel from "../admin-components/picture-tags-moderation-panel/picture-tags-moderation-panel";
 
-// interface subPaths {
-//   id: number;
-//   name: string;
-//   path: string;
-//   component: () => JSX.Element;
-//   subPaths?: subPaths[]
-// }
 
 const AppRouter = () => {
   const { userStore } = useContext(Context);
@@ -47,7 +41,12 @@ const AppRouter = () => {
               <Route index element={<MyGallery />} />
               {
                 userStore.isAdmin ?
-                  <Route path={routePaths.personalCabinet.adminPanel} element={<AdminCabinet />} />
+                  <Route path={routePaths.personalCabinet.adminPanel.main} element={<AdminPanel />}>
+                    {Boolean(userStore.userData.role?.moderatePictureType) &&
+                      <Route path={routePaths.personalCabinet.adminPanel.pictureType} element={<PictureTypesModerationPanel />}></Route>}
+                    {Boolean(userStore.userData.role?.moderatePictureTag) &&
+                      <Route path={routePaths.personalCabinet.adminPanel.pictureTag} element={<PictureTagsModerationPanel />}></Route>}
+                  </Route>
                   :
                   null
               }

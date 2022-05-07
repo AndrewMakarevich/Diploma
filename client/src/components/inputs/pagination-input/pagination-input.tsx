@@ -6,7 +6,7 @@ interface IPaginationInput {
   count: number | undefined,
   limit: number,
   page: number,
-  setPage: Function
+  setPage: (target: EventTarget, page: number) => void
 }
 
 const PaginationInput = ({ count, limit, page, setPage }: IPaginationInput) => {
@@ -74,7 +74,7 @@ const PaginationInput = ({ count, limit, page, setPage }: IPaginationInput) => {
             typedPage <= pages[pages.length - 1]
             &&
             typedPage !== page) {
-            setPage(typedPage, true);
+            setPage(e.target, typedPage);
           }
         }}>
 
@@ -82,30 +82,30 @@ const PaginationInput = ({ count, limit, page, setPage }: IPaginationInput) => {
       <button className={inputStyles["pagination-line__btn"]}
         disabled={pages.length <= 1 ? true : false}
         onClick={
-          () => {
+          (e) => {
             if (pages.length <= 1) {
               return;
             }
 
             if (page > 1) {
-              setPage(page - 1);
+              setPage(e.target, page - 1);
               return;
             }
 
-            setPage(pages[pages.length - 1])
+            setPage(e.target, pages[pages.length - 1])
           }
         }>{"<"}</button>
       {
         currentPaginationState.map(({ id, pageNumber }) =>
           <button key={id} className={`${inputStyles["pagination-line__btn"]} ${pageNumber == page ? inputStyles["active"] : ""}`}
             disabled={pages.length <= 1 ? true : false}
-            onClick={() => {
+            onClick={(e) => {
               if (pageNumber == page) {
                 return;
               }
 
               if (Number(pageNumber)) {
-                setPage(pageNumber)
+                setPage(e.target, pageNumber)
               }
             }
             }>{pageNumber}</button>
@@ -114,16 +114,16 @@ const PaginationInput = ({ count, limit, page, setPage }: IPaginationInput) => {
       <button className={inputStyles["pagination-line__btn"]}
         disabled={pages.length <= 1 ? true : false}
         onClick={
-          () => {
+          (e) => {
             if (pages.length <= 1) {
               return;
             }
 
             if (page < pages.length) {
-              setPage(page + 1);
+              setPage(e.target, page + 1);
               return;
             }
-            setPage(pages[0])
+            setPage(e.target, pages[0])
           }
         }>{">"}</button>
     </div>

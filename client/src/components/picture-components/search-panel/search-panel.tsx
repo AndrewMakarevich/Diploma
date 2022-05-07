@@ -8,13 +8,13 @@ import { runInAction } from "mobx";
 import PicturesTypesSelect from "../inputs/pictures-types-select/pictures-types-select";
 
 interface ISearchPanelProps {
-  onChange: (delayed: boolean) => Promise<void>
+  onChange: (target: EventTarget) => Promise<void>
 }
 
 const SearchPanel = ({ onChange: getPictureList }: ISearchPanelProps) => {
   const { pictureStore } = useContext(Context);
 
-  const setQueryParam = async (paramName: string, paramValue: string, delayed: boolean) => {
+  const setQueryParam = async (target: EventTarget, paramName: string, paramValue: string) => {
     runInAction(() => {
       pictureStore.queryParams = { ...pictureStore.queryParams, [paramName]: paramValue, page: 1 }
     });
@@ -22,18 +22,18 @@ const SearchPanel = ({ onChange: getPictureList }: ISearchPanelProps) => {
     if (paramValue === "@" || paramValue === "#") {
       return;
     }
-    await getPictureList(delayed);
+    await getPictureList(target);
   }
 
   return (
     <article className={panelStyles["search-panel"]}>
       <SearchInput
         value={pictureStore.queryParams.queryString}
-        onChange={(e) => setQueryParam("queryString", e.target.value, true)}></SearchInput>
+        onChange={(e) => setQueryParam(e.target, "queryString", e.target.value)}></SearchInput>
 
-      <PicturesTypesSelect className={panelStyles["picture-types-select"]} value={pictureStore.queryParams.pictureTypeId} onChange={(e) => setQueryParam("pictureTypeId", e.target.value, false)} />
+      <PicturesTypesSelect className={panelStyles["picture-types-select"]} value={pictureStore.queryParams.pictureTypeId} onChange={(e) => setQueryParam(e.target, "pictureTypeId", e.target.value)} />
 
-      <PictureSortSelect value={pictureStore.queryParams.sort} onChange={(e) => setQueryParam("sort", e.target.value, false)} />
+      <PictureSortSelect value={pictureStore.queryParams.sort} onChange={(e) => setQueryParam(e.target, "sort", e.target.value)} />
     </article>
   )
 };

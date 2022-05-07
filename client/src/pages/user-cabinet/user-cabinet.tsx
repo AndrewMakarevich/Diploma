@@ -15,7 +15,7 @@ const UserCabinet = () => {
       <nav className={userCabinetStyles["cabinet-navbar"]}>
         {
           userStore.isAdmin ?
-            <Link to={routePaths.personalCabinet.adminPanel}>Admin panel</Link>
+            <Link to={routePaths.personalCabinet.adminPanel.main}>Admin panel</Link>
             :
             null
         }

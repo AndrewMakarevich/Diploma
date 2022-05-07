@@ -1,0 +1,17 @@
+.no-permission{
+  position:relative;
+}
+
+.no-permission::before{
+  content:"You haven't permission";
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  background-color: var(--extra-light);
+  color:var(--extra-dark);
+  opacity: 0;
+}
+
+.no-permission:hover::before{
+  opacity: 1;
+}

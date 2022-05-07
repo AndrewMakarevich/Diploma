@@ -272,7 +272,12 @@ const EditPictureForm = ({ pictureId, setModalIsOpen }: IEditPictureFormProps) =
 
   return (
     <form className={formStyles["form"]}>
-      <DeletePictureBtn className={formStyles["delete-picture-btn"]} pictureId={pictureId} pictureMainTitle={mainPictureInfo.mainTitle} setModalIsOpen={setModalIsOpen} />
+      <DeletePictureBtn
+        className={formStyles["delete-picture-btn"]}
+        isOwnPicture={true}
+        pictureId={pictureId}
+        pictureMainTitle={mainPictureInfo.mainTitle}
+        setModalIsOpen={setModalIsOpen} />
       <section className={formStyles["img-section"]}>
         <label className={formStyles["img-input-label"]}>
           <input

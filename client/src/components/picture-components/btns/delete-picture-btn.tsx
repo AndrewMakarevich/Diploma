@@ -8,17 +8,24 @@ interface IDeleteButtonProps {
   pictureId: number,
   pictureMainTitle: string,
   setModalIsOpen: React.Dispatch<React.SetStateAction<boolean>>,
-  className?: string
+  className?: string,
+  isOwnPicture: boolean
 }
 
-const DeletePictureBtn = ({ pictureId, pictureMainTitle, setModalIsOpen, className }: IDeleteButtonProps) => {
+const DeletePictureBtn = ({ pictureId, pictureMainTitle, setModalIsOpen, className, isOwnPicture }: IDeleteButtonProps) => {
   const { pictureStore } = useContext(Context);
   const confirmAndDeletePicture = async () => {
     const promptString = `Enter picture main title "${pictureMainTitle}" to confirm its deleting`
     if (window.prompt(promptString) === pictureMainTitle) {
       try {
-        const response = await PictureService.deletePicture(pictureId);
-        alert(response.data.message);
+        if (isOwnPicture) {
+          const response = await PictureService.deleteOwnPicture(pictureId);
+          alert(response.data.message);
+        } else {
+          const response = await PictureService.deleteElsesPicture(pictureId);
+          alert(response.data.message);
+        }
+
         await pictureStore.getPictures();
         setModalIsOpen(false);
 
