@@ -29,7 +29,8 @@ class RoleService {
     };
     const adminPermissionsObj = {
       ...userPermissionsObj,
-      createPictureType: true,
+      moderatePictureType: true,
+      moderatePictureTag: true,
       deleteOtherComment: true,
       deleteOtherPicture: true,
       blockPicture: true,

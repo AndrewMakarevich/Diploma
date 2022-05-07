@@ -3,7 +3,7 @@ import path from "path";
 import fs from 'fs';
 import models from "../models/models";
 import ImageService from "./imageService";
-import { IPictureInfo } from "../interfaces/pictureInterfaces";
+import { IPictureInfo, IPictureInstance } from "../interfaces/pictureInterfaces";
 import ApiError from "../apiError/apiError";
 import { IPictureTag } from "../interfaces/tagInterfaces";
 import PictureTagService from "./pictureTagService";
@@ -124,8 +124,6 @@ class PictureService {
         };
       }
     }
-
-    console.log(whereStatement);
 
     let pictures = await models.Picture.findAll({
       where: whereStatement,
@@ -303,11 +301,9 @@ class PictureService {
     return { message: "Picture edited succesfully", picture: await this.getPictureById(pictureId) };
   }
 
-  static async deletePicture(userId: number, pictureId: number) {
-    const pictureToDelete = await models.Picture.findOne({ where: { id: pictureId, userId } });
-
+  static async deletePicture(pictureToDelete: IPictureInstance | null, errorMessage: string) {
     if (!pictureToDelete) {
-      throw ApiError.badRequest("Picture you want to delete doesnt exists or you are not the owner of it");
+      throw ApiError.badRequest(errorMessage);
     }
 
     fs.unlink(path.resolve(__dirname, "..", "static", "img", "picture", pictureToDelete.img), () => { });
@@ -317,5 +313,15 @@ class PictureService {
     return { message: "Picture deleted succesfully" };
   }
 
+  static async deleteOwnPicture(userId: number, pictureId: number) {
+    const pictureToDelete = await models.Picture.findOne({ where: { id: pictureId, userId } });
+
+    return await this.deletePicture(pictureToDelete, "Picture you want to delete doesnt exists or you are not the owner of it");
+  }
+
+  static async deleteElsesPicture(pictureId: number) {
+    const pictureToDelete = await models.Picture.findOne({ where: { id: pictureId } });
+    return await this.deletePicture(pictureToDelete, "Picture you want to delete doesnt exists or you are not the owner of it");
+  }
 }
 export default PictureService;

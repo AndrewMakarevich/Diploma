@@ -4,7 +4,8 @@ import PictureTypeService from "../services/pictureTypeService";
 class PictureTypeController {
   static async getPictureTypes(req: Request, res: Response, next: NextFunction) {
     try {
-      const response = await PictureTypeService.getPictureTypes();
+      const { queryString, page, limit } = req.query;
+      const response = await PictureTypeService.getPictureTypes(queryString as string, Number(page), Number(limit));
 
       return res.json(response);
     } catch (e) {

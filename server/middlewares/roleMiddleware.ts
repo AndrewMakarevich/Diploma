@@ -1,5 +1,4 @@
 import { NextFunction, Request, Response } from "express"
-import { JwtPayload } from "jsonwebtoken"
 import ApiError from "../apiError/apiError"
 import { IUserDto } from "../dtos/userDto"
 import { rolePermissions } from "../enums/roles"

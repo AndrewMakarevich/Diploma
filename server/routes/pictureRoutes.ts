@@ -1,6 +1,8 @@
 import { Router } from "express";
 import PictureController from "../controllers/pictureController";
+import { rolePermissions } from "../enums/roles";
 import authMiddleware from "../middlewares/authMiddleware";
+import roleMiddleware from "../middlewares/roleMiddleware";
 
 const pictureRouter = Router();
 
@@ -11,6 +13,7 @@ pictureRouter.post('/create', authMiddleware, PictureController.createPicture);
 
 pictureRouter.put('/edit/:id', authMiddleware, PictureController.editPicture);
 
-pictureRouter.delete('/delete/:id', authMiddleware, PictureController.deletePicture);
+pictureRouter.delete('/delete-own/:id', authMiddleware, PictureController.deleteOwnPicture);
+pictureRouter.delete('/delete-elses/:id', authMiddleware, roleMiddleware(rolePermissions.deleteOtherPicture), PictureController.deleteElsesPicture);
 
 export default pictureRouter;

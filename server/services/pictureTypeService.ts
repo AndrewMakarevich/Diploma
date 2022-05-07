@@ -1,3 +1,4 @@
+import { Op } from "sequelize";
 import ApiError from "../apiError/apiError";
 import models from "../models/models";
 import PictureValidator from "../validator/pictureValidator";
@@ -14,9 +15,19 @@ class PictureTypeService {
     return;
   }
 
-  static async getPictureTypes() {
-    const pictureTypes = await models.PictureType.findAll({
-      attributes: ["id", "name", "userId"]
+  static async getPictureTypes(queryString?: string, page?: number, limit?: number) {
+
+    const limitValue = limit || undefined;
+    const pageValue = page || 1;
+    const offsetValue = (pageValue - 1) * (limitValue || 1);
+
+    const pictureTypes = await models.PictureType.findAndCountAll({
+      where: {
+        name: { [Op.iRegexp]: queryString || "" }
+      },
+      attributes: ["id", "name", "userId"],
+      limit: limitValue,
+      offset: offsetValue
     });
     return pictureTypes;
   };

@@ -82,7 +82,8 @@ const Role = sequelize.define<IRoleInstance>('role', {
     addComment: { type: DataTypes.BOOLEAN, allowNull: false, defaultValue: false },
     addLike: { type: DataTypes.BOOLEAN, allowNull: false, defaultValue: false },
     // Admin permissions
-    createPictureType: { type: DataTypes.BOOLEAN, allowNull: false, defaultValue: false },
+    moderatePictureType: { type: DataTypes.BOOLEAN, allowNull: false, defaultValue: false },
+    moderatePictureTag: { type: DataTypes.BOOLEAN, allowNull: false, defaultValue: false },
     changeUserRole: { type: DataTypes.BOOLEAN, allowNull: false, defaultValue: false },
     deleteOtherComment: { type: DataTypes.BOOLEAN, allowNull: false, defaultValue: false },
     deleteOtherPicture: { type: DataTypes.BOOLEAN, allowNull: false, defaultValue: false },

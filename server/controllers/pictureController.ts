@@ -87,17 +87,29 @@ class PictureController {
     }
   };
 
-  static async deletePicture(req: Request, res: Response, next: NextFunction) {
+  static async deleteOwnPicture(req: Request, res: Response, next: NextFunction) {
     try {
       const { id: pictureId } = req.params;
       const userId = (req as any).user.id;
 
-      const response = await PictureService.deletePicture(userId, Number(pictureId));
+      const response = await PictureService.deleteOwnPicture(userId, Number(pictureId));
 
       return res.json(response);
     } catch (e) {
       next(e);
     }
   };
+
+  static async deleteElsesPicture(req: Request, res: Response, next: NextFunction) {
+    try {
+      const { id: pictureId } = req.params;
+
+      const response = await PictureService.deleteElsesPicture(Number(pictureId));
+
+      return res.json(response);
+    } catch (e) {
+      next(e);
+    }
+  }
 }
 export default PictureController;
