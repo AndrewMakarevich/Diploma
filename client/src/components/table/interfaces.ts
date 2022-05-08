@@ -8,7 +8,9 @@ export interface ITableProps<T> {
 export interface ITableRowProps {
   entity: { [key: string]: any },
   paramsToShow: string[]
-  actions: IAction[]
+  actions: IAction[],
+  isLoading: boolean,
+  setIsLoading: React.Dispatch<React.SetStateAction<boolean>>
 }
 
 export interface IAction {

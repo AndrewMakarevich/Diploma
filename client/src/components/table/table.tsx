@@ -1,7 +1,9 @@
+import { useState } from "react";
 import { ITableProps } from "./interfaces";
 import TableRow from "./table-row";
 
 const Table = <T,>({ tableHeaders, entities, paramsToShow, actions }: ITableProps<T>) => {
+  const [actionLoading, setActionLoading] = useState(false);
   return (
     <table>
       <thead>
@@ -13,7 +15,7 @@ const Table = <T,>({ tableHeaders, entities, paramsToShow, actions }: ITableProp
       <tbody>
         {
           entities.map(entity => (
-            <TableRow entity={entity} paramsToShow={paramsToShow} actions={actions} />
+            <TableRow entity={entity} paramsToShow={paramsToShow} actions={actions} isLoading={actionLoading} setIsLoading={setActionLoading} />
           ))
         }
       </tbody>

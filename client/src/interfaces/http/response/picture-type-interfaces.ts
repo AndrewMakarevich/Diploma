@@ -8,3 +8,16 @@ export interface IGetPictureTypesResponseObj {
   count: number,
   rows: pictureTypeObj[]
 }
+
+export interface ICreatePictureTypeResponseObj {
+  message: string,
+  pictureType: pictureTypeObj
+}
+
+export interface IDeletePictureTypeResponseObj {
+  message: string
+}
+
+export interface IEditPictureTypeResponseObj {
+  message: string
+}

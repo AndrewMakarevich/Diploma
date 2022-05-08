@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import useFetching from "../../../hooks/useFetching";
 import { IGetPictureTypesResponseObj } from "../../../interfaces/http/response/picture-type-interfaces";
 import PictureTypeService from "../../../services/picture-type-service";
@@ -7,6 +7,8 @@ import Table from "../../table/table";
 import { pictureTypeObj } from "../../../interfaces/http/response/picture-type-interfaces";
 import SearchInput from "../../../UI/search-input/search-input";
 import useDelayFetching from "../../../hooks/useDelayFetching";
+import CreatePictureTypeForm from "../forms/create-picture-type-form/create-picture-type-form";
+import EditPictureTypeForm from "../forms/edit-picture-type-form/edit-picture-type-form";
 
 const PictureTypesPanel = () => {
   const [pictureTypes, setPictureTypes] = useState<IGetPictureTypesResponseObj>({
@@ -14,26 +16,25 @@ const PictureTypesPanel = () => {
     rows: []
   });
 
+  const [pictureTypeToEditId, setPictureTypeToEditId] = useState<number>(0);
+
   const [queryString, setQueryString] = useState("");
   const [pagination, setPagination] = useState({
     page: 1,
     limit: 1
   });
 
-  const sendRequestToGetPictureTypes = async (queryString: string, page: number, limit: number) => {
+  const [editFormOpen, setEditFormOpen] = useState(false);
+
+  const sendRequestToGetPictureTypes = useCallback(async (queryString: string, page: number, limit: number) => {
     const response = await PictureTypeService.getPicturesTypes(queryString, page, limit);
     setPictureTypes(response.data);
-  }
-
-  const setPage = (target: EventTarget, page: number) => {
-    setPagination({ ...pagination, page });
-    getPictureTypesWithCurrentQueryString(queryString, pagination.page, pagination.limit, target)
-  }
+  }, [])
 
   const { executeCallback: fetchPictureTypes, isLoading: pictureTypesLoading } = useFetching<IGetPictureTypesResponseObj>(sendRequestToGetPictureTypes);
   const { executeCallback: delayFetchPictureTypes, isLoading: delayPictureTypesLoading } = useDelayFetching<IGetPictureTypesResponseObj>(sendRequestToGetPictureTypes, 200);
 
-  const getPictureTypesWithCurrentQueryString = async (queryString: string, page: number, limit: number, target?: EventTarget) => {
+  const getPictureTypesWithCurrentQueryParams = useCallback(async (queryString: string, page: number, limit: number, target?: EventTarget) => {
     if (target instanceof HTMLButtonElement || target instanceof HTMLSelectElement || !target) {
       await fetchPictureTypes(queryString, page, limit);
       return;
@@ -41,21 +42,68 @@ const PictureTypesPanel = () => {
 
     await delayFetchPictureTypes(queryString, page, limit);
 
+  }, [fetchPictureTypes, delayFetchPictureTypes])
+
+  const setPage = useCallback((target: EventTarget, page: number) => {
+    setPagination({ ...pagination, page });
+    getPictureTypesWithCurrentQueryParams(queryString, page, pagination.limit, target)
+  }, [pagination, getPictureTypesWithCurrentQueryParams, queryString])
+
+  const setQueryStringAndGetPictureTypes = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
+    setQueryString(e.target?.value)
+    getPictureTypesWithCurrentQueryParams(e.target.value, pagination.page, pagination.limit, e.target);
+  }, [getPictureTypesWithCurrentQueryParams, pagination]);
+
+  const actionsArray = [
+    {
+      header: "delete",
+      clickHandler: async (pictureType: pictureTypeObj) => {
+        try {
+          if (window.confirm("Are you sure you want to delete this picture type?")) {
+            await PictureTypeService.deletePictureType(pictureType.id);
+            getPictureTypesWithCurrentQueryParams(queryString, 1, pagination.limit);
+          }
+        } catch (e: any) {
+          alert(e.isAxiosError ? e.response.data.message : e.message);
+        }
+      }
+    },
+    {
+      header: "edit",
+      clickHandler: (pictureType: pictureTypeObj) => {
+        setPictureTypeToEditId(pictureType.id);
+        if (!editFormOpen) {
+          setEditFormOpen(true);
+        }
+      }
+    }
+  ]
+
+  const actualizeListAfterAddingType = (newPictureType: pictureTypeObj) => {
+    setPictureTypes({
+      ...pictureTypes,
+      count: pictureTypes.count + 1,
+      rows: [newPictureType, ...pictureTypes.rows.splice(-1, 1)]
+    })
+
   }
 
-  const setQueryStringAndGetPictureTypes = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setQueryString(e.target?.value)
-    getPictureTypesWithCurrentQueryString(e.target.value, pagination.page, pagination.limit, e.target);
-  }
 
   useEffect(() => {
-    fetchPictureTypes();
+    getPictureTypesWithCurrentQueryParams(queryString, pagination.page, pagination.limit);
   }, []);
 
   return (
     <>
       <SearchInput onChange={setQueryStringAndGetPictureTypes} />
-      <Table<pictureTypeObj> tableHeaders={["ID", "Name"]} entities={pictureTypes.rows} paramsToShow={["id", "name"]} actions={[]} />
+      <CreatePictureTypeForm actualizeList={actualizeListAfterAddingType} />
+      <EditPictureTypeForm
+        initialParams={pictureTypes.rows.find(pictureType => +pictureType.id === +pictureTypeToEditId) || { id: 0, name: "", userId: 0 }}
+        isOpen={editFormOpen}
+        setIsOpen={setEditFormOpen}
+        pictureTypes={pictureTypes}
+        setPictureTypes={setPictureTypes} />
+      <Table<pictureTypeObj> tableHeaders={["ID", "Name"]} entities={pictureTypes.rows} paramsToShow={["id", "name"]} actions={actionsArray} />
       <PaginationInput page={pagination.page} limit={pagination.limit} count={pictureTypes.count} setPage={setPage} />
     </>
   )

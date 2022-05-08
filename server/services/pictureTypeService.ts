@@ -48,9 +48,9 @@ class PictureTypeService {
       throw ApiError.badRequest("This picture's type is already exists");
     };
 
-    await models.PictureType.create({ name: typeName, userId });
+    const createPictureType = await models.PictureType.create({ name: typeName, userId });
 
-    return { message: "Picture's type created successfully" };
+    return { message: "Picture's type created successfully", pictureType: createPictureType };
 
   };
 
