@@ -1,7 +1,7 @@
-export interface IPictureLikeResponseObj{
-  message:string
+export interface IPictureLikeResponseObj {
+  liked: boolean
 }
 
-export interface IGetPictureLikesResponseObj{
-    userId:number
+export interface IGetPictureLikesResponseObj {
+  userId: number
 }

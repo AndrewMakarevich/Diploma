@@ -1,7 +1,10 @@
 export interface pictureTypeObj {
   id: number,
   name: string,
-  userId: number
+  userId: number,
+  createdAt: string,
+  updatedAt: string,
+  picturesAmount: number
 }
 
 export interface IGetPictureTypesResponseObj {

@@ -1,6 +1,6 @@
 import modalStyles from "./view-picture-modal.module.css";
 
-import { useCallback, useContext, useEffect, useState } from "react";
+import { useCallback, useContext, useEffect, useMemo, useState } from "react";
 import { IExtendedPictureObj } from "../../../../interfaces/http/response/pictureInterfaces";
 import PictureService from "../../../../services/picture-service";
 import ModalWindow from "../../../modal-window/modal-window";
@@ -29,7 +29,7 @@ const ViewPictureModal = ({ isOpen, setIsOpen, currentPictureId }: IViewPictureM
   const [pictureLikes, setPictureLikes] = useState<IGetPictureLikesResponseObj[]>([]);
   const [pictureInfoIsOpen, setPictureInfoIsOpen] = useState(true);
 
-
+  const pictureIsLiked = useMemo(() => pictureLikes.some((likeObj) => likeObj.userId === userStore.userData.id), [pictureLikes, userStore]);
   const currentPictureImgLink = process.env.REACT_APP_BACK_LINK + "/img/picture/" + pictureInfo?.img;
 
   const getParsedDate = useCallback((date: string) => {
@@ -67,10 +67,16 @@ const ViewPictureModal = ({ isOpen, setIsOpen, currentPictureId }: IViewPictureM
             <div className={modalStyles["picture-like-block"]}>
               <LikeEssenceBtn
                 sendLikeRequest={async () => {
-                  await PictureLikeService.likePicture(pictureInfo.id)
+                  const response = await PictureLikeService.likePicture(pictureInfo.id);
+                  runInAction(() => pictureStore.pictures.rows.forEach(picture => {
+                    if (+picture.id === +currentPictureId) {
+                      response.data.liked ? picture.likesAmount++ : picture.likesAmount--
+
+                    }
+                  }))
                 }}
                 actualizeInfoAfterLike={() => getLikes()}
-                active={pictureLikes.some((likeObj) => likeObj.userId === userStore.userData.id)} />
+                active={pictureIsLiked} />
               <p>{pictureLikes?.length}</p>
             </div>
 

@@ -9,6 +9,7 @@ import SearchInput from "../../../UI/search-input/search-input";
 import useDelayFetching from "../../../hooks/useDelayFetching";
 import CreatePictureTypeForm from "../forms/create-picture-type-form/create-picture-type-form";
 import EditPictureTypeForm from "../forms/edit-picture-type-form/edit-picture-type-form";
+import PictureTypeSortSelect from "../inputs/picture-type-sort-select/picture-type-sort-select";
 
 const PictureTypesPanel = () => {
   const [pictureTypes, setPictureTypes] = useState<IGetPictureTypesResponseObj>({
@@ -19,40 +20,47 @@ const PictureTypesPanel = () => {
   const [pictureTypeToEditId, setPictureTypeToEditId] = useState<number>(0);
 
   const [queryString, setQueryString] = useState("");
+  const [sortParam, setSortParam] = useState(["createdAt", "DESC"]);
   const [pagination, setPagination] = useState({
     page: 1,
-    limit: 1
+    limit: 5
   });
 
   const [editFormOpen, setEditFormOpen] = useState(false);
 
-  const sendRequestToGetPictureTypes = useCallback(async (queryString: string, page: number, limit: number) => {
-    const response = await PictureTypeService.getPicturesTypes(queryString, page, limit);
+  const sendRequestToGetPictureTypes = useCallback(async (queryString: string, sort: string[], page: number, limit: number) => {
+    const response = await PictureTypeService.getPicturesTypes(queryString, sort, page, limit);
     setPictureTypes(response.data);
   }, [])
 
   const { executeCallback: fetchPictureTypes, isLoading: pictureTypesLoading } = useFetching<IGetPictureTypesResponseObj>(sendRequestToGetPictureTypes);
   const { executeCallback: delayFetchPictureTypes, isLoading: delayPictureTypesLoading } = useDelayFetching<IGetPictureTypesResponseObj>(sendRequestToGetPictureTypes, 200);
 
-  const getPictureTypesWithCurrentQueryParams = useCallback(async (queryString: string, page: number, limit: number, target?: EventTarget) => {
+  const getPictureTypesWithCurrentQueryParams = useCallback(async (queryString: string, sort: string[], page: number, limit: number, target?: EventTarget) => {
     if (target instanceof HTMLButtonElement || target instanceof HTMLSelectElement || !target) {
-      await fetchPictureTypes(queryString, page, limit);
+      await fetchPictureTypes(queryString, sort, page, limit);
       return;
     }
 
-    await delayFetchPictureTypes(queryString, page, limit);
+    await delayFetchPictureTypes(queryString, sort, page, limit);
 
   }, [fetchPictureTypes, delayFetchPictureTypes])
 
   const setPage = useCallback((target: EventTarget, page: number) => {
     setPagination({ ...pagination, page });
-    getPictureTypesWithCurrentQueryParams(queryString, page, pagination.limit, target)
-  }, [pagination, getPictureTypesWithCurrentQueryParams, queryString])
+    getPictureTypesWithCurrentQueryParams(queryString, sortParam, page, pagination.limit, target)
+  }, [pagination, getPictureTypesWithCurrentQueryParams, queryString, sortParam])
 
   const setQueryStringAndGetPictureTypes = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
     setQueryString(e.target?.value)
-    getPictureTypesWithCurrentQueryParams(e.target.value, pagination.page, pagination.limit, e.target);
-  }, [getPictureTypesWithCurrentQueryParams, pagination]);
+    getPictureTypesWithCurrentQueryParams(e.target.value, sortParam, pagination.page, pagination.limit, e.target);
+  }, [getPictureTypesWithCurrentQueryParams, pagination, sortParam]);
+
+  const setSortParamsAndGetPictureTypes = useCallback((e: React.ChangeEvent<HTMLSelectElement>) => {
+    setSortParam(e.target.value.split(","));
+    getPictureTypesWithCurrentQueryParams(queryString, e.target.value.split(","), pagination.page, pagination.limit, e.target);
+
+  }, [getPictureTypesWithCurrentQueryParams, queryString, pagination]);
 
   const actionsArray = [
     {
@@ -61,7 +69,7 @@ const PictureTypesPanel = () => {
         try {
           if (window.confirm("Are you sure you want to delete this picture type?")) {
             await PictureTypeService.deletePictureType(pictureType.id);
-            getPictureTypesWithCurrentQueryParams(queryString, 1, pagination.limit);
+            getPictureTypesWithCurrentQueryParams(queryString, sortParam, 1, pagination.limit);
           }
         } catch (e: any) {
           alert(e.isAxiosError ? e.response.data.message : e.message);
@@ -80,30 +88,40 @@ const PictureTypesPanel = () => {
   ]
 
   const actualizeListAfterAddingType = (newPictureType: pictureTypeObj) => {
+    if (pagination.limit > pictureTypes.rows.length) {
+      setPictureTypes({
+        count: pictureTypes.count + 1,
+        rows: [newPictureType, ...pictureTypes.rows]
+      });
+      return;
+    }
+
     setPictureTypes({
-      ...pictureTypes,
       count: pictureTypes.count + 1,
-      rows: [newPictureType, ...pictureTypes.rows.splice(-1, 1)]
+      rows: [newPictureType, ...pictureTypes.rows.slice(0, pictureTypes.rows.length - 1)]
     })
 
   }
 
 
   useEffect(() => {
-    getPictureTypesWithCurrentQueryParams(queryString, pagination.page, pagination.limit);
+    getPictureTypesWithCurrentQueryParams(queryString, sortParam, pagination.page, pagination.limit);
   }, []);
 
   return (
     <>
       <SearchInput onChange={setQueryStringAndGetPictureTypes} />
+      <PictureTypeSortSelect onChange={setSortParamsAndGetPictureTypes} />
       <CreatePictureTypeForm actualizeList={actualizeListAfterAddingType} />
       <EditPictureTypeForm
-        initialParams={pictureTypes.rows.find(pictureType => +pictureType.id === +pictureTypeToEditId) || { id: 0, name: "", userId: 0 }}
+        initialParams={
+          pictureTypes.rows.find(pictureType => +pictureType.id === +pictureTypeToEditId)
+          || { id: 0, name: "", userId: 0, picturesAmount: 0, createdAt: "", updatedAt: "" }}
         isOpen={editFormOpen}
         setIsOpen={setEditFormOpen}
         pictureTypes={pictureTypes}
         setPictureTypes={setPictureTypes} />
-      <Table<pictureTypeObj> tableHeaders={["ID", "Name"]} entities={pictureTypes.rows} paramsToShow={["id", "name"]} actions={actionsArray} />
+      <Table<pictureTypeObj> tableHeaders={["ID", "Name", "Pictures amount"]} entities={pictureTypes.rows} paramsToShow={["id", "name", "picturesAmount"]} actions={actionsArray} />
       <PaginationInput page={pagination.page} limit={pagination.limit} count={pictureTypes.count} setPage={setPage} />
     </>
   )

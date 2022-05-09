@@ -1,3 +1,4 @@
+import sequelize, { OrderItem, Sequelize } from "sequelize";
 import { Op } from "sequelize";
 import ApiError from "../apiError/apiError";
 import models from "../models/models";
@@ -15,17 +16,42 @@ class PictureTypeService {
     return;
   }
 
-  static async getPictureTypes(queryString?: string, page?: number, limit?: number) {
+  static async getPictureTypes(queryString?: string, sort?: string, page?: number, limit?: number) {
+
+    console.log(sort);
+
+    let sortParam;
+    try {
+      if (sort) {
+        if (Array.isArray(sort) && sort.length === 2) {
+          sortParam = sort;
+        } else if (typeof sort === "string") {
+          const parsedSortParam = JSON.parse(sort);
+          if (Array.isArray(parsedSortParam) && parsedSortParam.length === 2) {
+            sortParam = parsedSortParam;
+          }
+        }
+      }
+
+      if (!sortParam) {
+        sortParam = ["createdAt", "DESC"]
+      }
+
+    } catch (e) {
+      throw ApiError.badRequest("Incorrect sort param");
+    }
 
     const limitValue = limit || undefined;
     const pageValue = page || 1;
     const offsetValue = (pageValue - 1) * (limitValue || 1);
 
     const pictureTypes = await models.PictureType.findAndCountAll({
-      where: {
-        name: { [Op.iRegexp]: queryString || "" }
+      attributes: {
+        include: [
+          [Sequelize.literal(`(SELECT COUNT(*) FROM pictures WHERE "pictureTypeId"="pictureType"."id")`), "picturesAmount"]
+        ]
       },
-      attributes: ["id", "name", "userId"],
+      order: [[sequelize.col(sortParam[0]), sortParam[1]]],
       limit: limitValue,
       offset: offsetValue
     });

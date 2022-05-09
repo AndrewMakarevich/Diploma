@@ -3,10 +3,11 @@ import { $authHost, $host } from "../http";
 import { ICreatePictureTypeResponseObj, IDeletePictureTypeResponseObj, IEditPictureTypeResponseObj, IGetPictureTypesResponseObj } from "../interfaces/http/response/picture-type-interfaces";
 
 class PictureTypeService {
-  static async getPicturesTypes(queryString?: string, page?: number, limit?: number): Promise<AxiosResponse<IGetPictureTypesResponseObj>> {
+  static async getPicturesTypes(queryString?: string, sort?: string[], page?: number, limit?: number): Promise<AxiosResponse<IGetPictureTypesResponseObj>> {
     const response = await $host.get<IGetPictureTypesResponseObj>('/api/picture-type/get-all', {
       params: {
         queryString,
+        sort,
         page,
         limit
       }

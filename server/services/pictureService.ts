@@ -68,7 +68,7 @@ class PictureService {
       page = 1;
     }
 
-    let orderParam: OrderItem;
+    let orderParam;
 
     try {
       orderParam = JSON.parse(sort);
@@ -132,7 +132,7 @@ class PictureService {
         {
           model: models.User,
           as: "user",
-          attributes: ["nickname"]
+          attributes: ["nickname"],
         },
         {
           model: models.PictureTag,
@@ -146,33 +146,23 @@ class PictureService {
           model: models.PictureInfo,
           as: "pictureInfos",
           attributes: [],
-        },
-        {
-          model: models.PictureLike,
-          as: "pictureLikes",
-          attributes: [],
-        },
-        {
-          model: models.Comment,
-          as: "comments",
-          attributes: []
         }
+
       ],
-      order: [[sequelize.col((orderParam as Array<string>)[0]), (orderParam as Array<string>)[1]]],
+      order: [[sequelize.col(orderParam[0]), orderParam[1]]],
       attributes: {
         include: [
-          [sequelize.fn('COUNT', sequelize.fn('DISTINCT', sequelize.col('pictureLikes'))), 'likesAmount'],
-          [sequelize.fn('COUNT', sequelize.fn('DISTINCT', sequelize.col('comments'))), 'commentsAmount']
+          [Sequelize.literal('(SELECT COUNT(*) FROM "pictureLikes" WHERE "pictureLikes"."pictureId"=picture.id)'), 'likesAmount'],
+          [Sequelize.literal('(SELECT COUNT(*) FROM comments WHERE comments."pictureId"=picture.id)'), 'commentsAmount']
         ]
       },
-      group: ["picture.id", "user.id"]
+      limit,
+      offset: (page - 1) * limit
     });
 
-    let picturesAmount = pictures.length;
+    const picturesCount = await models.Picture.count();
 
-    pictures = pictures.slice((page - 1) * limit, ((page - 1) * limit) + limit);
-
-    return { count: picturesAmount, rows: pictures };
+    return { count: picturesCount, rows: pictures };
   }
 
   static async createPicture(
