@@ -2,15 +2,19 @@ import { useState } from "react";
 import { ITableProps } from "./interfaces";
 import TableRow from "./table-row";
 
-const Table = <T,>({ tableHeaders, entities, paramsToShow, actions }: ITableProps<T>) => {
+import tableStyles from "./table.module.css";
+
+const Table = <T,>({ tableHeaders, entities, paramsToShow, actions, className }: ITableProps<T>) => {
   const [actionLoading, setActionLoading] = useState(false);
   return (
-    <table>
+    <table className={`${tableStyles["table"]} ${className ? className : ""}`}>
       <thead>
-        {tableHeaders.map(header => (
-          <th>{header}</th>
-        ))}
-        {Boolean(actions.length) && <th>Actions</th>}
+        <tr>
+          {tableHeaders.map(header => (
+            <th>{header}</th>
+          ))}
+          {Boolean(actions.length) && <th>Actions</th>}
+        </tr>
       </thead>
       <tbody>
         {

@@ -11,6 +11,9 @@ import CreatePictureTypeForm from "../forms/create-picture-type-form/create-pict
 import EditPictureTypeForm from "../forms/edit-picture-type-form/edit-picture-type-form";
 import PictureTypeSortSelect from "../inputs/picture-type-sort-select/picture-type-sort-select";
 
+import panelStyles from "./picture-types-panel.module.css";
+import PictureTypesSearchPanel from "../picture-types-search-panel/picture-types-search-panel";
+
 const PictureTypesPanel = () => {
   const [pictureTypes, setPictureTypes] = useState<IGetPictureTypesResponseObj>({
     count: 0,
@@ -109,21 +112,27 @@ const PictureTypesPanel = () => {
   }, []);
 
   return (
-    <>
-      <SearchInput onChange={setQueryStringAndGetPictureTypes} />
-      <PictureTypeSortSelect onChange={setSortParamsAndGetPictureTypes} />
-      <CreatePictureTypeForm actualizeList={actualizeListAfterAddingType} />
-      <EditPictureTypeForm
-        initialParams={
-          pictureTypes.rows.find(pictureType => +pictureType.id === +pictureTypeToEditId)
-          || { id: 0, name: "", userId: 0, picturesAmount: 0, createdAt: "", updatedAt: "" }}
-        isOpen={editFormOpen}
-        setIsOpen={setEditFormOpen}
-        pictureTypes={pictureTypes}
-        setPictureTypes={setPictureTypes} />
-      <Table<pictureTypeObj> tableHeaders={["ID", "Name", "Pictures amount"]} entities={pictureTypes.rows} paramsToShow={["id", "name", "picturesAmount"]} actions={actionsArray} />
+    <div className={panelStyles["panel-wrapper"]}>
+      <PictureTypesSearchPanel setQueryString={setQueryStringAndGetPictureTypes} setSortParam={setSortParamsAndGetPictureTypes} />
+      <div className={panelStyles["forms"]}>
+        <CreatePictureTypeForm actualizeList={actualizeListAfterAddingType} />
+        <EditPictureTypeForm
+          initialParams={
+            pictureTypes.rows.find(pictureType => +pictureType.id === +pictureTypeToEditId)
+            || { id: 0, name: "", userId: 0, picturesAmount: 0, createdAt: "", updatedAt: "" }}
+          isOpen={editFormOpen}
+          setIsOpen={setEditFormOpen}
+          pictureTypes={pictureTypes}
+          setPictureTypes={setPictureTypes} />
+      </div>
+      <Table<pictureTypeObj>
+        className={panelStyles["table"]}
+        tableHeaders={["ID", "Name", "Pictures amount"]}
+        entities={pictureTypes.rows}
+        paramsToShow={["id", "name", "picturesAmount"]}
+        actions={actionsArray} />
       <PaginationInput page={pagination.page} limit={pagination.limit} count={pictureTypes.count} setPage={setPage} />
-    </>
+    </div>
   )
 };
 

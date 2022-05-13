@@ -1,6 +1,9 @@
-import { useState } from "react";
+import { FormEvent, useState } from "react";
 import PictureTypeService from "../../../../services/picture-type-service";
 import { pictureTypeObj } from "../../../../interfaces/http/response/picture-type-interfaces";
+
+import formStyles from "./create-picture-type-form.module.css";
+import CreateForm from "../../../forms/create-form/create-form";
 
 interface ICreatePictureTypeFormProps {
   actualizeList: (newPictureType: pictureTypeObj) => void;
@@ -8,27 +11,22 @@ interface ICreatePictureTypeFormProps {
 
 const CreatePictureTypeForm = ({ actualizeList }: ICreatePictureTypeFormProps) => {
   const [typeName, setTypeName] = useState("");
+  const [formLoading, setFormLoading] = useState(false);
 
-  const createPictureType = async () => {
+  const createPictureType = async (e: FormEvent<HTMLButtonElement>, pictureType: { name: string }) => {
     try {
-      const response = await PictureTypeService.createPictureType(typeName);
+      setFormLoading(true);
+      const response = await PictureTypeService.createPictureType(pictureType.name);
       await actualizeList(response.data.pictureType);
     } catch (e: any) {
       alert(e.isAxiosError ? e.response.data.message : e.message);
+    } finally {
+      setFormLoading(false);
     }
   }
 
   return (
-    <form>
-      <input value={typeName} onChange={(e) => setTypeName(e.target.value)}></input>
-      <button type="button" onClick={() => setTypeName("")}>Clear input</button>
-      <button
-        type="submit"
-        onClick={(e) => {
-          e.preventDefault();
-          createPictureType();
-        }}>Create type</button>
-    </form>
+    <CreateForm<{ name: string }> paramsToCreate={[{ header: "Type name", paramName: "name" }]} onSubmit={createPictureType} isLoading={formLoading} />
   )
 };
 

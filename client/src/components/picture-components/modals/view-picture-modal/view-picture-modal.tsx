@@ -36,21 +36,21 @@ const ViewPictureModal = ({ isOpen, setIsOpen, currentPictureId }: IViewPictureM
     return new Date(date).toLocaleDateString("en-EN", { year: 'numeric', month: "long", day: "numeric" });
   }, []);
 
-  function getLikes() {
+  const getLikes = useCallback(() => {
     PictureLikeService.getPictureLikes(currentPictureId).then(({ data }) => setPictureLikes(data));
-  };
+  }, [currentPictureId]);
 
-  function getPictureInfo() {
+  const getPictureInfo = useCallback(() => {
     PictureService.getPicture(currentPictureId).then(({ data }) => setPictureInfo(data));
-  }
+  }, [currentPictureId]);
 
 
   useEffect(() => {
-    if (currentPictureId) {
+    if (currentPictureId && isOpen) {
       getPictureInfo();
       getLikes();
     }
-  }, [currentPictureId]);
+  }, [currentPictureId, getLikes, getPictureInfo, isOpen]);
 
   return (
     <ModalWindow isOpen={isOpen} setIsOpen={setIsOpen} closeBtnId={modalStyles["close-btn"]}>

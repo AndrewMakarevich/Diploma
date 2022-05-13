@@ -1,4 +1,5 @@
 import { Outlet } from "react-router-dom";
+import SideBar from "../../side-bar/side-bar";
 import AdminNavBar from "../admin-nav-bar/admin-nav-bar";
 
 import panelStyles from "./admin-panel.module.css";
@@ -6,8 +7,10 @@ import panelStyles from "./admin-panel.module.css";
 const AdminPanel = () => {
   return (
     <article className={panelStyles["main-wrapper"]}>
-      <AdminNavBar />
       <Outlet />
+      <SideBar>
+        <AdminNavBar />
+      </SideBar>
     </article>
   )
 };

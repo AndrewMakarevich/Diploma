@@ -29,7 +29,7 @@ class PictureValidator {
   }
 
   static validatePictureMainDescription(descriptionValue: string, throwError: boolean) {
-    return this.validateText("\[a-zA-Z0-9\\s-&!?(){}\/\"'<>,~@\]", 0, 0, "Picture main description", descriptionValue, throwError);
+    return this.validateText("\[a-zA-Z0-9\\s-&!?(){}\/\"'<>,~@:\]", 0, 0, "Picture main description", descriptionValue, throwError);
   }
 
 

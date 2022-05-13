@@ -9,6 +9,8 @@ const PicturesTypesSelect = ({ onChange, value, className }: ComponentProps<"sel
     PictureTypeService.getPicturesTypes().then(response => setPicturesTypes(response.data.rows))
   }, []);
 
+  console.log(picturesTypes);
+
   return (
     <select value={value} onChange={onChange} className={className || selectStyles["select"]}>
       <option value="">Picture's type</option>

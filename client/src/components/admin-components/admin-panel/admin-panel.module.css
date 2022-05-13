@@ -1,3 +1,6 @@
 .main-wrapper{
+  position: relative;
+  justify-content: stretch;
   display: flex;
+  padding-left: 25px;
 }

@@ -1,4 +1,6 @@
-export interface ITableProps<T> {
+import { ComponentProps } from "react"
+
+export interface ITableProps<T> extends ComponentProps<"table"> {
   tableHeaders: string[],
   actions: IAction[],
   entities: T[],

@@ -33,7 +33,7 @@ class PictureStore {
       queryString: "",
       sort: undefined,
       page: 1,
-      limit: 3
+      limit: 10
     }
     makeAutoObservable(this);
   }
@@ -63,8 +63,11 @@ class PictureStore {
 
   async addPictureLocally(picture: IShortPictureObj) {
     this.pictures.count++;
+
+    if (this.pictures.rows.length >= this.queryParams.limit) {
+      this.pictures.rows.pop();
+    }
     this.pictures.rows.unshift(picture);
-    this.pictures.rows.pop();
   };
 };
 

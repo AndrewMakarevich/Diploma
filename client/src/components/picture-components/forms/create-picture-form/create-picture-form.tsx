@@ -1,13 +1,11 @@
-import { useContext, useEffect, useRef, useState } from "react";
+import { useContext, useRef, useState } from "react";
 import formStyles from "./create-picture-form.module.css";
 import setFileInputCurrentImg from "../../../../utils/file-input-utils/setFileInputCurrentImg";
 import { IPictureMainData } from "../../../../interfaces/forms/create-picture-interfaces";
 import PictureService from "../../../../services/picture-service";
 import ArrowIcon from "../../../../assets/img/icons/arrow-icon/arrow-icon";
-import MatchingTagsList from "../../matching-tags-list/matching-tags-list";
 import PicturesTypesSelect from "../../inputs/pictures-types-select/pictures-types-select";
 import useFetching from "../../../../hooks/useFetching";
-import DeleteButton from "../../../../UI/delete-button/delete-button";
 import StandartButton from "../../../../UI/standart-button/standart-button";
 import NewTagList from "./new-tag-list/new-tag-list";
 import NewSectionList from "./new-section-list/new-section-list";

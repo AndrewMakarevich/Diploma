@@ -1,4 +1,5 @@
 import PictureList from "../picture-components/picture-list/picture-list";
+import Slider from "../slider/slider";
 import galleryStyles from "./public-gallery.module.css";
 
 interface IPublicGallryProps {
@@ -7,7 +8,8 @@ interface IPublicGallryProps {
 
 const PublicGallery = ({ userId = 0 }: IPublicGallryProps) => {
   return (
-    <article>
+    <article className={galleryStyles["public-gallery-wrapper"]}>
+      <Slider />
       <PictureList userId={userId} isPersonalGallery={false} />
     </article>
   )

@@ -10,7 +10,7 @@ import PictureTagService from "./pictureTagService";
 import PictureInfoService from "./pictureInfoService";
 import PictureValidator from "../validator/pictureValidator";
 import PictureTypeService from "./pictureTypeService";
-import sequelize, { OrderItem, Sequelize } from "sequelize";
+import sequelize from "sequelize";
 import { Op } from "sequelize";
 import { ICreatePictureService } from "../interfaces/services/pictureServicesInterfaces";
 
@@ -22,7 +22,7 @@ class PictureService {
       where:
         { id: pictureId },
       attributes: {
-        include: [[Sequelize.fn("COUNT", sequelize.col("comments")), "rootCommentsAmount"]]
+        include: [[sequelize.fn("COUNT", sequelize.col("comments")), "rootCommentsAmount"]]
       },
       include: [
         {
@@ -59,27 +59,16 @@ class PictureService {
   }
 
   static async getPictures(userId: number, pictureTypeId: number, query: string | undefined, limit: number = 10, page: number = 1, sort: string) {
-
-    if (!limit) {
-      limit = 10;
-    }
-
     if (!page) {
-      page = 1;
+      page = 1
     }
-
+    if (!limit) {
+      limit = 10
+    }
     let orderParam;
 
     try {
-      orderParam = JSON.parse(sort);
-      if (Array.isArray(orderParam)) {
-
-        if (orderParam.length !== 2) {
-          orderParam = ["createdAt", "DESC"]
-        }
-      } else {
-        orderParam = ["createdAt", "DESC"]
-      }
+      orderParam = Array.isArray(sort) ? sort : JSON.parse(sort);
     } catch (e: any) {
       orderParam = ["createdAt", "DESC"]
     }
@@ -126,8 +115,6 @@ class PictureService {
     }
 
     let pictures = await models.Picture.findAll({
-      where: whereStatement,
-
       include: [
         {
           model: models.User,
@@ -137,7 +124,7 @@ class PictureService {
         {
           model: models.PictureTag,
           as: "tags",
-          attributes: [],
+          attributes: ["text"],
           through: {
             attributes: [],
           },
@@ -149,24 +136,26 @@ class PictureService {
         }
 
       ],
+      where: whereStatement,
       order: [[sequelize.col(orderParam[0]), orderParam[1]]],
       attributes: {
         include: [
-          [Sequelize.literal('(SELECT COUNT(*) FROM "pictureLikes" WHERE "pictureLikes"."pictureId"=picture.id)'), 'likesAmount'],
-          [Sequelize.literal('(SELECT COUNT(*) FROM comments WHERE comments."pictureId"=picture.id)'), 'commentsAmount']
+          [sequelize.literal('(SELECT COUNT(*) FROM "pictureLikes" WHERE "pictureLikes"."pictureId"=picture.id)'), 'likesAmount'],
+          [sequelize.literal('(SELECT COUNT(*) FROM comments WHERE comments."pictureId"=picture.id)'), 'commentsAmount']
         ]
       },
-      limit,
-      offset: (page - 1) * limit
     });
 
-    const picturesCount = await models.Picture.count();
+    const picturesCount = pictures.length;
+    console.log(page, limit);
+    pictures = pictures.slice((page - 1) * limit, ((page - 1) * limit) + limit);
 
     return { count: picturesCount, rows: pictures };
   }
 
   static async createPicture(
     userId: number,
+    nickname: string,
     img: fileUpload.UploadedFile,
     mainTitle: string,
     description: string,
@@ -183,13 +172,6 @@ class PictureService {
 
     PictureValidator.validatePictureMainTitle(mainTitle, true);
     PictureValidator.validatePictureMainDescription(description, true);
-    await PictureTypeService.checkPictureTypeExistence(pictureTypeId);
-
-    const creator = await models.User.findOne({ where: { id: userId } });
-
-    if (!creator) {
-      throw ApiError.badRequest("The User from whom you want to publish picture doesn't exists");
-    }
 
     const imgName = ImageService.generateImageName(img);
 
@@ -198,12 +180,19 @@ class PictureService {
     }
 
     const createdPicture = await models.Picture.create({
-      userId: creator.id,
+      userId: userId,
       img: imgName,
       mainTitle,
       description,
       pictureTypeId
+    }).catch(e => {
+      if (e.parent.code === "23503" && e.parent.constraint.includes("pictureTypeId")) {
+        throw ApiError.badRequest("Picture type you try to add doesn't exists");
+      }
+
+      throw ApiError.badRequest(e.parent.detail)
     });
+
     pictureInfos && Array.isArray(pictureInfos) && pictureInfos.forEach(async (pictureInfo) => {
       await PictureInfoService.createPictureInfo(createdPicture.id, pictureInfo);
     });
@@ -216,7 +205,7 @@ class PictureService {
       message: "Picture added successfully",
       picture: {
         ...(createdPicture as any).dataValues,
-        user: { nickname: creator.nickname },
+        user: { nickname },
         commentsAmount: 0,
         likesAmount: 0
       }
@@ -233,22 +222,6 @@ class PictureService {
     pictureInfos: IPictureInfo[],
     pictureTags: IPictureTag[]
   ) {
-    let nothingToChange = true;
-
-    for (let key in arguments) {
-      if (key === "0" || key === "1") {
-        continue
-      }
-
-      if (arguments[key] !== undefined) {
-        nothingToChange = false;
-        break;
-      }
-    }
-
-    if (nothingToChange) {
-      throw ApiError.badRequest('Nothing to change');
-    }
 
     const pictureToEdit = await models.Picture.findOne({ where: { id: pictureId, userId } });
 
@@ -258,7 +231,6 @@ class PictureService {
 
     PictureValidator.validatePictureMainTitle(mainTitle, true);
     PictureValidator.validatePictureMainDescription(description, true);
-    await PictureTypeService.checkPictureTypeExistence(pictureTypeId);
 
     const imgName = ImageService.generateImageName(img);
 
@@ -278,6 +250,8 @@ class PictureService {
       mainTitle,
       description,
       pictureTypeId
+    }).catch(e => {
+      throw ApiError.badRequest(e.parent.detail)
     });
 
     pictureInfos && Array.isArray(pictureInfos) && pictureInfos.forEach(async (pictureInfo) => {

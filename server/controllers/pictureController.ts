@@ -34,6 +34,7 @@ class PictureController {
     try {
       const img = req.files?.img as fileUpload.UploadedFile;
       const userId = (req as any).user.id;
+      const userNickname = (req as any).user.nickname;
       const { description, mainTitle, pictureTypeId } = req.body;
       let pictureInfos: IPictureInfo[] = req.body.pictureInfos;
       let pictureTags: IPictureTag[] = req.body.pictureTags;
@@ -50,7 +51,7 @@ class PictureController {
 
       }
 
-      const response = await PictureService.createPicture(userId, img, mainTitle, description, pictureTypeId, pictureInfos, pictureTags);
+      const response = await PictureService.createPicture(userId, userNickname, img, mainTitle, description, pictureTypeId, pictureInfos, pictureTags);
 
       return res.json(response);
     } catch (e) {

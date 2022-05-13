@@ -46,6 +46,9 @@ class PictureTypeService {
     const offsetValue = (pageValue - 1) * (limitValue || 1);
 
     const pictureTypes = await models.PictureType.findAndCountAll({
+      where: {
+        name: { [Op.iRegexp]: queryString || '' }
+      },
       attributes: {
         include: [
           [Sequelize.literal(`(SELECT COUNT(*) FROM pictures WHERE "pictureTypeId"="pictureType"."id")`), "picturesAmount"]

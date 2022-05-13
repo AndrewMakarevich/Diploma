@@ -1,0 +1,37 @@
+.side-bar{
+  position: absolute;
+  top:0;
+  left: 0;
+  height: 100%;
+  display: flex;
+  transition: transform .2s;
+  background-color: var(--extra-dark);
+}
+
+.side-bar__content{
+}
+
+.close-btn{
+  background-color: rgba(0, 0, 0, 0.7);
+  border: none;
+}
+
+#arrow-icon{
+  color: white;
+  width: 20px;
+  height: 20px;
+  transform: rotate(-180deg);
+  transition: transform .5s;
+}
+
+.closed{
+  transform: translateX(-100%);
+}
+
+.closed .close-btn{
+  transform: translateX(100%);
+}
+
+.closed #arrow-icon{
+  transform: rotate(0deg);
+}

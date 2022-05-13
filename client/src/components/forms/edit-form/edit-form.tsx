@@ -1,8 +1,12 @@
 import { useEffect, useState } from "react";
+import StandartButton from "../../../UI/standart-button/standart-button";
+import StandartInput from "../../../UI/standart-input/standart-input";
+
+import formStyles from "./edit-form.module.css";
 
 interface IEditFormProps<T> {
   initialParams: T,
-  paramsAbleToEdit: string[],
+  paramsAbleToEdit: { placeholder: string, paramName: string }[],
   onSubmit: (editedParams: T) => Promise<void>,
   isLoading: boolean
 }
@@ -16,23 +20,24 @@ const EditForm = <T extends { [key: string]: any },>({ initialParams, paramsAble
     }
   }, [initialParams])
   return (
-    <form>
+    <form className={formStyles["form"]}>
       {
-        paramsAbleToEdit.map(paramKey => (
-          <input
-            value={editedParams[paramKey]}
-            onChange={(e) => setEditedParams({ ...editedParams, [paramKey]: e.target.value })}></input>
+        paramsAbleToEdit.map(({ paramName, placeholder }) => (
+          <StandartInput
+            placeholder={placeholder}
+            value={editedParams[paramName]}
+            onChange={(e) => setEditedParams({ ...editedParams, [paramName]: e.target.value })}></StandartInput>
         ))
       }
 
-      <button disabled={isLoading} type="button" onClick={() => setEditedParams(initialParams)}>Clear changes</button>
-      <button
+      <StandartButton disabled={isLoading} type="button" onClick={() => setEditedParams(initialParams)}>Clear changes</StandartButton>
+      <StandartButton
         type="submit"
         disabled={isLoading}
         onClick={async (e) => {
           e.preventDefault();
           await onSubmit(editedParams);
-        }}>Submit changes</button>
+        }}>Submit changes</StandartButton>
     </form>
   )
 };

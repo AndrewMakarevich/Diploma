@@ -1,0 +1,20 @@
+.table{
+  color: var(--extra-light)
+}
+
+.table th{
+  font-weight: 100;
+  background-color: rgba(0, 0, 0, 0.7);
+}
+
+.table td{
+  padding: 5px;
+  text-align: center;
+  background-color: rgba(0, 0, 0, 0.6);
+}
+
+.actions-table-cell{
+  display: flex;
+  justify-content: center;
+  gap: 5px;
+}

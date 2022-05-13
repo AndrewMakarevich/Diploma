@@ -39,10 +39,6 @@ const CommentItem = ({ comment, pictureAuthorId, actualizeCommentListAfterDeleti
   const [commentText, setCommentText] = useState("");
   const [commentIsLiked, setCommentIsLiked] = useState(false);
 
-  // const getCommentById = useCallback(async () => {
-  //   await PictureCommentService.getPictureComment(comment.id).then(({ data }) => setCommentObj(data))
-  // }, [comment.id]);
-
   const sendEditCommentRequest = useCallback(async () => {
     CommentValidator.validateCommentText(commentText, true);
     await PictureCommentService.editComment(commentObj.id, commentText);

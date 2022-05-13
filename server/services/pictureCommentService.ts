@@ -1,4 +1,4 @@
-import sequelize from "sequelize";
+import sequelize, { Sequelize, SequelizeScopeError } from "sequelize";
 import ApiError from "../apiError/apiError";
 import models from "../models/models";
 import PictureValidator from "../validator/pictureValidator";
@@ -35,36 +35,15 @@ class PictureCommentService {
     return comment;
   };
 
-  static async getComments(pictureId: number, commentId: number, page: number, limit: number) {
-    const picture = await models.Picture.findOne({ where: { id: pictureId } });
+  static async getComments(pictureId: number, commentId: number, page: number = 1, limit: number = 10) {
+    const offsetValue = ((page - 1) * limit);
 
-    if (!picture) {
-      throw ApiError.badRequest("Picture from whom you want to get commentaries from doesn't exists");
-    };
-
-    let whereStatement;
-
-    if (!commentId) {
-      whereStatement = {
-        commentId: null,
-        pictureId
-      }
-    } else {
-      whereStatement = {
-        commentId,
-        pictureId
-      }
-    };
-
-    const limitValue = limit || 10;
-    const offsetValue = ((page - 1) * limitValue) || 0;
-
-    const comments = await models.Comment.findAll({
-      where: whereStatement,
+    const comments = await models.Comment.findAndCountAll({
+      where: { pictureId, commentId: commentId || null },
       attributes: {
         include:
           [
-            [sequelize.fn("COUNT", sequelize.fn("DISTINCT", sequelize.col("comments"))), "childCommentsAmount"],
+            [sequelize.literal("(SELECT COUNT(*) FROM comments WHERE comments.\"commentId\"=comment.id)"), "childCommentsAmount"]
           ]
       },
       include: [
@@ -78,16 +57,19 @@ class PictureCommentService {
           as: "user",
           attributes: ["avatar", "nickname"]
         },
-        {
-          model: models.Comment,
-          as: "comments",
-          attributes: []
-        }
       ],
-      group: ["comment.id", "commentLikes.id", "user.id"],
+      distinct: true,
+      limit,
+      offset: offsetValue
+    }).catch((e) => {
+      if (e.parent.code === "23503" && e.parent.constraint.includes("pictureId")) {
+        throw ApiError.badRequest("Picture from whom you want to get commentaries from doesn't exists");
+      }
+
+      throw ApiError.badRequest(e.parent.detail)
     });
 
-    return { count: comments.length, rows: comments.slice(offsetValue, offsetValue + limitValue) };
+    return comments;
   };
 
   static async addComment(pictureId: number, commentId: number, userId: number, text: string) {

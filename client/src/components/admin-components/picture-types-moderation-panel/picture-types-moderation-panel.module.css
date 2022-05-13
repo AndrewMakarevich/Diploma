@@ -1,0 +1,11 @@
+.moderation-panel{
+  flex:1
+
+}
+
+.panel-header{
+  text-align: center;
+  color: var(--extra-light);
+  font-size: 2rem;
+  padding: 5px;
+}

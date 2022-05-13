@@ -1,4 +1,7 @@
+import StandartButton from "../../UI/standart-button/standart-button";
 import { ITableRowProps } from "./interfaces";
+
+import tableStyles from "./table.module.css";
 
 const TableRow = ({ entity, paramsToShow, actions, isLoading, setIsLoading }: ITableRowProps) => {
   return (
@@ -8,10 +11,10 @@ const TableRow = ({ entity, paramsToShow, actions, isLoading, setIsLoading }: IT
           <td>{entity[paramKey]}</td>
         ))
       }
-      <td>
+      <td className={tableStyles["actions-table-cell"]}>
         {
           actions.map(action => (
-            <button
+            <StandartButton
               disabled={isLoading}
               onClick={async () => {
                 try {
@@ -20,7 +23,7 @@ const TableRow = ({ entity, paramsToShow, actions, isLoading, setIsLoading }: IT
                 } finally {
                   setIsLoading(false);
                 }
-              }}>{action.header}</button>
+              }}>{action.header}</StandartButton>
           ))
         }
       </td>

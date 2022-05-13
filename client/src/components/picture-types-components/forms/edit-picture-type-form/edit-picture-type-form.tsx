@@ -4,6 +4,9 @@ import { IGetPictureTypesResponseObj, pictureTypeObj } from "../../../../interfa
 import PictureTypeService from "../../../../services/picture-type-service";
 import useFetching from "../../../../hooks/useFetching";
 
+import formStyles from "./edit-picture-type-form.module.css";
+import DeleteButton from "../../../../UI/delete-button/delete-button";
+
 interface IEditPictureTypeFormProps {
   initialParams: pictureTypeObj,
   isOpen: boolean,
@@ -43,10 +46,11 @@ const EditPictureTypeForm = ({ initialParams, isOpen, setIsOpen, pictureTypes, s
   }
 
   return (
-    <>
-      <button type="button" onClick={() => setIsOpen(false)}>Close</button>
-      <EditForm<pictureTypeObj> initialParams={initialParams} paramsAbleToEdit={["name"]} onSubmit={onSubmit} isLoading={editPictureTypeLoading} />
-    </>
+    <div className={formStyles["form-wrapper"]}>
+      <p className={formStyles["form-header"]}>Edit picture type</p>
+      <EditForm<pictureTypeObj> initialParams={initialParams} paramsAbleToEdit={[{ placeholder: "Type name", paramName: "name" }]} onSubmit={onSubmit} isLoading={editPictureTypeLoading} />
+      <DeleteButton type="button" onClick={() => setIsOpen(false)}>Close</DeleteButton>
+    </div>
 
   )
 };
