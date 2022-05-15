@@ -36,6 +36,14 @@ class PictureCommentService {
   };
 
   static async getComments(pictureId: number, commentId: number, page: number = 1, limit: number = 10) {
+    if (!page) {
+      page = 1;
+    }
+
+    if (!limit) {
+      limit = 10
+    }
+
     const offsetValue = ((page - 1) * limit);
 
     const comments = await models.Comment.findAndCountAll({
@@ -62,29 +70,17 @@ class PictureCommentService {
       limit,
       offset: offsetValue
     }).catch((e) => {
-      if (e.parent.code === "23503" && e.parent.constraint.includes("pictureId")) {
+      if (e.name === "SequelizeForeignKeyConstraintError" && e.parent.code === "23503" && e.parent.constraint.includes("pictureId")) {
         throw ApiError.badRequest("Picture from whom you want to get commentaries from doesn't exists");
       }
 
-      throw ApiError.badRequest(e.parent.detail)
+      throw ApiError.badRequest(e.message)
     });
 
     return comments;
   };
 
   static async addComment(pictureId: number, commentId: number, userId: number, text: string) {
-    const picture = await models.Picture.findOne({ where: { id: pictureId } });
-
-    if (!picture) {
-      throw ApiError.badRequest("Picture you want to comment doesn't exists");
-    };
-
-    const user = await models.User.findOne({ where: { id: userId } });
-
-    if (!user) {
-      throw ApiError.badRequest("User from whom you want to comment picture doesn't exists");
-    }
-
     if (commentId) {
       const parentComment = await models.Comment.findOne({ where: { id: commentId, pictureId } });
 
@@ -93,55 +89,57 @@ class PictureCommentService {
       };
     };
 
-    PictureValidator.validatePictureComment(text, true);
-
     const comment = await models.Comment.create({
       text,
       userId,
       commentId,
       pictureId
+    }).catch(e => {
+      if (e.name === "SequelizeForeignKeyConstraintError" && e.parent.code === "23503") {
+        if (e.parent.constraint.includes("pictureId")) {
+          throw ApiError.badRequest("Picture you want to comment doesn't exists");
+        }
+        if (e.parent.constraint.includes("commentId")) {
+          throw ApiError.badRequest("Incorrect paren comment id recieved");
+        }
+
+        throw ApiError.badRequest(e.parent.detail)
+      }
+
+      throw ApiError.badRequest(e.message);
     });
 
-    const commentObjToReturn = await models.Comment.findOne({
-      where: { id: comment.id },
-      include: [{
-        model: models.User,
-        as: "user",
-        attributes: ["avatar", "nickname"]
-      }],
-    })
-
-    return { message: "Comment created succesfully", comment: commentObjToReturn }
+    return { message: "Comment created succesfully", comment }
   };
 
   static async editComment(userId: number, commentId: number, text: string) {
-    const user = await models.User.findOne({ where: { id: userId } });
+    const updateRecordsAmount = await models.Comment.update({ text }, { where: { id: commentId, userId } }).catch(e => {
+      if (e.name === "SequelizeValidationError") {
+        throw ApiError.badRequest(e.message)
+      }
 
-    if (!user) {
-      throw ApiError.badRequest("User you indicate as comment owner doesn't exists");
-    };
+      if (e.name === "SequelizeForeignKeyConstraintError") {
+        if (e.parent.constraint.includes("userId")) {
+          throw ApiError.badRequest("Incorrect user id");
+        } else if (e.parent.constraint.includes("id")) {
+          throw ApiError.badRequest("Can't find comment with such id");
+        }
+        throw ApiError.badRequest(e.parent.detail);
+      }
 
-    const comment = await models.Comment.findOne({ where: { id: commentId, userId } });
+      throw ApiError.badRequest(e.message)
+    });
 
-    if (!comment) {
-      throw ApiError.badRequest("Comment you want to edit doesn't exists, or you are not the author of it");
-    };
+    if (updateRecordsAmount[0] === 0) {
+      throw ApiError.badRequest("Incorrect comment id recieved")
+    }
 
-    PictureValidator.validatePictureComment(text, true);
-
-    await comment.update({ text });
-
-    return { message: "Commentary edited successfully" };
+    return { message: "Comment edited successfully" };
   };
 
   static async deleteComment(userId: number, commentId: number) {
     // User id takes from jwt access token,when after auth middleware check user authorization 
     //by token verification and puts result into user property user's data
-    const user = await models.User.findOne({ where: { id: userId } });
-
-    if (!user) {
-      throw ApiError.badRequest("User from whom you want to delete commentary doesn't exists");
-    };
 
     const comment = await models.Comment.findOne({ where: { id: commentId } });
 
@@ -156,7 +154,7 @@ class PictureCommentService {
     }
 
 
-    if (picture.userId !== user.id && comment.userId !== user.id) {
+    if (picture.userId !== userId && comment.userId !== userId) {
       throw ApiError.badRequest("You can't delete this commentary, because you are nor the author of the picture nor the author of the comment");
     }
 

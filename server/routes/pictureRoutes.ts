@@ -9,7 +9,7 @@ const pictureRouter = Router();
 pictureRouter.get('/get/:id', PictureController.getPictureById);
 pictureRouter.get('/get-many', PictureController.getPictures);
 
-pictureRouter.post('/create', authMiddleware, PictureController.createPicture);
+pictureRouter.post('/create', authMiddleware, roleMiddleware(rolePermissions.loadPicture), PictureController.createPicture);
 
 pictureRouter.put('/edit/:id', authMiddleware, PictureController.editPicture);
 

@@ -3,63 +3,52 @@ import { IPictureInfo } from "../interfaces/pictureInterfaces";
 import models from "../models/models";
 
 class PictureInfoService {
-  private static async findPicture(pictureId: number) {
-    const picture = await models.Picture.findOne({
-      where: {
-        id: pictureId
-      }
-    });
-
-    return picture;
+  private static parseSequelizeErrorArr(errArr: any[]) {
+    return errArr.map((error: any) => error.message + (error.value ? `. Incorrect value: ${error.value}` : ""))
   }
+
   static async createPictureInfo(pictureId: number, pictureInfoObj: IPictureInfo) {
-    const picture = await this.findPicture(pictureId);
+    let errors: string[] = [];
 
-    if (!picture) {
-      return;
-    }
-
-    if (pictureInfoObj.title && pictureInfoObj.description) {
-      await models.PictureInfo.create({
-        pictureId: picture.id,
-        title: pictureInfoObj.title.trim(),
-        description: pictureInfoObj.description.trim()
-      });
-    }
-    return;
+    await models.PictureInfo.create({
+      pictureId: pictureId,
+      title: pictureInfoObj.title.trim(),
+      description: pictureInfoObj.description.trim()
+    }).catch((e) => {
+      errors = [...errors, ...this.parseSequelizeErrorArr(e.errors)]
+    });
+    return errors;
   }
 
   static async editPictureInfo(pictureId: number, pictureInfoObj: IPictureInfo) {
-    const picture = await this.findPicture(pictureId);
-
-    if (!picture) {
-      return;
-    }
+    let errors: string[] = [];
 
     const pictureInfo = await models.PictureInfo.findOne({
       where: {
         id: pictureInfoObj.id,
-        pictureId: picture.id
+        pictureId: pictureId
       }
     });
 
+
     if (pictureInfo) {
-      pictureInfo.update({
+      await pictureInfo.update({
         title: pictureInfoObj.title?.trim(),
         description: pictureInfoObj.description?.trim()
+      }).catch((e) => {
+        errors = [...errors, ...this.parseSequelizeErrorArr(e.errors)]
       });
-      return;
+      return errors;
     }
+    await models.PictureInfo.create({
+      pictureId: pictureId,
+      title: pictureInfoObj.title?.trim(),
+      description: pictureInfoObj.description?.trim()
+    }).catch((e) => {
+      errors = [...errors, ...this.parseSequelizeErrorArr(e.errors)]
+    });
 
-    if (pictureInfoObj.title && pictureInfoObj.description) {
-      await models.PictureInfo.create({
-        pictureId: picture.id,
-        title: pictureInfoObj.title.trim(),
-        description: pictureInfoObj.description.trim()
-      });
-    }
-
-    return;
+    return errors;
   }
 
   static async deletePictureInfo(userId: number, pictureId: number, pictureInfoIdValueOrArray: string) {
@@ -91,17 +80,12 @@ class PictureInfoService {
       throw ApiError.badRequest("You are not the author of these picture");
     }
 
+    let errors: string[] = []
+
     async function deletePictureInfoById(id: number) {
-      const pictureInfo = await models.PictureInfo.findOne({
-        where: { id }
+      await models.PictureInfo.destroy({ where: { id } }).catch(e => {
+        errors = [...errors, ...PictureInfoService.parseSequelizeErrorArr(e.errors)]
       });
-
-      if (!pictureInfo) {
-        throw ApiError.badRequest("Picture info with such id doesn't exists");
-      };
-
-      await models.PictureInfo.destroy({ where: { id } });
-
     }
 
     if (Array.isArray(pictureInfoIdArrOrVal)) {
@@ -112,7 +96,7 @@ class PictureInfoService {
           continue;
         }
       }
-      return { message: "Picture info sections deleted successfully" };
+      return { errors };
     }
 
 

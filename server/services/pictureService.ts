@@ -162,53 +162,54 @@ class PictureService {
     pictureTypeId: number,
     pictureInfos: IPictureInfo[],
     pictureTags: IPictureTag[]): Promise<ICreatePictureService> {
-
-    if (!img || !mainTitle) {
-      throw ApiError.badRequest("Image and main title are required");
-    }
-
-    mainTitle = mainTitle.trim();
-    description = description?.trim();
-
-    PictureValidator.validatePictureMainTitle(mainTitle, true);
-    PictureValidator.validatePictureMainDescription(description, true);
-
     const imgName = ImageService.generateImageName(img);
+
+    const createdPicture = await models.Picture.create({
+      userId: userId,
+      img: imgName,
+      mainTitle: mainTitle?.trim(),
+      description: description?.trim(),
+      pictureTypeId
+    }).catch(e => {
+      if (e.name === "SequelizeForeignKeyConstraintError"
+        && e.parent.code === "23503") {
+        if (e.parent.constraint.includes("pictureTypeId")) {
+          throw ApiError.badRequest("Incorrect pictureType id");
+        } else if (e.parent.constraint.includes("userId")) {
+          throw ApiError.badRequest("Incorrect user id");
+        }
+      }
+      if (e.name === "SequelizeValidationError") {
+        throw ApiError.badRequest(e.message)
+      }
+
+      throw ApiError.badRequest(e.message)
+    });
 
     if (imgName) {
       img.mv(path.resolve(__dirname, "..", "static", "img", "picture", imgName));
     }
 
-    const createdPicture = await models.Picture.create({
-      userId: userId,
-      img: imgName,
-      mainTitle,
-      description,
-      pictureTypeId
-    }).catch(e => {
-      if (e.parent.code === "23503" && e.parent.constraint.includes("pictureTypeId")) {
-        throw ApiError.badRequest("Picture type you try to add doesn't exists");
-      }
+    let errors: string[] = [];
 
-      throw ApiError.badRequest(e.parent.detail)
-    });
+    pictureInfos && Array.isArray(pictureInfos) && await Promise.all(pictureInfos.map(async (pictureInfo) => {
+      const createPictureInfoErrors = await PictureInfoService.createPictureInfo(createdPicture.id, pictureInfo);
+      errors = [...errors, ...createPictureInfoErrors]
+    }));
 
-    pictureInfos && Array.isArray(pictureInfos) && pictureInfos.forEach(async (pictureInfo) => {
-      await PictureInfoService.createPictureInfo(createdPicture.id, pictureInfo);
-    });
-
-    pictureTags && Array.isArray(pictureTags) && pictureTags.forEach(async (pictureTag) => {
-      await PictureTagService.createPictureTagConnection(createdPicture.id, pictureTag.text);
-    });
+    pictureTags && Array.isArray(pictureTags) && await Promise.all(pictureTags.map(async (pictureTag) => {
+      const createPictureTagsErrors = await PictureTagService.createPictureTagConnection(createdPicture.id, pictureTag.text);
+      errors = [...errors, ...createPictureTagsErrors]
+    }));
 
     return {
-      message: "Picture added successfully",
       picture: {
         ...(createdPicture as any).dataValues,
         user: { nickname },
         commentsAmount: 0,
         likesAmount: 0
-      }
+      },
+      errors
     };
   }
 
@@ -229,10 +230,22 @@ class PictureService {
       throw ApiError.badRequest("Picture you want to edit doesn't exist, or you are not the creator of this picture");
     }
 
-    PictureValidator.validatePictureMainTitle(mainTitle, true);
-    PictureValidator.validatePictureMainDescription(description, true);
-
     const imgName = ImageService.generateImageName(img);
+
+
+
+    await pictureToEdit.update({
+      img: imgName || undefined,
+      mainTitle,
+      description,
+      pictureTypeId
+    }).catch(e => {
+      if (e.name === "SequelizeForeignKeyConstraintError") {
+        throw ApiError.badRequest(e.parent.detail);
+      }
+      throw ApiError.badRequest(e.message);
+
+    });
 
     if (imgName) {
       await img.mv(path.resolve(__dirname, "..", "static", "img", "picture", imgName)).catch(() => {
@@ -245,24 +258,19 @@ class PictureService {
 
     }
 
-    await pictureToEdit.update({
-      img: imgName,
-      mainTitle,
-      description,
-      pictureTypeId
-    }).catch(e => {
-      throw ApiError.badRequest(e.parent.detail)
-    });
+    let errors: string[] = []
 
-    pictureInfos && Array.isArray(pictureInfos) && pictureInfos.forEach(async (pictureInfo) => {
-      await PictureInfoService.editPictureInfo(pictureToEdit.id, pictureInfo);
-    });
+    pictureInfos && Array.isArray(pictureInfos) && await Promise.all(pictureInfos.map(async (pictureInfo) => {
+      const pictureInfoErrors = await PictureInfoService.editPictureInfo(pictureToEdit.id, pictureInfo);
+      errors = [...errors, ...pictureInfoErrors]
+    }));
 
-    pictureTags && Array.isArray(pictureTags) && pictureTags.forEach(async (pictureTag) => {
-      await PictureTagService.createPictureTagConnection(pictureToEdit.id, pictureTag.text);
-    });
+    pictureTags && Array.isArray(pictureTags) && await Promise.all(pictureTags.map(async (pictureTag) => {
+      const processErrors = await PictureTagService.createPictureTagConnection(pictureToEdit.id, pictureTag.text);
+      errors = [...errors, ...processErrors]
+    }));
 
-    return { message: "Picture edited succesfully", picture: await this.getPictureById(pictureId) };
+    return { picture: await this.getPictureById(pictureId), errors };
   }
 
   static async deletePicture(pictureToDelete: IPictureInstance | null, errorMessage: string) {

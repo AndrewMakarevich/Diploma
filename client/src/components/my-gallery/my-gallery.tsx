@@ -10,7 +10,16 @@ const MyGallery = () => {
 
   return (
     <article className={galleryStyles["my-gallery-article"]}>
-      <button className={galleryStyles["create-picture-btn"]} onClick={() => setIsOpen(true)}>Add new picture</button>
+      <button
+        className={galleryStyles["create-picture-btn"]}
+        onClick={() => {
+          if (!userStore.userData.role?.loadPicture) {
+            alert("You have no access to load new pictures");
+            return;
+          }
+          setIsOpen(true)
+        }}>Add new picture</button>
+
       <CreatePictureModal isOpen={isOpen} setIsOpen={setIsOpen} />
       <PictureList userId={userStore.userData.id} isPersonalGallery={true} />
     </article>

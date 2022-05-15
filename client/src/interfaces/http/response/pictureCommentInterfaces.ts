@@ -4,7 +4,7 @@
 //   commentLikesAmount: string | number
 // };
 
-export interface IGetCommentByIdResponseObj {
+export interface IGetCommentBaseResponseObject {
   id: string | number,
   text: string,
   createdAt: string,
@@ -12,6 +12,9 @@ export interface IGetCommentByIdResponseObj {
   userId: string | number,
   commentId: string | number | null,
   pictureId: string | number,
+}
+
+export interface IGetCommentByIdResponseObj extends IGetCommentBaseResponseObject {
   childCommentsAmount: string | number,
   commentLikes:
   {
@@ -30,7 +33,7 @@ export interface IGetCommentsResponseObj {
 
 export interface ICreateCommentResponseObj {
   message: string,
-  comment: IGetCommentByIdResponseObj
+  comment: IGetCommentBaseResponseObject
 };
 
 export interface IEditCommentResponseObj {

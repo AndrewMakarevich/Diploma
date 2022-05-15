@@ -50,7 +50,7 @@ export interface IExtendedPictureObj extends mainPictureObjectProps {
 }
 
 export interface ICreatePictureResponse {
-  message: string,
+  errors: string[],
   picture: IShortPictureObj
 }
 
@@ -60,7 +60,7 @@ export interface IGetPicturesResponse {
 }
 
 export interface IEditPictureResponse {
-  message: string;
+  errors: string[],
   picture: IExtendedPictureObj
 }
 

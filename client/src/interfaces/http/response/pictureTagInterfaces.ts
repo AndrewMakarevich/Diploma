@@ -1,9 +1,9 @@
 export interface ITagsByTextResponseObj {
   id: number,
   text: string,
-  pictures: number
+  attachedPicturesAmount: string
 }
 
 export interface IDeletePictureTagConnectionResponseObj {
-  message: string
+  errors: object[]
 }

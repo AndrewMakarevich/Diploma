@@ -33,7 +33,8 @@
   border-bottom-left-radius:0
 }
 
-.answer-comment-btn{
+.answer-comment-btn,
+.fake-answer-comment-btn{
   flex:1;
   border-top-right-radius:0;
   border-bottom-right-radius:0

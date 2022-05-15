@@ -75,7 +75,7 @@ const MatchingTagsList = ({ tagInputRef, tagObj, setTagValue }: IMatchingTagsLis
                     tagInputRef!.focus();
                   }
                 }>{tag.text}</button>
-              <p>{tag.pictures}</p>
+              <p>{tag.attachedPicturesAmount}</p>
             </section>
           )
         }

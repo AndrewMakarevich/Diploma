@@ -10,7 +10,7 @@ class PictureValidator {
       throw ApiError.badRequest("Row, fully consisted from spaces doesn't allowed");
     }
 
-    const regEx = new RegExp(`\^${regExp}\{${minLength},${maxLength || ''}\}\$`);
+    const regEx = new RegExp(`\^${regExp}\{${minLength},${maxLength}\}\$`);
 
     if (!regEx.test(paramValue)) {
 
@@ -25,11 +25,19 @@ class PictureValidator {
   }
 
   static validatePictureMainTitle(titleValue: string, throwError: boolean) {
-    return this.validateText("\[a-zA-Z0-9\\s-&!?(){}\/\"'<>,~@\]", 2, 65, "Main title", titleValue, throwError);
+    return this.validateText("\[a-zA-Z0-9\\s-&!?(){}\/\"'<>,~@\]", 2, 35, "Main title", titleValue, throwError);
   }
 
   static validatePictureMainDescription(descriptionValue: string, throwError: boolean) {
-    return this.validateText("\[a-zA-Z0-9\\s-&!?(){}\/\"'<>,~@:\]", 0, 0, "Picture main description", descriptionValue, throwError);
+    return this.validateText("\[a-zA-Z0-9\\s-&!?(){}\/\"'<>,~@:\]", 3, 1000, "Picture main description", descriptionValue, throwError);
+  }
+
+  static validatePictureInfoTitle(titleValue: string, throwError: boolean) {
+    return this.validateText("\[a-zA-Z0-9\\s-&!?(){}\/\"'<>,~@\]", 2, 65, "Main title", titleValue, throwError);
+  }
+
+  static validatePictureInfoDescription(descriptionValue: string, throwError: boolean) {
+    return this.validateText("\[a-zA-Z0-9\\s-&!?(){}\/\"'<>,~@\]", 2, 450, "Main title", descriptionValue, throwError);
   }
 
 

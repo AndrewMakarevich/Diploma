@@ -89,10 +89,10 @@ const EditPictureForm = ({ pictureId, setModalIsOpen }: IEditPictureFormProps) =
       if (section.toDelete) {
         if (section.alreadyExists) {
           pictureSectionsToDeleteOnServer.push(section.id);
-          return;
+          return undefined;
         }
         pictureSectionsToDeleteLocally.push(section.id);
-        return;
+        return undefined;
       }
 
       const sameSection = pictureSections.find((el) => +el.id === +section.id);
@@ -120,7 +120,11 @@ const EditPictureForm = ({ pictureId, setModalIsOpen }: IEditPictureFormProps) =
         editSectionObj.id = section.id
         return editSectionObj;
       }
+
+      return undefined;
     });
+
+    console.log(pictureSectionsToDeleteOnServer, pictureSectionsToDeleteLocally)
 
     pictureSectionsToSend = pictureSectionsToSend.filter(section => section !== undefined)
     formData.append("pictureInfos", JSON.stringify(pictureSectionsToSend));
@@ -132,10 +136,10 @@ const EditPictureForm = ({ pictureId, setModalIsOpen }: IEditPictureFormProps) =
       if (tag.toDelete) {
         if (tag.alreadyExists) {
           pictureTagsToDeleteOnServer.push(tag.id);
-          return;
+          return undefined;
         }
         pictureTagsToDeleteLocally.push(tag.id);
-        return;
+        return undefined;
       }
       const sameTag = pictureTags.find(tagObj => +tagObj.id === +tag.id);
 
@@ -162,6 +166,8 @@ const EditPictureForm = ({ pictureId, setModalIsOpen }: IEditPictureFormProps) =
         tagObject.id = tag.id;
         return tagObject;
       }
+
+      return undefined;
     });
 
     pictureTagsToSend = pictureTagsToSend.filter(tag => tag !== undefined);
@@ -199,31 +205,29 @@ const EditPictureForm = ({ pictureId, setModalIsOpen }: IEditPictureFormProps) =
 
         if (pictureTagsToDeleteOnServer.length) {
           await PictureTagService.deletePictureTagConnection(pictureId, pictureTagsToDeleteOnServer);
-          filteredTags = pictureTags.filter(tag => !pictureTagsToDeleteOnServer.some((tagToDeleteOnServerId) => tagToDeleteOnServerId === tag.id));
+          filteredTags = editedPictureTags.filter(tag => !pictureTagsToDeleteOnServer.some((tagToDeleteOnServerId) => tagToDeleteOnServerId === tag.id));
         }
 
         if (pictureTagsToDeleteLocally.length) {
-          filteredTags = pictureTags.filter(tag => !pictureTagsToDeleteLocally.some((tagToDeleteLocallyId) => tagToDeleteLocallyId === tag.id));
+          filteredTags = editedPictureTags.filter(tag => !pictureTagsToDeleteLocally.some((tagToDeleteLocallyId) => tagToDeleteLocallyId === tag.id));
         }
 
         if (pictureSectionsToDeleteOnServer.length) {
           await PictureInfoService.deletePictureInfo(pictureId, pictureSectionsToDeleteOnServer);
-          filteredSections = pictureSections.filter(section => !pictureSectionsToDeleteOnServer.some(sectionToDeleteOnServerId => sectionToDeleteOnServerId === section.id));
+          filteredSections = editedPictureSections.filter(section => !pictureSectionsToDeleteOnServer.some(sectionToDeleteOnServerId => sectionToDeleteOnServerId === section.id));
         }
 
         if (pictureSectionsToDeleteLocally.length) {
-          filteredSections = pictureSections.filter(section => !pictureSectionsToDeleteLocally.some(sectionToDeleteLocallyId => sectionToDeleteLocallyId === section.id));
+          filteredSections = editedPictureSections.filter(section => !pictureSectionsToDeleteLocally.some(sectionToDeleteLocallyId => sectionToDeleteLocallyId === section.id));
+          console.log(filteredSections, pictureSections);
         }
 
-        if (filteredTags.length) {
-          setPictureTags(filteredTags);
-          setEditedPictureTags(filteredTags);
-        }
+        setPictureTags(filteredTags);
+        setEditedPictureTags(filteredTags);
 
-        if (filteredSections.length) {
-          setPictureSections(filteredSections);
-          setEditedPictureSections(filteredSections);
-        }
+        setPictureSections(filteredSections);
+        setEditedPictureSections(filteredSections);
+
 
       }
 

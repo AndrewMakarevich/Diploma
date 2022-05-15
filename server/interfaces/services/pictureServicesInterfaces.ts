@@ -19,6 +19,6 @@ export interface IShortPictureObj extends mainPictureObjectProps {
 }
 
 export interface ICreatePictureService {
-  message: string,
-  picture: IShortPictureObj
+  picture: IShortPictureObj,
+  errors: string[]
 }

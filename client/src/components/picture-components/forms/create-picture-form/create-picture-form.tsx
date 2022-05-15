@@ -72,7 +72,12 @@ const CreatePictureForm = ({ setModalIsOpen }: ICreatePictureFormProps) => {
   async function createPicture() {
     try {
       const response = await PictureService.createPicture(groupData());
-      alert(response.data.message);
+      if (!response.data.errors.length) {
+        alert("Picture created succesfully");
+      } else {
+        alert(response.data.errors);
+      }
+
       pictureStore.addPictureLocally(response.data.picture);
       setModalIsOpen(false);
     } catch (e: any) {

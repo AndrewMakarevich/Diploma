@@ -35,14 +35,14 @@ const ResetPasswordBundle = sequelize.define<IResetPasswordBundleInstance>('rese
 const Picture = sequelize.define<IPictureInstance>('picture', {
     id: { type: DataTypes.INTEGER, primaryKey: true, autoIncrement: true },
     img: { type: DataTypes.STRING, allowNull: false },
-    mainTitle: { type: DataTypes.STRING, allowNull: false },
-    description: { type: DataTypes.TEXT }
+    mainTitle: { type: DataTypes.STRING, allowNull: false, validate: { is: /^[a-zA-Z0-9\s-&!?(){}'<>,~@\"]{2,35}$/ } },
+    description: { type: DataTypes.TEXT, allowNull: false, validate: { is: /^[a-zA-Z0-9\s-&!?(){}'<>,~@\":]{2,1000}$/ } }
 });
 
 const PictureInfo = sequelize.define<IPictureInfoInstance>('pictureInfo', {
     id: { type: DataTypes.INTEGER, primaryKey: true, autoIncrement: true },
-    title: { type: DataTypes.STRING, allowNull: false },
-    description: { type: DataTypes.STRING, allowNull: false }
+    title: { type: DataTypes.STRING, allowNull: false, validate: { is: /^[a-zA-Z0-9\s-&!?(){}'<>,~@\"]{2,25}$/ } },
+    description: { type: DataTypes.STRING, allowNull: false, validate: { is: /^[a-zA-Z0-9\s-&!?(){}'<>,~@\"]{2,450}$/ } }
 });
 
 const PictureType = sequelize.define('pictureType', {
@@ -52,7 +52,7 @@ const PictureType = sequelize.define('pictureType', {
 
 const PictureTag = sequelize.define<IPictureTagInstance>('pictureTag', {
     id: { type: DataTypes.INTEGER, primaryKey: true, autoIncrement: true },
-    text: { type: DataTypes.TEXT, allowNull: false }
+    text: { type: DataTypes.TEXT, allowNull: false, validate: { is: /^[a-zA-Z0-9\s]{3,20}$/ }, unique: true }
 });
 
 const PicturesTags = sequelize.define<IPicturesTagsInstance>('picturesTags', {
@@ -65,7 +65,7 @@ const PictureLike = sequelize.define('pictureLike', {
 
 const Comment = sequelize.define<ICommentInstance>('comment', {
     id: { type: DataTypes.INTEGER, primaryKey: true, autoIncrement: true },
-    text: { type: DataTypes.TEXT, allowNull: true }
+    text: { type: DataTypes.TEXT, allowNull: true, validate: { is: /^[a-zA-Z0-9\s-&!?(){}'<>^_,~@\"]{4,250}$/ } }
 });
 
 const CommentLike = sequelize.define('commentLike', {

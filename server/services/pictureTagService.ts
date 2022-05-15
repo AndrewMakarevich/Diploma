@@ -1,3 +1,4 @@
+import sequelize from "sequelize";
 import { Op } from "sequelize";
 import ApiError from "../apiError/apiError";
 import models from "../models/models";
@@ -5,11 +6,7 @@ import PictureValidator from "../validator/pictureValidator";
 
 class PictureTagService {
   static async getTagsByText(tagText: string) {
-    if (!tagText) {
-      return null;
-    }
-
-    if (!tagText.split(' ').join('')) {
+    if (!tagText?.split(' ').join('')) {
       return null;
     }
 
@@ -17,22 +14,15 @@ class PictureTagService {
     let tags = await models.PictureTag.findAll(
       {
         where: { text: { [Op.regexp]: processedTagText } },
-        include: [{
-          model: models.Picture,
-          as: "pictures",
-        }],
-        attributes: ["id", "text"],
+        attributes: {
+          include: [
+            "id", "text",
+            [sequelize.literal('(SELECT COUNT(DISTINCT id) FROM "picturesTags" WHERE "picturesTags"."pictureTagId"="pictureTag".id)'), "attachedPicturesAmount"]
+          ]
+        },
         limit: 5
       }
     );
-
-    //process each tag in result array
-    tags = await Promise.all(tags.map((tag) => {
-      const tagToEdit = tag.get();
-      tagToEdit.pictures = tagToEdit.pictures.length;
-
-      return tagToEdit;
-    }));
 
     return tags;
   }
@@ -54,29 +44,24 @@ class PictureTagService {
 
     await models.PictureTag.create({
       text: tagText
+    }).catch(e => {
+      throw ApiError.badRequest(e);
     });
 
     return { message: "Tag created succesfully" };
   }
 
   static async deleteTag(tagId: number) {
-    const tagToDelete = await models.PictureTag.findOne({ where: { id: tagId } });
-
-    if (!tagToDelete) {
-      throw ApiError.badRequest("Tag you try to delete doesn't exists");
-    }
-
-    await tagToDelete.destroy();
+    await models.PictureTag.destroy({ where: { id: tagId } }).catch(e => {
+      throw ApiError.badRequest(e);
+    });
 
     return { message: "Tag deleted successfully" }
   }
 
   static async createPictureTagConnection(pictureId: number, tagText: string) {
+    let errors: string[] = []
     const processedTagText = tagText.split(" ").join("").toLowerCase();
-
-    if (!PictureValidator.validatePictureTag(processedTagText, false)) {
-      return;
-    }
 
     let tag = await models.PictureTag.findOne({ where: { text: processedTagText } });
 
@@ -96,25 +81,23 @@ class PictureTagService {
         });
       }
 
-      return;
+      return errors;
     }
 
     // If tag with such text doesn't exists, create them and connect with the picture
-    tag = await models.PictureTag.create({ text: processedTagText });
-
-    await models.PicturesTags.create({
-      pictureId: pictureId,
-      pictureTagId: tag.id
+    await models.PictureTag.create({ text: processedTagText }).then(async (tag) => {
+      await models.PicturesTags.create({
+        pictureId: pictureId,
+        pictureTagId: tag.id
+      });
+    }).catch(e => {
+      errors = [...errors, ...e.errors.map((error: any) => error.message)]
     });
 
-    return;
+    return errors;
   }
 
   static async deletePictureTagConnection(userId: number, pictureId: number, tagIdValueOrArray: string) {
-    if (!pictureId) {
-      throw ApiError.badRequest("Picture's id is required");
-    }
-
     let tagIdValOrArr: number | number[];
 
     try {
@@ -137,42 +120,32 @@ class PictureTagService {
       throw ApiError.badRequest("You are not the author of these picture");
     }
 
+    let errors: string[] = []
+
     async function deletePictureTagConnectionByTagId(tagId: number, pictureId: number) {
-      const tag = await models.PictureTag.findOne({ where: { id: tagId } });
-
-      if (!tag) {
-        throw ApiError.badRequest("Tag with such id doesn't exists");
-      }
-
-      const pictureTagConnection = await models.PicturesTags.findOne({
+      await models.PicturesTags.destroy({
         where: {
           pictureId: pictureId,
-          pictureTagId: tag.id
+          pictureTagId: tagId
         }
+      }).catch(e => {
+        errors = [...errors, ...e.errors.map((error: any) => error.message)]
       });
 
-      if (!pictureTagConnection) {
-        throw ApiError.badRequest("Picture doesn't connected with this tag");
-      }
-
-      await pictureTagConnection.destroy();
-      return { message: `Connection between tag "${tag.text}" and your picture deleted successfully` };
+      return errors;
     }
 
     if (Array.isArray(tagIdValOrArr)) {
+
       for (let tagId of tagIdValOrArr) {
-        try {
-          await deletePictureTagConnectionByTagId(tagId, picture.id);
-        } catch (e) {
-          continue;
-        }
+        await deletePictureTagConnectionByTagId(tagId, picture.id);
       }
 
-      return { message: "Tags from this picture deleted successfully" };
+      return { errors };
     }
 
-    const destroyConnectionMessage = await deletePictureTagConnectionByTagId(tagIdValOrArr, picture.id);
-    return destroyConnectionMessage;
+    const destroyConnectionErrors = await deletePictureTagConnectionByTagId(tagIdValOrArr, picture.id);
+    return { errors: destroyConnectionErrors };
   };
 };
 

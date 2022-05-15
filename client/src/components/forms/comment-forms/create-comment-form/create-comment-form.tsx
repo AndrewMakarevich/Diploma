@@ -33,10 +33,20 @@ const CreateCommentForm = ({ pictureId, commentId, actualizeCommentList, setAddC
 
   useEffect(() => {
     if (createCommentResponse) {
-      actualizeCommentList(createCommentResponse.data.comment);
+      const preprepairedCommentObject: IGetCommentByIdResponseObj = {
+        ...createCommentResponse.data.comment,
+        user: {
+          avatar: userStore.userData.avatar,
+          nickname: userStore.userData.nickname
+        },
+        childCommentsAmount: 0,
+        commentLikes: [],
+
+      }
+      actualizeCommentList(preprepairedCommentObject);
       setAddCommentFormOpen(false);
     }
-  }, [createCommentResponse, setAddCommentFormOpen, actualizeCommentList]);
+  }, [createCommentResponse, setAddCommentFormOpen, actualizeCommentList, userStore]);
 
   return (
     <form className={`${formStyles["create-comment-form"]} ${commentId ? formStyles["nested-create-comment-form"] : ""}`}>
