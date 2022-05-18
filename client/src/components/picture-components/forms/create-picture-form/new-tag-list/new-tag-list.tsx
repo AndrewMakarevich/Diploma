@@ -44,10 +44,8 @@ const NewTagList = ({ setTags }: INewTagList) => {
         }
       </section>
       <StandartButton
-        onClick={(e: React.ChangeEvent<any>) => {
-          e.preventDefault();
-          addNewTag();
-        }}>
+        type="button"
+        onClick={addNewTag}>
         add new tag
       </StandartButton>
     </>

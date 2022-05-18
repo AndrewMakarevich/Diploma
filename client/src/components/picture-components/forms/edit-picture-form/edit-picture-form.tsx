@@ -10,12 +10,11 @@ import StandartButton from "../../../../UI/standart-button/standart-button";
 import TagList from "./tag-list/tag-list";
 import PicturesTypesSelect from "../../inputs/pictures-types-select/pictures-types-select";
 import DeleteButton from "../../../../UI/delete-button/delete-button";
-import { IExtendedPictureObj, IGetPicturesResponse } from "../../../../interfaces/http/response/pictureInterfaces";
+import { IExtendedPictureObj } from "../../../../interfaces/http/response/pictureInterfaces";
 import PictureInfoService from "../../../../services/picture-info-service";
 import PictureTagService from "../../../../services/picture-tag-service";
 import DeletePictureBtn from "../../btns/delete-picture-btn";
 import useFetching from "../../../../hooks/useFetching";
-import { AxiosResponse } from "axios";
 
 
 export interface sectionObj {
@@ -44,9 +43,7 @@ const EditPictureForm = ({ pictureId, setModalIsOpen }: IEditPictureFormProps) =
   const {
     executeCallback: getPictureInfo,
     isLoading: pictureLoading } =
-    useFetching<AxiosResponse<IExtendedPictureObj>, (pictureIdVal: number) => Promise<AxiosResponse<IExtendedPictureObj>>>(
-      (pictureIdVal: number) => PictureService.getPicture(pictureIdVal)
-    )
+    useFetching((pictureIdVal: number) => PictureService.getPicture(pictureIdVal));
   const [mainPictureInfo, setMainPictureInfo] = useState<IPictureMainDataEditForm>({
     img: null,
     mainTitle: "",
@@ -276,7 +273,11 @@ const EditPictureForm = ({ pictureId, setModalIsOpen }: IEditPictureFormProps) =
   useEffect(() => {
     if (pictureId) {
       getPictureInfo(pictureId)
-        .then(({ data }) => setPictureParams(data));
+        .then((response) => {
+          if (response) {
+            setPictureParams(response.data)
+          }
+        });
     }
   }, [pictureId]);
 
@@ -301,12 +302,10 @@ const EditPictureForm = ({ pictureId, setModalIsOpen }: IEditPictureFormProps) =
       </section >
 
       <section className={`${formStyles["info-section"]} ${infoSectionOpen ? "" : formStyles["closed"]}`}>
-        <button className={formStyles["close-info-section-btn"]}
-          onClick={(e) => {
-            e.preventDefault();
-            setInfoSectionOpen(!infoSectionOpen);
-          }}
-        >
+        <button
+          type="button"
+          className={formStyles["close-info-section-btn"]}
+          onClick={(e) => setInfoSectionOpen(!infoSectionOpen)}>
           <ArrowIcon id={formStyles["close-icon"]} />
         </button>
         <div className={formStyles["info-wrapper"]}>

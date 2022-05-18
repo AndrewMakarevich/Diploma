@@ -3,8 +3,7 @@ import formStyles from "./create-comment-form.module.css";
 import useFetching from "../../../../hooks/useFetching";
 import PictureCommentService from "../../../../services/picture-comment-service";
 import CommentValidator from "../../../../validator/comment-validator";
-import { ICreateCommentResponseObj, IGetCommentByIdResponseObj } from "../../../../interfaces/http/response/pictureCommentInterfaces";
-import { AxiosResponse } from "axios";
+import { IGetCommentByIdResponseObj } from "../../../../interfaces/http/response/pictureCommentInterfaces";
 import { Context } from "../../../..";
 
 interface ICreateCommentFormProps {
@@ -29,7 +28,15 @@ const CreateCommentForm = ({ pictureId, commentId = null, actualizeCommentList, 
   const {
     executeCallback: createComment,
     isLoading: createCommentLoading,
-    response: createCommentResponse } = useFetching<AxiosResponse<ICreateCommentResponseObj>>(sendRequestToAddComment);
+    response: createCommentResponse } = useFetching(sendRequestToAddComment);
+
+  const onCreateComment = async () => {
+    if (!userStore.isAuth) {
+      alert("Authorize to have an ability to leave comments")
+      return;
+    }
+    createComment();
+  }
 
   useEffect(() => {
     if (createCommentResponse) {
@@ -55,18 +62,10 @@ const CreateCommentForm = ({ pictureId, commentId = null, actualizeCommentList, 
         onChange={(e) => setCommentText(e.target.value)} />
 
       <button
+        type="button"
         className={`${formStyles["create-comment-btn"]} ${commentId ? formStyles["nested-create-comment-btn"] : ""}`}
         disabled={createCommentLoading || !commentText}
-        onClick={async (e) => {
-          e.preventDefault();
-
-          if (!userStore.isAuth) {
-            alert("Authorize to have an ability to leave comments")
-            return;
-          }
-          e.preventDefault();
-          await createComment();
-        }}>
+        onClick={onCreateComment}>
         Send
       </button>
     </form>

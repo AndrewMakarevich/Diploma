@@ -26,7 +26,7 @@ const TagItem = ({ tag, deleteTag, reestablishTag, editTag }: ITagItemProps) => 
     }
     {
       tag.toDelete ?
-        <StandartButton className={itemStyles["reestablish-btn"]} onClick={() => reestablishTag(tag.id)}>Reestablish</StandartButton>
+        <StandartButton className={itemStyles["reestablish-btn"]} type="button" onClick={() => reestablishTag(tag.id)}>Reestablish</StandartButton>
         :
         null
     }

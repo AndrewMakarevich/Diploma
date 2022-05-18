@@ -1,9 +1,7 @@
 import buttonStyles from "./delete-comment-btn.module.css";
-import { AxiosResponse } from "axios";
 import React, { useCallback, useEffect } from "react";
 import DeleteIcon from "../../../../assets/img/icons/delete-icon/delete-icon";
 import useFetching from "../../../../hooks/useFetching";
-import { IDeleteCommentResponseObj } from "../../../../interfaces/http/response/pictureCommentInterfaces";
 import PictureCommentService from "../../../../services/picture-comment-service";
 
 interface IDeleteCommentBtnProps {
@@ -21,7 +19,7 @@ const DeleteCommentBtn = ({ commentId, actualizeCommentListAfterDeleting }: IDel
   }, [commentId]);
 
   const { executeCallback: deleteComment, isLoading: deleteCommentLoading, response: deleteCommentResponse } =
-    useFetching<AxiosResponse<IDeleteCommentResponseObj>>(requestToDeleteComment);
+    useFetching(requestToDeleteComment);
 
   useEffect(() => {
     if (deleteCommentResponse) {

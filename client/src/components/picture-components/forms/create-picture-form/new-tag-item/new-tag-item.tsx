@@ -12,6 +12,10 @@ interface INewTagItemProps {
 const NewTagItem = ({ newTag, editNewTag, deleteNewTag }: INewTagItemProps) => {
   const inputRef = useRef<HTMLInputElement>(null);
 
+  const onDeleteNewTag = () => {
+    deleteNewTag(newTag.id);
+  }
+
   return (
     <div className={itemStyles["new-tag__block"]} key={newTag.id}>
 
@@ -24,10 +28,7 @@ const NewTagItem = ({ newTag, editNewTag, deleteNewTag }: INewTagItemProps) => {
       <MatchingTagsList tagInputRef={inputRef.current} tagObj={newTag} setTagValue={editNewTag} />
       <DeleteButton
         className={itemStyles["delete-tag-btn"]}
-        onClick={(e: React.ChangeEvent<any>) => {
-          e.preventDefault();
-          deleteNewTag(newTag.id);
-        }}>delete</DeleteButton>
+        onClick={onDeleteNewTag}>delete</DeleteButton>
 
     </div>
   )

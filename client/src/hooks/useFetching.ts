@@ -1,11 +1,11 @@
 import { useCallback, useState } from "react";
 
-const useFetching = <T = any, D extends (...args: any[]) => Promise<T> = () => Promise<T>>(callback: Function, initialLoadingState = false) => {
+const useFetching = <T, K extends Array<unknown>>(callback: (...args: K) => Promise<T>, initialLoadingState = false) => {
   const [isLoading, setIsLoading] = useState(initialLoadingState);
   const [error, setError] = useState("");
   const [response, setResponse] = useState<T>();
 
-  const executeCallback = useCallback(async (...paramsArr) => {
+  const executeCallback = useCallback(async (...paramsArr: Parameters<typeof callback>) => {
     try {
       setIsLoading(true);
       const responseData = await callback(...paramsArr);
@@ -15,7 +15,6 @@ const useFetching = <T = any, D extends (...args: any[]) => Promise<T> = () => P
       if (e.isAxiosError) {
         setError(e.response.data.message)
         alert(e.response.data.message);
-        return null
       }
       alert(e);
       return null;
@@ -23,6 +22,6 @@ const useFetching = <T = any, D extends (...args: any[]) => Promise<T> = () => P
       setIsLoading(false);
     }
   }, [callback])
-  return { executeCallback: (executeCallback as D), isLoading, response, error };
+  return { executeCallback, isLoading, response, error };
 }
 export default useFetching;

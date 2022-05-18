@@ -2,13 +2,12 @@ import { Fragment, useCallback, useContext, useEffect, useMemo, useState } from 
 import { Context } from "../../../..";
 import { IGetCommentByIdResponseObj, IGetCommentsResponseObj } from "../../../../interfaces/http/response/pictureCommentInterfaces";
 import StandartButton from "../../../../UI/standart-button/standart-button";
-import CreateCommentForm from "../../../forms/comment-forms/create-comment-form/create-comment-form";
+import CreateCommentForm from "../../forms/create-comment-form/create-comment-form";
 import CommentItem from "./comment-item/comment-item";
 import { ICommentListProps } from "./comment-list-interfaces";
 import listStyles from "./comment-list.module.css";
 import useFetching from "../../../../hooks/useFetching";
 import PictureCommentService from "../../../../services/picture-comment-service";
-import { AxiosResponse } from "axios";
 
 const PictureCommentList = ({ pictureId, pictureAuthorId, commentId = null, commentsAmount = 0 }: ICommentListProps) => {
   const { userStore } = useContext(Context);
@@ -26,12 +25,14 @@ const PictureCommentList = ({ pictureId, pictureAuthorId, commentId = null, comm
   )
 
   const { executeCallback: getComments, isLoading: commentsLoading } =
-    useFetching<AxiosResponse<IGetCommentsResponseObj>, (page?: number, limit?: number) => Promise<AxiosResponse<IGetCommentsResponseObj>>>(sendRequestToGetComments);
+    useFetching(sendRequestToGetComments);
 
   const onGetComments = useCallback(async () => {
     const response = await getComments();
-    setComments({ rows: [...comments.rows, ...response.data.rows], count: response.data.count });
-    setCommentsPaginationParams({ ...commentsPaginationParams, page: commentsPaginationParams.page + 1 })
+    if (response) {
+      setComments({ rows: [...comments.rows, ...response.data.rows], count: response.data.count });
+      setCommentsPaginationParams({ ...commentsPaginationParams, page: commentsPaginationParams.page + 1 })
+    }
   }, [getComments, comments, commentsPaginationParams]);
 
   const actualizeListAfterItemDelete = useCallback(async (commentId: number) => {
@@ -41,7 +42,10 @@ const PictureCommentList = ({ pictureId, pictureAuthorId, commentId = null, comm
     }
     if (comments.rows.length) {
       const response = await getComments(1, comments.rows.length);
-      setComments(response.data);
+
+      if (response) {
+        setComments(response.data);
+      }
       // setCommentsAmountValue(commentsAmountValue ? Number(commentsAmountValue) - 1 : 0);
     }
   }, [getComments, comments]);

@@ -1,22 +1,19 @@
-import { AxiosResponse } from "axios";
 import { ComponentProps, useContext } from "react";
 import { Context } from "../../..";
 import useFetching from "../../../hooks/useFetching";
-import { IPictureLikeResponseObj } from "../../../interfaces/http/response/pictureLikeInterfaces";
-import PictureLikeService from "../../../services/picture-like-service";
 import LikeButton from "../../../UI/like-button/like-button";
 
-interface ILikePictureBtnProps extends ComponentProps<"button"> {
-  sendLikeRequest: Function;
+interface ILikePictureBtnProps<T> extends ComponentProps<"button"> {
+  sendLikeRequest: () => Promise<T>;
   actualizeInfoAfterLike: Function;
   iconClassName?: string,
   active: boolean
 }
 
-const LikeEssenceBtn = ({ sendLikeRequest, actualizeInfoAfterLike, active, onClick, ...restProps }: ILikePictureBtnProps) => {
+const LikeEssenceBtn = <T,>({ sendLikeRequest, actualizeInfoAfterLike, active, onClick, ...restProps }: ILikePictureBtnProps<T>) => {
   const { userStore } = useContext(Context);
   const { executeCallback: sendRequestForLike, isLoading } =
-    useFetching<AxiosResponse<IPictureLikeResponseObj>>(sendLikeRequest);
+    useFetching(sendLikeRequest);
 
   return (
     <LikeButton

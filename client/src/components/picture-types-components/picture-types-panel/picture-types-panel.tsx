@@ -5,18 +5,12 @@ import PictureTypeService from "../../../services/picture-type-service";
 import PaginationInput from "../../inputs/pagination-input/pagination-input";
 import Table from "../../table/table";
 import { pictureTypeObj } from "../../../interfaces/http/response/picture-type-interfaces";
-import SearchInput from "../../../UI/search-input/search-input";
 import useDelayFetching from "../../../hooks/useDelayFetching";
 import CreatePictureTypeForm from "../forms/create-picture-type-form/create-picture-type-form";
 import EditPictureTypeForm from "../forms/edit-picture-type-form/edit-picture-type-form";
-import PictureTypeSortSelect from "../inputs/picture-type-sort-select/picture-type-sort-select";
 
 import panelStyles from "./picture-types-panel.module.css";
 import PictureTypesSearchPanel from "../picture-types-search-panel/picture-types-search-panel";
-
-interface IGetPictureTypes {
-  func: (queryString: string, sort: string[], page: number, limit: number) => Promise<void>
-}
 
 const PictureTypesPanel = () => {
   const [pictureTypes, setPictureTypes] = useState<IGetPictureTypesResponseObj>({
@@ -40,7 +34,7 @@ const PictureTypesPanel = () => {
     setPictureTypes(response.data);
   }, [])
 
-  const { executeCallback: fetchPictureTypes, isLoading: pictureTypesLoading } = useFetching<void, IGetPictureTypes["func"]>(sendRequestToGetPictureTypes);
+  const { executeCallback: fetchPictureTypes, isLoading: pictureTypesLoading } = useFetching(sendRequestToGetPictureTypes);
   const { executeCallback: delayFetchPictureTypes, isLoading: delayPictureTypesLoading } = useDelayFetching<void>(sendRequestToGetPictureTypes, 200);
 
   const getPictureTypesWithCurrentQueryParams = useCallback(async (queryString: string, sort: string[], page: number, limit: number, target?: EventTarget) => {

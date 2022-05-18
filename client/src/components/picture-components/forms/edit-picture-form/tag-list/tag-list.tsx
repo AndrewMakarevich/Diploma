@@ -56,10 +56,7 @@ const TagList = ({ pictureId, tagsArr, setTagsArr, initialTagsArr, setInitialTag
           ))
         }
       </div>
-      <StandartButton onClick={(e) => {
-        e.preventDefault();
-        addNewTag();
-      }}>Add tag</StandartButton>
+      <StandartButton type="button" onClick={addNewTag}>Add tag</StandartButton>
     </section>
 
   )

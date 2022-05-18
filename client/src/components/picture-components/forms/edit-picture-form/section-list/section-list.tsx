@@ -58,10 +58,8 @@ const SectionList = ({ pictureId, sectionsArr, setSectionsArr, initialSectionsAr
         ))
       }
       <StandartButton
-        onClick={(e) => {
-          e.preventDefault();
-          addNewSection();
-        }}>
+        type="button"
+        onClick={addNewSection}>
         Add section
       </StandartButton>
     </section>

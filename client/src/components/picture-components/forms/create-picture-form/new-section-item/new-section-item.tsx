@@ -8,6 +8,11 @@ interface INewSectionItem {
 }
 
 const NewSectionItem = ({ newSection, editNewSection, deleteNewSection }: INewSectionItem) => {
+
+  const onDeleteNewSection = () => {
+    deleteNewSection(newSection.id);
+  };
+
   return (
     <div key={newSection.id} className={itemStyles["new-section"]}>
       <label>
@@ -23,10 +28,8 @@ const NewSectionItem = ({ newSection, editNewSection, deleteNewSection }: INewSe
           onChange={(e) => editNewSection('description', e.target.value, newSection.id)}></textarea>
       </label>
       <DeleteButton
-        onClick={(e: React.ChangeEvent<any>) => {
-          e.preventDefault();
-          deleteNewSection(newSection.id);
-        }}>delete section</DeleteButton>
+        type="button"
+        onClick={onDeleteNewSection}>delete section</DeleteButton>
     </div>
   )
 };

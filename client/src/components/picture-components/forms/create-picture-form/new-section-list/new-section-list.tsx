@@ -40,10 +40,8 @@ const NewSectionList = ({ setSections, sections }: INewSectionListProps) => {
       }
 
       <StandartButton
-        onClick={(e: React.ChangeEvent<any>) => {
-          e.preventDefault();
-          addNewSection();
-        }}>add new section</StandartButton>
+        type="button"
+        onClick={addNewSection}>add new section</StandartButton>
     </section>
   )
 };

@@ -4,7 +4,7 @@ import btnStyles from "./delete-button.module.css"
 
 const DeleteButton = ({ className, children, ...restProps }: ComponentProps<"button">) => {
   return (
-    <StandartButton className={`${btnStyles["delete-button"]} ${className || ""}`} {...restProps}>
+    <StandartButton type="button" className={`${btnStyles["delete-button"]} ${className || ""}`} {...restProps}>
       {children}
     </StandartButton>
   )

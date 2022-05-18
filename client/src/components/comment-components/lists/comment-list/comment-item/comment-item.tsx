@@ -93,9 +93,7 @@ const CommentItem = ({ comment, pictureAuthorId, actualizeCommentListAfterDeleti
         {
           editMode ?
             <textarea value={commentText} className={itemStyles["comment__text-area"]}
-              onChange={(e) => {
-                setCommentText(e.target.value)
-              }} />
+              onChange={(e) => setCommentText(e.target.value)} />
             :
             <p>{`${commentObj.text}`}</p>
         }
