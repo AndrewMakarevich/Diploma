@@ -10,10 +10,12 @@ import StandartButton from "../../../../UI/standart-button/standart-button";
 import TagList from "./tag-list/tag-list";
 import PicturesTypesSelect from "../../inputs/pictures-types-select/pictures-types-select";
 import DeleteButton from "../../../../UI/delete-button/delete-button";
-import { IExtendedPictureObj } from "../../../../interfaces/http/response/pictureInterfaces";
+import { IExtendedPictureObj, IGetPicturesResponse } from "../../../../interfaces/http/response/pictureInterfaces";
 import PictureInfoService from "../../../../services/picture-info-service";
 import PictureTagService from "../../../../services/picture-tag-service";
 import DeletePictureBtn from "../../btns/delete-picture-btn";
+import useFetching from "../../../../hooks/useFetching";
+import { AxiosResponse } from "axios";
 
 
 export interface sectionObj {
@@ -39,6 +41,12 @@ interface IEditPictureFormProps {
 }
 
 const EditPictureForm = ({ pictureId, setModalIsOpen }: IEditPictureFormProps) => {
+  const {
+    executeCallback: getPictureInfo,
+    isLoading: pictureLoading } =
+    useFetching<AxiosResponse<IExtendedPictureObj>, (pictureIdVal: number) => Promise<AxiosResponse<IExtendedPictureObj>>>(
+      (pictureIdVal: number) => PictureService.getPicture(pictureIdVal)
+    )
   const [mainPictureInfo, setMainPictureInfo] = useState<IPictureMainDataEditForm>({
     img: null,
     mainTitle: "",
@@ -124,8 +132,6 @@ const EditPictureForm = ({ pictureId, setModalIsOpen }: IEditPictureFormProps) =
       return undefined;
     });
 
-    console.log(pictureSectionsToDeleteOnServer, pictureSectionsToDeleteLocally)
-
     pictureSectionsToSend = pictureSectionsToSend.filter(section => section !== undefined)
     formData.append("pictureInfos", JSON.stringify(pictureSectionsToSend));
 
@@ -200,6 +206,7 @@ const EditPictureForm = ({ pictureId, setModalIsOpen }: IEditPictureFormProps) =
           setPictureParams(response.data.picture);
           return;
         }
+
         let filteredTags: tagObj[] = [];
         let filteredSections: sectionObj[] = [];
 
@@ -227,8 +234,6 @@ const EditPictureForm = ({ pictureId, setModalIsOpen }: IEditPictureFormProps) =
 
         setPictureSections(filteredSections);
         setEditedPictureSections(filteredSections);
-
-
       }
 
     } catch (e: any) {
@@ -251,6 +256,7 @@ const EditPictureForm = ({ pictureId, setModalIsOpen }: IEditPictureFormProps) =
   }
 
   const setPictureParams = (data: IExtendedPictureObj) => {
+    console.log(data);
     const mainInfo = {
       img: data.img,
       mainTitle: data.mainTitle,
@@ -269,19 +275,13 @@ const EditPictureForm = ({ pictureId, setModalIsOpen }: IEditPictureFormProps) =
 
   useEffect(() => {
     if (pictureId) {
-      PictureService.getPicture(pictureId)
+      getPictureInfo(pictureId)
         .then(({ data }) => setPictureParams(data));
     }
   }, [pictureId]);
 
   return (
-    <form className={formStyles["form"]}>
-      <DeletePictureBtn
-        className={formStyles["delete-picture-btn"]}
-        isOwnPicture={true}
-        pictureId={pictureId}
-        pictureMainTitle={mainPictureInfo.mainTitle}
-        setModalIsOpen={setModalIsOpen} />
+    <form className={`${formStyles["form"]} ${pictureLoading ? formStyles["loading-form"] : ""}`}>
       <section className={formStyles["img-section"]}>
         <label className={formStyles["img-input-label"]}>
           <input
@@ -353,6 +353,14 @@ const EditPictureForm = ({ pictureId, setModalIsOpen }: IEditPictureFormProps) =
           >Submit changes</StandartButton>
         </div>
       </section>
+
+      <DeletePictureBtn
+        className={formStyles["delete-picture-btn"]}
+        disabled={pictureLoading}
+        isOwnPicture={true}
+        pictureId={pictureId}
+        pictureMainTitle={mainPictureInfo.mainTitle}
+        setModalIsOpen={setModalIsOpen} />
     </form >
   )
 };

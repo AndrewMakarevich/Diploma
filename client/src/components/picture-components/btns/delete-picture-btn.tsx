@@ -9,13 +9,19 @@ interface IDeleteButtonProps {
   pictureMainTitle: string,
   setModalIsOpen: React.Dispatch<React.SetStateAction<boolean>>,
   className?: string,
+  disabled?: boolean,
   isOwnPicture: boolean
 }
 
-const DeletePictureBtn = ({ pictureId, pictureMainTitle, setModalIsOpen, className, isOwnPicture }: IDeleteButtonProps) => {
+const DeletePictureBtn = ({ pictureId, pictureMainTitle, setModalIsOpen, className, isOwnPicture, disabled = false }: IDeleteButtonProps) => {
   const { pictureStore } = useContext(Context);
   const confirmAndDeletePicture = async () => {
+    if (disabled) {
+      return
+    };
+
     const promptString = `Enter picture main title "${pictureMainTitle}" to confirm its deleting`
+
     if (window.prompt(promptString) === pictureMainTitle) {
       try {
         if (isOwnPicture) {
@@ -43,7 +49,7 @@ const DeletePictureBtn = ({ pictureId, pictureMainTitle, setModalIsOpen, classNa
   }
 
   return (
-    <DeleteButton type="button" onClick={confirmAndDeletePicture} className={className}>
+    <DeleteButton type="button" disabled={disabled} onClick={confirmAndDeletePicture} className={className}>
       Delete picture
     </DeleteButton>
   )

@@ -231,6 +231,7 @@ class PictureService {
     }
 
     const imgName = ImageService.generateImageName(img);
+    const prevImgName = pictureToEdit.img;
 
 
 
@@ -253,7 +254,7 @@ class PictureService {
       });
 
       if (pictureToEdit.img) {
-        fs.unlink(path.resolve(__dirname, "..", "static", "img", "picture", pictureToEdit.img), () => { });
+        fs.unlink(path.resolve(__dirname, "..", "static", "img", "picture", prevImgName), () => { });
       }
 
     }

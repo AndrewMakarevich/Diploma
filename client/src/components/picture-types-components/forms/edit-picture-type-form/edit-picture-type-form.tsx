@@ -1,11 +1,12 @@
 import { useState } from "react";
 import EditForm from "../../../forms/edit-form/edit-form";
-import { IGetPictureTypesResponseObj, pictureTypeObj } from "../../../../interfaces/http/response/picture-type-interfaces";
+import { IEditPictureTypeResponseObj, IGetPictureTypesResponseObj, pictureTypeObj } from "../../../../interfaces/http/response/picture-type-interfaces";
 import PictureTypeService from "../../../../services/picture-type-service";
 import useFetching from "../../../../hooks/useFetching";
 
 import formStyles from "./edit-picture-type-form.module.css";
 import DeleteButton from "../../../../UI/delete-button/delete-button";
+import { AxiosResponse } from "axios";
 
 interface IEditPictureTypeFormProps {
   initialParams: pictureTypeObj,
@@ -17,7 +18,8 @@ interface IEditPictureTypeFormProps {
 
 const EditPictureTypeForm = ({ initialParams, isOpen, setIsOpen, pictureTypes, setPictureTypes }: IEditPictureTypeFormProps) => {
   const { executeCallback: editPictureType, isLoading: editPictureTypeLoading } =
-    useFetching((id: number, name: string) => PictureTypeService.editPictureType(id, name));
+    useFetching<AxiosResponse<IEditPictureTypeResponseObj>, (id: number, name: string) => Promise<AxiosResponse<IEditPictureTypeResponseObj>>>
+      ((id: number, name: string) => PictureTypeService.editPictureType(id, name));
 
   const onSubmit = async (editedParams: pictureTypeObj) => {
     try {

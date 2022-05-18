@@ -27,6 +27,11 @@ const LikeEssenceBtn = ({ sendLikeRequest, actualizeInfoAfterLike, active, onCli
           return;
         }
 
+        if (!userStore.userData.role?.addLike) {
+          alert("You have no access to like pictures");
+          return;
+        }
+
         if (onClick) {
           onClick(e);
         }

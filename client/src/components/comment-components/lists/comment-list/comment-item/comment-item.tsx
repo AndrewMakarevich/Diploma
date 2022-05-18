@@ -1,18 +1,18 @@
 import itemStyles from "./comment-item.module.css";
-import PictureCommentLikeService from "../../../../services/picture-comment-like-service";
-import PictureCommentService from "../../../../services/picture-comment-service";
-import { getToLocaleStringData } from "../../../../utils/getToLocaleStringData";
-import LikeEssenceBtn from "../../../btns/like-essence-btn/like-essence-btn";
-import returnUserAvatar from "../../../../utils/img-utils/return-user-avatar";
-import { IGetCommentByIdResponseObj } from "../../../../interfaces/http/response/pictureCommentInterfaces";
+import PictureCommentLikeService from "../../../../../services/picture-comment-like-service";
+import PictureCommentService from "../../../../../services/picture-comment-service";
+import { getToLocaleStringData } from "../../../../../utils/getToLocaleStringData";
+import LikeEssenceBtn from "../../../../btns/like-essence-btn/like-essence-btn";
+import returnUserAvatar from "../../../../../utils/img-utils/return-user-avatar";
+import { IGetCommentByIdResponseObj } from "../../../../../interfaces/http/response/pictureCommentInterfaces";
 import { useCallback, useContext, useEffect, useState } from "react";
-import CommentValidator from "../../../../validator/comment-validator";
-import useFetching from "../../../../hooks/useFetching";
+import CommentValidator from "../../../../../validator/comment-validator";
+import useFetching from "../../../../../hooks/useFetching";
 import { ICommentItemProps } from "../comment-list-interfaces";
 import DeleteCommentBtn from "../../../btns/delete-comment-btn/delete-comment-btn";
-import { Context } from "../../../..";
+import { Context } from "../../../../..";
 import { observer } from "mobx-react-lite";
-import EditButton from "../../../../UI/edit-button/edit-button";
+import EditButton from "../../../../../UI/edit-button/edit-button";
 
 const CommentItem = ({ comment, pictureAuthorId, actualizeCommentListAfterDeleting }: ICommentItemProps) => {
   const { userStore } = useContext(Context);

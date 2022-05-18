@@ -12,6 +12,7 @@ import UserValidator from "../validator/userValidator";
 import { IUser } from "../interfaces/modelInterfaces";
 import fileUpload from "express-fileupload";
 import ImageService from "./imageService";
+import { SequelizeScopeError, UniqueConstraintError, ValidationError } from "sequelize/dist";
 
 class UserService {
 
@@ -20,19 +21,9 @@ class UserService {
       throw ApiError.badRequest('Not enough data');
     }
 
-    UserValidator.validateNickname(nickname);
-    UserValidator.validateEmail(email);
     UserValidator.validatePassword(password);
 
-    if (await models.User.findOne({ where: { nickname } })) {
-      throw ApiError.badRequest('User with such nickname is already exists');
-    }
-
-    if (await models.User.findOne({ where: { email } })) {
-      throw ApiError.badRequest('User with such email is already exists');
-    }
-
-    const hashedPassword = await bcrypt.hash(password, 15);
+    const hashedPassword = await bcrypt.hash(password, 5);
     const activationKey = v4();
     let role = await models.Role.findOne({ where: { name: "USER" } });
 
@@ -49,7 +40,17 @@ class UserService {
         activationKey: activationKey,
         roleId: role!.id
       }
-    );
+    ).catch(e => {
+      if (e.name === "SequelizeUniqueConstraintError") {
+        if (e.parent.constraint.includes("_nickname_")) {
+          throw ApiError.badRequest('User with such nickname is already exists');
+        } else if (e.parent.constraint.includes("_email_")) {
+          throw ApiError.badRequest('User with such email is already exists');
+        }
+        throw ApiError.badRequest(e.message);
+      }
+      throw ApiError.badRequest(e.message);
+    });
 
     const verificationLink = `${process.env.BACK_LINK}/api/user/activate/${activationKey}`;
     await MailService.sendMail(email, 'Account activation', 'Follow the link below to activate account', verificationLink);
@@ -99,7 +100,6 @@ class UserService {
     }
 
     UserValidator.validatePassword(password);
-    UserValidator.validateEmail(email);
 
     const user = await models.User.findOne({ where: { email } });
 
@@ -149,9 +149,9 @@ class UserService {
     avatar: fileUpload.UploadedFile,
     profileBackground: fileUpload.UploadedFile,
     country: string, city: string) {
-    if (!id) {
-      throw ApiError.badRequest('Id of the user to edit is lost');
-    }
+    // if (!id) {
+    //   throw ApiError.badRequest('Id of the user to edit is lost');
+    // }
 
     const userToEdit = await models.User.findOne({ where: { id } });
 
@@ -159,53 +159,18 @@ class UserService {
       throw ApiError.badRequest('User you want to edit doesn\'t exists');
     }
 
-    let nothingToChange = true;
-
-    for (let key in arguments) {
-      if (key === "0") {
-        continue;
-      }
-
-      if (arguments[key] !== undefined) {
-        nothingToChange = false;
-        break;
-      }
-    }
-    if (nothingToChange) {
-      throw ApiError.badRequest('Nothing to change');
-    }
-
     // validation of the key params
-    UserValidator.validateFirstName(firstName);
-    UserValidator.validateSurname(surname);
-    UserValidator.validateNickname(nickname);
+    // UserValidator.validateFirstName(firstName);
+    // UserValidator.validateSurname(surname);
+    // UserValidator.validateNickname(nickname);
     UserValidator.validateUsersCountryAndCity(country, city);
 
     // Creating file name for the avatar and background pictures, if they'r exists
     let avatarFileName = ImageService.generateImageName(avatar);
     let profileBackgroundFileName = ImageService.generateImageName(profileBackground);
 
-    //Uploading avatar picture to the server if edited user exists
-    if (avatarFileName) {
-      await avatar.mv(path.resolve(__dirname, '..', 'static', 'img', 'avatar', avatarFileName)).catch(() => {
-        throw ApiError.badRequest('Loading avatar photo failed, user editing interrupted')
-      });
-      // deleting previous avatar if it exists
-      if (userToEdit.avatar) {
-        fs.unlink(path.resolve(__dirname, '..', 'static', 'img', 'avatar', userToEdit.avatar), () => { })
-      }
-    }
-
-    //Uploading profile background picture to the server if edited user exists
-    if (profileBackgroundFileName) {
-      await profileBackground.mv(path.resolve(__dirname, '..', 'static', 'img', 'profile-background', profileBackgroundFileName)).catch(() => {
-        throw ApiError.badRequest('Loading profile background photo failed, user editing interrupted');
-      })
-      // deleting profile background  if it exists
-      if (userToEdit.profileBackground) {
-        fs.unlink(path.resolve(__dirname, '..', 'static', 'img', 'profile-background', userToEdit.profileBackground), () => { });
-      }
-    }
+    let prevAvatarFileName = userToEdit.avatar;
+    let prevProfileBackGroundFileName = userToEdit.profileBackground;
 
     await userToEdit.update({
       firstName,
@@ -217,8 +182,29 @@ class UserService {
       city
     });
 
-    return { message: 'User updated succesfully' }
+    //Uploading avatar picture to the server if edited user exists
+    if (avatarFileName) {
+      await avatar.mv(path.resolve(__dirname, '..', 'static', 'img', 'avatar', avatarFileName)).catch(() => {
+        throw ApiError.badRequest('Loading avatar photo failed, user editing interrupted')
+      });
+      // deleting previous avatar if it exists
+      if (prevAvatarFileName) {
+        fs.unlink(path.resolve(__dirname, '..', 'static', 'img', 'avatar', prevAvatarFileName), () => { })
+      }
+    }
 
+    //Uploading profile background picture to the server if edited user exists
+    if (profileBackgroundFileName) {
+      await profileBackground.mv(path.resolve(__dirname, '..', 'static', 'img', 'profile-background', profileBackgroundFileName)).catch(() => {
+        throw ApiError.badRequest('Loading profile background photo failed, user editing interrupted');
+      })
+      // deleting profile background  if it exists
+      if (prevProfileBackGroundFileName) {
+        fs.unlink(path.resolve(__dirname, '..', 'static', 'img', 'profile-background', prevProfileBackGroundFileName), () => { });
+      }
+    }
+
+    return { message: 'User updated succesfully' }
   };
 
   static async resetPassword(newPassword: string, userId: number) {

@@ -4,13 +4,13 @@ import { v4 } from "uuid";
 class ImageService {
   static generateImageName(image: fileUpload.UploadedFile) {
     if (!image) {
-      return null;
+      return undefined;
     }
 
     const fileExtension = image.name.match(/\.(jpg|jpeg|png|webm)$/i);
 
     if (!fileExtension) {
-      return null;
+      return undefined;
     }
     return `${v4()}${fileExtension[0]}`;
   }

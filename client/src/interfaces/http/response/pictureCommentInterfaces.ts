@@ -5,20 +5,20 @@
 // };
 
 export interface IGetCommentBaseResponseObject {
-  id: string | number,
+  id: number,
   text: string,
   createdAt: string,
   updatedAt: string,
-  userId: string | number,
-  commentId: string | number | null,
-  pictureId: string | number,
+  userId: number,
+  commentId: number | null,
+  pictureId: number,
 }
 
 export interface IGetCommentByIdResponseObj extends IGetCommentBaseResponseObject {
-  childCommentsAmount: string | number,
+  childCommentsAmount: number,
   commentLikes:
   {
-    userId: string | number
+    userId: number
   }[],
   user: {
     avatar: string,
@@ -27,7 +27,7 @@ export interface IGetCommentByIdResponseObj extends IGetCommentBaseResponseObjec
 }
 
 export interface IGetCommentsResponseObj {
-  count: string | number,
+  count: number,
   rows: IGetCommentByIdResponseObj[]
 }
 

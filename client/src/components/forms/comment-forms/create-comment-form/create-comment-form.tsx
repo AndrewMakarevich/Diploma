@@ -8,13 +8,13 @@ import { AxiosResponse } from "axios";
 import { Context } from "../../../..";
 
 interface ICreateCommentFormProps {
-  pictureId: string | number,
-  commentId?: string | number,
+  pictureId: number,
+  commentId?: number | null,
   actualizeCommentList: (comment: IGetCommentByIdResponseObj) => void,
   setAddCommentFormOpen: React.Dispatch<React.SetStateAction<boolean>>
 }
 
-const CreateCommentForm = ({ pictureId, commentId, actualizeCommentList, setAddCommentFormOpen }: ICreateCommentFormProps) => {
+const CreateCommentForm = ({ pictureId, commentId = null, actualizeCommentList, setAddCommentFormOpen }: ICreateCommentFormProps) => {
   const { userStore } = useContext(Context);
   const [commentText, setCommentText] = useState("");
 

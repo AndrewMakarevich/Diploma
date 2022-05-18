@@ -4,7 +4,7 @@ import { ICreatePictureTypeResponseObj, IDeletePictureTypeResponseObj, IEditPict
 
 class PictureTypeService {
   static async getPicturesTypes(queryString?: string, sort?: string[], page?: number, limit?: number): Promise<AxiosResponse<IGetPictureTypesResponseObj>> {
-    const response = await $host.get<IGetPictureTypesResponseObj>('/api/picture-type/get-all', {
+    return $host.get<IGetPictureTypesResponseObj>('/api/picture-type/get-all', {
       params: {
         queryString,
         sort,
@@ -12,26 +12,18 @@ class PictureTypeService {
         limit
       }
     });
-
-    return response;
   };
 
   static async createPictureType(typeName: string): Promise<AxiosResponse<ICreatePictureTypeResponseObj>> {
-    const response = await $authHost.post<ICreatePictureTypeResponseObj>("/api/picture-type/create", { name: typeName });
-
-    return response;
+    return $authHost.post<ICreatePictureTypeResponseObj>("/api/picture-type/create", { name: typeName });
   };
 
   static async deletePictureType(pictureTypeId: number): Promise<AxiosResponse<IDeletePictureTypeResponseObj>> {
-    const response = await $authHost.delete<IDeletePictureTypeResponseObj>(`/api/picture-type/delete/${pictureTypeId}`);
-
-    return response;
+    return $authHost.delete<IDeletePictureTypeResponseObj>(`/api/picture-type/delete/${pictureTypeId}`);
   };
 
   static async editPictureType(pictureTypeId: number, typeName: string): Promise<AxiosResponse<IEditPictureTypeResponseObj>> {
-    const response = await $authHost.put<IEditPictureTypeResponseObj>(`/api/picture-type/edit`, { id: pictureTypeId, name: typeName });
-
-    return response;
+    return $authHost.put<IEditPictureTypeResponseObj>(`/api/picture-type/edit`, { id: pictureTypeId, name: typeName });
   }
 }
 

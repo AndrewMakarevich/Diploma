@@ -4,8 +4,7 @@ import { IDeletPictureInfoResponseeObj } from "../interfaces/http/response/pictu
 
 class PictureInfoService {
   static async deletePictureInfo(pictureId: number, pictureInfoIdValueOrArray: number | number[]): Promise<AxiosResponse<IDeletPictureInfoResponseeObj>> {
-    console.log(pictureInfoIdValueOrArray);
-    const response = await $authHost.delete<IDeletPictureInfoResponseeObj>("/api/picture-info/delete",
+    return $authHost.delete<IDeletPictureInfoResponseeObj>("/api/picture-info/delete",
       {
         params: {
           pictureId,
@@ -13,8 +12,6 @@ class PictureInfoService {
         }
       }
     );
-
-    return response;
   }
 };
 

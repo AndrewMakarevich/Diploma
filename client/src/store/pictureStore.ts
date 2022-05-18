@@ -33,7 +33,7 @@ class PictureStore {
       queryString: "",
       sort: undefined,
       page: 1,
-      limit: 10
+      limit: 1
     }
     makeAutoObservable(this);
   }

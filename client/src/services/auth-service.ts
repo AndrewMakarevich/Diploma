@@ -5,27 +5,21 @@ const mainUserApiPath = 'api/user';
 
 export default class AuthService {
   static async registrate(email: string, nickname: string, password: string): Promise<AxiosResponse<registrationSuccessObj>> {
-    const response = await $host.post<registrationSuccessObj>(`${mainUserApiPath}/registration`, { email, nickname, password });
-
-    return response;
+    return $host.post<registrationSuccessObj>(`${mainUserApiPath}/registration`, { email, nickname, password });
   };
 
   static async login(email: string, password: string): Promise<AxiosResponse<loginSuccessObj>> {
-    const response = await $host.post<loginSuccessObj>(`${mainUserApiPath}/login`, { email, password });
-
-    return response;
+    return $host.post<loginSuccessObj>(`${mainUserApiPath}/login`, { email, password });
   };
 
   static async logout(): Promise<AxiosResponse<logoutSuccessObj>> {
-    const response = $authHost.delete<logoutSuccessObj>(`${mainUserApiPath}/logout`);
+    const response = await $authHost.delete<logoutSuccessObj>(`${mainUserApiPath}/logout`);
     localStorage.removeItem('access-token');
 
     return response;
   };
 
   static async refreshTokens(): Promise<AxiosResponse<refreshTokensSuccessObj>> {
-    const response = await $host.put<refreshTokensSuccessObj>(`${mainUserApiPath}/refresh`);
-
-    return response;
+    return $host.put<refreshTokensSuccessObj>(`${mainUserApiPath}/refresh`);
   };
 } 

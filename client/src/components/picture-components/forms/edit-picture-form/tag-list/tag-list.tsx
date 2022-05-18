@@ -52,7 +52,7 @@ const TagList = ({ pictureId, tagsArr, setTagsArr, initialTagsArr, setInitialTag
       <div className={`${listStyles["tag-list"]}`}>
         {
           tagsArr.map(tag => (
-            <TagItem tag={tag} deleteTag={deleteTag} editTag={editNewTag} reestablishTag={reestablishTag} />
+            <TagItem key={tag.id} tag={tag} deleteTag={deleteTag} editTag={editNewTag} reestablishTag={reestablishTag} />
           ))
         }
       </div>

@@ -10,7 +10,7 @@ import LikeEssenceBtn from "../../../btns/like-essence-btn/like-essence-btn";
 import { IGetPictureLikesResponseObj } from "../../../../interfaces/http/response/pictureLikeInterfaces";
 import PictureLikeService from "../../../../services/picture-like-service";
 import PictureInfoList from "../../picture-info-list/picture-info-list";
-import PictureCommentList from "../../../lists/comment-list/comment-list";
+import PictureCommentList from "../../../comment-components/lists/comment-list/comment-list";
 import { runInAction } from "mobx";
 import { Link } from "react-router-dom";
 import { routePaths } from "../../../routes/paths";

@@ -54,7 +54,7 @@ const SectionList = ({ pictureId, sectionsArr, setSectionsArr, initialSectionsAr
     <section className={listStyles["section-list"]}>
       {
         sectionsArr.map(section => (
-          <SectionItem section={section} deleteSection={deleteSection} editSection={editSection} reestablishSection={reestablishSection} />
+          <SectionItem key={section.id} section={section} deleteSection={deleteSection} editSection={editSection} reestablishSection={reestablishSection} />
         ))
       }
       <StandartButton

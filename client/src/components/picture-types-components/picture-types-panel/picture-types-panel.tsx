@@ -14,6 +14,10 @@ import PictureTypeSortSelect from "../inputs/picture-type-sort-select/picture-ty
 import panelStyles from "./picture-types-panel.module.css";
 import PictureTypesSearchPanel from "../picture-types-search-panel/picture-types-search-panel";
 
+interface IGetPictureTypes {
+  func: (queryString: string, sort: string[], page: number, limit: number) => Promise<void>
+}
+
 const PictureTypesPanel = () => {
   const [pictureTypes, setPictureTypes] = useState<IGetPictureTypesResponseObj>({
     count: 0,
@@ -36,8 +40,8 @@ const PictureTypesPanel = () => {
     setPictureTypes(response.data);
   }, [])
 
-  const { executeCallback: fetchPictureTypes, isLoading: pictureTypesLoading } = useFetching<IGetPictureTypesResponseObj>(sendRequestToGetPictureTypes);
-  const { executeCallback: delayFetchPictureTypes, isLoading: delayPictureTypesLoading } = useDelayFetching<IGetPictureTypesResponseObj>(sendRequestToGetPictureTypes, 200);
+  const { executeCallback: fetchPictureTypes, isLoading: pictureTypesLoading } = useFetching<void, IGetPictureTypes["func"]>(sendRequestToGetPictureTypes);
+  const { executeCallback: delayFetchPictureTypes, isLoading: delayPictureTypesLoading } = useDelayFetching<void>(sendRequestToGetPictureTypes, 200);
 
   const getPictureTypesWithCurrentQueryParams = useCallback(async (queryString: string, sort: string[], page: number, limit: number, target?: EventTarget) => {
     if (target instanceof HTMLButtonElement || target instanceof HTMLSelectElement || !target) {

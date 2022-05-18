@@ -4,20 +4,16 @@ import { IDeletePictureTagConnectionResponseObj, ITagsByTextResponseObj } from "
 
 class PictureTagService {
   static async getTagByTagText(tagText: string): Promise<AxiosResponse<ITagsByTextResponseObj[]>> {
-    const response = await $host.get<ITagsByTextResponseObj[]>(`/api/picture-tag/get-by-text${tagText ? `?tagText=${tagText}` : ''}`);
-
-    return response;
+    return $host.get<ITagsByTextResponseObj[]>(`/api/picture-tag/get-by-text${tagText ? `?tagText=${tagText}` : ''}`);
   }
 
   static async deletePictureTagConnection(pictureId: number, tagIdValueOrArray: number | number[]): Promise<AxiosResponse<IDeletePictureTagConnectionResponseObj>> {
-    const response = await $authHost.delete<IDeletePictureTagConnectionResponseObj>("/api/picture-tag/delete-connection", {
+    return $authHost.delete<IDeletePictureTagConnectionResponseObj>("/api/picture-tag/delete-connection", {
       params: {
         pictureId,
         tagIdValueOrArray
       }
     });
-
-    return response;
   }
 }
 
