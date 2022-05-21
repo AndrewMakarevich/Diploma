@@ -1,4 +1,5 @@
 import { NextFunction, Request, Response } from "express";
+import { IGetCommentsCursor } from "../interfaces/services/pictureCommentServiceInterfaces";
 import PictureCommentService from "../services/pictureCommentService";
 
 class PictureCommentController {
@@ -15,11 +16,11 @@ class PictureCommentController {
 
   static async getComments(req: Request, res: Response, next: NextFunction) {
     try {
-      const { pictureId, commentId, page, limit } = req.query;
+      const { pictureId, commentId, cursor, limit } = req.query;
       const response = await PictureCommentService.getComments(
         Number(pictureId),
         Number(commentId),
-        Number(page),
+        JSON.parse(String(cursor)) as IGetCommentsCursor,
         Number(limit));
 
       return res.json(response);

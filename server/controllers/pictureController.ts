@@ -1,6 +1,7 @@
 import { NextFunction, Request, Response } from "express";
 import fileUpload from "express-fileupload";
 import { IPictureInfo } from "../interfaces/pictureInterfaces";
+import { IGetPicturesCursor } from "../interfaces/services/pictureServicesInterfaces";
 import { IPictureTag } from "../interfaces/tagInterfaces";
 import PictureService from "../services/pictureService";
 
@@ -21,8 +22,13 @@ class PictureController {
   static async getPictures(req: Request, res: Response, next: NextFunction) {
     try {
       const queryString = req.query.queryString as string;
-      const { userId, pictureTypeId, limit, page, sort } = req.query;
-      const response = await PictureService.getPictures(Number(userId), Number(pictureTypeId), queryString, Number(limit), Number(page), String(sort));
+      const { userId, pictureTypeId, limit, cursor } = req.query;
+      const response = await PictureService.getPictures(
+        Number(userId),
+        Number(pictureTypeId),
+        queryString,
+        JSON.parse(String(cursor)) as IGetPicturesCursor,
+        Number(limit));
 
       return res.json(response);
     } catch (e) {

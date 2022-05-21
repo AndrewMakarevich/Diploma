@@ -5,6 +5,7 @@
 // };
 
 export interface IGetCommentBaseResponseObject {
+  [key: string]: any,
   id: number,
   text: string,
   createdAt: string,

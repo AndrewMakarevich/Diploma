@@ -10,6 +10,13 @@ interface mainPictureObjectProps {
 
 }
 
+export interface IGetPicturesCursor {
+  key: string,
+  id: number,
+  value: string | number,
+  order: "ASC" | "DESC"
+}
+
 export interface IShortPictureObj extends mainPictureObjectProps {
   user: {
     nickname: string

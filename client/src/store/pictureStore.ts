@@ -1,13 +1,13 @@
 import { makeAutoObservable, runInAction } from "mobx";
-import { IGetPicturesResponse, IShortPictureObj } from "../interfaces/http/response/pictureInterfaces";
+import { IShortPictureObj } from "../interfaces/http/response/pictureInterfaces";
+import { IGetPicturesCursorInterface } from "../interfaces/services/pictureSericeInterfaces";
 import PictureService from "../services/picture-service";
 
 export interface IQueryParamsObj {
   userId: number,
   pictureTypeId: number,
   queryString: string,
-  sort: string | string[] | undefined,
-  page: number,
+  cursor: IGetPicturesCursorInterface
   limit: number
 };
 
@@ -23,41 +23,61 @@ export interface IStoredPictures {
 class PictureStore {
   pictures: IStoredPictures;
   nextPageFirstPicture: IStoredPicture | null;
+  picturesLoading: boolean;
   queryParams: IQueryParamsObj;
   constructor() {
-    this.pictures = { count: 0, rows: [] };
+    this.pictures = { count: -1, rows: [] };
     this.nextPageFirstPicture = null;
+    this.picturesLoading = false;
     this.queryParams = {
       userId: 0,
       pictureTypeId: 0,
       queryString: "",
-      sort: undefined,
-      page: 1,
-      limit: 1
+      cursor: {
+        key: "createdAt",
+        id: 0,
+        value: 0,
+        order: "DESC"
+      },
+      limit: 2
     }
     makeAutoObservable(this);
   }
 
-  async getPictures() {
+  async getPictures(rewrite = false) {
     try {
-      const response =
+      if (this.pictures.count === this.pictures.rows.length && !rewrite) {
+        return;
+      }
+
+
+
+      const { cursor, limit, pictureTypeId, userId, queryString } = this.queryParams;
+      runInAction(() => this.picturesLoading = true);
+      const { data } =
         await PictureService.getPictures(
-          this.queryParams.userId,
-          this.queryParams.pictureTypeId,
-          this.queryParams.queryString,
-          this.queryParams.sort,
-          this.queryParams.page,
-          this.queryParams.limit);
+          cursor,
+          userId,
+          pictureTypeId,
+          queryString,
+          limit);
       runInAction(() => {
-        this.pictures = { count: response.data.count, rows: response.data.rows };
+        this.pictures = { count: data.count, rows: rewrite ? data.rows : [...this.pictures.rows, ...data.rows] };
+
+        if (data.count) {
+          cursor.value = data.rows[data.rows.length - 1][cursor.key]
+          cursor.id = data.rows[data.rows.length - 1].id
+        }
       });
-      return;
+      return data;
     } catch (e: any) {
       if (e.isAxiosError) {
         alert(e.response.data.message);
       } else {
         alert(e.message);
       }
+    } finally {
+      this.picturesLoading = false;
     }
   }
 
@@ -69,6 +89,13 @@ class PictureStore {
     }
     this.pictures.rows.unshift(picture);
   };
+
+  clearPictureList() {
+    this.queryParams.userId = 0;
+    this.queryParams.cursor.value = 0;
+    this.queryParams.cursor.id = 0;
+    this.pictures = { count: -1, rows: [] }
+  }
 };
 
 export default PictureStore;

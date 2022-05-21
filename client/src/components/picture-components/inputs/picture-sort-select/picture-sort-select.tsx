@@ -1,5 +1,5 @@
 import { ComponentProps } from "react";
-import MySelect from "../../../UI/my-select/my-select";
+import MySelect from "../../../../UI/my-select/my-select";
 
 const selectOptions = [
   {

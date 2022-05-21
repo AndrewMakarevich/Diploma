@@ -8,6 +8,7 @@ import { ICommentListProps } from "./comment-list-interfaces";
 import listStyles from "./comment-list.module.css";
 import useFetching from "../../../../hooks/useFetching";
 import PictureCommentService from "../../../../services/picture-comment-service";
+import { IGetCommentsPagParams } from "../../../../interfaces/services/pictureCommentsServiceInterfaces";
 
 const PictureCommentList = ({ pictureId, pictureAuthorId, commentId = null, commentsAmount = 0 }: ICommentListProps) => {
   const { userStore } = useContext(Context);
@@ -16,11 +17,28 @@ const PictureCommentList = ({ pictureId, pictureAuthorId, commentId = null, comm
   const [commentsListIsOpen, setCommentsListIsOpen] = useState(true);
   const [addCommentFormOpen, setAddCommentFormOpen] = useState(false);
   const [comments, setComments] = useState<IGetCommentsResponseObj>({ count: 0, rows: [] });
-  const [commentsPaginationParams, setCommentsPaginationParams] = useState({ page: 1, limit: 1 });
+  const [commentsPaginationParams, setCommentsPaginationParams] = useState<IGetCommentsPagParams>({ key: "createdAt", value: 0, id: 0, order: "DESC", limit: 2 });
+
+  const getLastCommentItemParamValueAndId = useCallback((commentsArr: IGetCommentByIdResponseObj[]) => {
+    const lastCommentItem = commentsArr[commentsArr.length - 1];
+    const value = lastCommentItem ? lastCommentItem[commentsPaginationParams.key] : 0;
+    const id = lastCommentItem ? lastCommentItem["id"] : 0;
+    return {
+      value, id
+    }
+  }, [commentsPaginationParams]);
 
   const sendRequestToGetComments = useCallback(
-    async (page: number = commentsPaginationParams.page, limit: number = commentsPaginationParams.limit) => {
-      return PictureCommentService.getPictureComments(pictureId, commentId, page, limit);
+    async () => {
+      const { id, value, key, limit, order } = commentsPaginationParams;
+      return PictureCommentService.getPictureComments(
+        pictureId,
+        key,
+        id,
+        value,
+        order,
+        commentId,
+        limit);
     }, [pictureId, commentId, commentsPaginationParams]
   )
 
@@ -30,31 +48,24 @@ const PictureCommentList = ({ pictureId, pictureAuthorId, commentId = null, comm
   const onGetComments = useCallback(async () => {
     const response = await getComments();
     if (response) {
+      const { id, value } = getLastCommentItemParamValueAndId(response.data.rows)
       setComments({ rows: [...comments.rows, ...response.data.rows], count: response.data.count });
-      setCommentsPaginationParams({ ...commentsPaginationParams, page: commentsPaginationParams.page + 1 })
+      setCommentsPaginationParams({ ...commentsPaginationParams, value, id });
     }
-  }, [getComments, comments, commentsPaginationParams]);
+  }, [getComments, comments, commentsPaginationParams, getLastCommentItemParamValueAndId]);
 
   const actualizeListAfterItemDelete = useCallback(async (commentId: number) => {
-    if (comments.rows.length === comments.count) {
-      setComments({ count: comments.count - 1, rows: comments.rows.filter(comment => comment.id !== commentId) });
-      return;
-    }
-    if (comments.rows.length) {
-      const response = await getComments(1, comments.rows.length);
-
-      if (response) {
-        setComments(response.data);
-      }
-      // setCommentsAmountValue(commentsAmountValue ? Number(commentsAmountValue) - 1 : 0);
-    }
-  }, [getComments, comments]);
+    setComments({ count: comments.count - 1, rows: comments.rows.filter(comment => comment.id !== commentId) });
+    setCommentsAmountValue(commentsAmountValue ? Number(commentsAmountValue) - 1 : 0);
+  }, [comments, commentsAmountValue]);
 
   const actualizeListAfterItemCreation = useCallback((comment: IGetCommentByIdResponseObj) => {
     if (comments.rows.length) {
       setComments({ ...comments, rows: [{ ...comment, commentLikes: [] }, ...comments.rows], count: +comments.count + 1 });
-      setCommentsAmountValue(commentsAmountValue ? Number(commentsAmountValue) + 1 : 1);
+    } else {
+      setComments({ ...comments, rows: [{ ...comment, commentLikes: [] }, ...comments.rows], count: commentsAmountValue + 1 });
     }
+    setCommentsAmountValue(commentsAmountValue ? Number(commentsAmountValue) + 1 : 1);
   }, [comments, commentsAmountValue]);
 
   const amountAndRecievedCommentsDiff = useMemo(() => {
@@ -66,7 +77,19 @@ const PictureCommentList = ({ pictureId, pictureAuthorId, commentId = null, comm
     :
     commentsPaginationParams.limit)
     +
-    ` comments ${amountAndRecievedCommentsDiff ? `(${amountAndRecievedCommentsDiff} remaining)` : ""}`
+    ` comments ${amountAndRecievedCommentsDiff ? `(${amountAndRecievedCommentsDiff} remaining)` : ""}`;
+
+  const onOpenCreateCommentForm = () => {
+    if (!userStore.isAuth) {
+      alert("Authorize to have ability to leave the comments");
+      return;
+    }
+    if (!userStore.userData.role?.addComment) {
+      alert("You have no access to add comments");
+      return;
+    }
+    setAddCommentFormOpen(!addCommentFormOpen);
+  }
 
   useEffect(() => {
     setCommentsAmountValue(+commentsAmount);
@@ -90,17 +113,7 @@ const PictureCommentList = ({ pictureId, pictureAuthorId, commentId = null, comm
                 ${listStyles["answer-comment-btn"]} 
                 ${commentId ? listStyles["sub-btn"] : ""} 
                 ${commentsAmountValue ? "" : listStyles["pairless-btn"]}`}
-          onClick={() => {
-            if (!userStore.isAuth) {
-              alert("Authorize to have ability to leave the comments");
-              return;
-            }
-            if (!userStore.userData.role?.addComment) {
-              alert("You have no access to add comments");
-              return;
-            }
-            setAddCommentFormOpen(!addCommentFormOpen);
-          }}>
+          onClick={onOpenCreateCommentForm}>
           {addCommentFormOpen ? "Close" : "Answer"}
         </StandartButton>
         {
@@ -146,7 +159,7 @@ const PictureCommentList = ({ pictureId, pictureAuthorId, commentId = null, comm
         )}
       </ul>
       {
-        comments.rows.length !== comments.count ?
+        comments.rows.length < comments.count ?
           <StandartButton
             onClick={onGetComments}>
             Get {getShowCommentsBtnText}

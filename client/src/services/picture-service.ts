@@ -1,21 +1,21 @@
 import { AxiosResponse } from "axios";
 import { $authHost, $host } from "../http";
 import { ICreatePictureResponse, IDeletePictureResponse, IEditPictureResponse, IExtendedPictureObj, IGetPicturesResponse } from "../interfaces/http/response/pictureInterfaces";
+import { IGetPicturesCursorInterface } from "../interfaces/services/pictureSericeInterfaces";
 
 class PictureService {
   static async getPicture(id: number): Promise<AxiosResponse<IExtendedPictureObj>> {
     return $host.get<IExtendedPictureObj>(`api/picture/get/${id}`);
   };
 
-  static async getPictures(userId?: number, pictureTypeId?: number, queryString?: string, sort?: string | string[], page?: number, limit?: number): Promise<AxiosResponse<IGetPicturesResponse>> {
+  static async getPictures(cursor: IGetPicturesCursorInterface, userId?: number, pictureTypeId?: number, queryString?: string, limit?: number,): Promise<AxiosResponse<IGetPicturesResponse>> {
     return $host.get<IGetPicturesResponse>('api/picture/get-many',
       {
         params: {
           userId: userId || '',
           pictureTypeId: pictureTypeId || '',
           queryString: queryString || '',
-          sort: sort || '',
-          page: page || 1,
+          cursor,
           limit: limit || 5
         }
       });

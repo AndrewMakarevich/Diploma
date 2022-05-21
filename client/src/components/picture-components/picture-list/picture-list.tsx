@@ -1,18 +1,15 @@
 import listStyles from "./picture-list.module.css";
-import { AxiosResponse } from "axios";
-import { useCallback, useContext, useEffect, useState } from "react";
+import { useCallback, useContext, useEffect, useRef, useState } from "react";
 import useFetching from "../../../hooks/useFetching";
-import { IGetPicturesResponse } from "../../../interfaces/http/response/pictureInterfaces";
-import PictureService from "../../../services/picture-service";
 import PictureItem from "../picture-item/picture-item";
 import SearchPanel from "../search-panel/search-panel";
 import useDelayFetching from "../../../hooks/useDelayFetching";
-import PaginationInput from "../../inputs/pagination-input/pagination-input";
 import ViewPictureModal from "../modals/view-picture-modal/view-picture-modal";
 import EditPictureModal from "../modals/edit-picture-modal/edit-picture-modal";
 import { Context } from "../../..";
 import { observer } from "mobx-react-lite";
 import { runInAction } from "mobx";
+import useBatching from "../../../hooks/useBatching";
 
 interface IPictureListProps {
   userId: number,
@@ -22,12 +19,35 @@ interface IPictureListProps {
 const PictureList = ({ userId, isPersonalGallery }: IPictureListProps) => {
   const { pictureStore } = useContext(Context);
 
+  const pictureListContainer = useRef<HTMLElement>(null);
+  const { executeBatch } = useBatching(infiniteLoading)
+
   const [viewPictureModalIsOpen, setViewPictureModalIsOpen] = useState(false);
   const [currentPictureId, setCurrentPictureId] = useState(0);
 
-  const getPictures = useCallback(async () => {
-    await pictureStore.getPictures();
-  }, [pictureStore]);
+  const getPictures = useCallback(async (rewrite = false) => {
+    if (pictureListContainer.current) {
+      let rewriteValue = rewrite;
+      do {
+        if (pictureStore.picturesLoading) {
+          return;
+        }
+
+        const data = await pictureStore.getPictures(rewriteValue);
+
+        if (rewrite) {
+          rewriteValue = false;
+        }
+
+        const { scrollHeight, clientHeight } = pictureListContainer.current;
+
+        if (pictureStore.pictures.rows.length === data?.count || data?.rows.length === 0 || scrollHeight > clientHeight) {
+          break;
+        }
+      } while (true)
+    }
+
+  }, [pictureStore,]);
 
   const {
     executeCallback: fetchPictures, isLoading: fetchPicturesLoading
@@ -39,36 +59,45 @@ const PictureList = ({ userId, isPersonalGallery }: IPictureListProps) => {
   } = useDelayFetching(getPictures, 500);
 
 
-  const getPictureListWithCurrentQueryParams = useCallback(async (target?: EventTarget) => {
+  const getPictureListWithCurrentQueryParams = useCallback((target?: EventTarget, rewrite = false) => {
     if (target instanceof HTMLButtonElement || target instanceof HTMLSelectElement || !target) {
-      await fetchPictures();
+      fetchPictures(rewrite);
       return;
     }
-    await delayedFetchPictures();
+    delayedFetchPictures(rewrite);
 
   }, [delayedFetchPictures, fetchPictures]);
 
-  const setPage = async (target: EventTarget, page: number) => {
-    runInAction(() => {
-      pictureStore.queryParams = { ...pictureStore.queryParams, page }
-    })
-    getPictureListWithCurrentQueryParams(target);
+  const onSearchPanelQueryChange = useCallback((target?: EventTarget) => {
+    getPictureListWithCurrentQueryParams(target, true);
+  }, [getPictureListWithCurrentQueryParams]);
+
+  function infiniteLoading() {
+    if (pictureListContainer.current) {
+      const { clientHeight, scrollTop, scrollHeight } = pictureListContainer.current;
+      if ((scrollHeight - clientHeight) - scrollTop < 25) {
+        if (fetchPicturesLoading || delayedFetchPicturesLoading) {
+          return;
+        }
+        fetchPictures()
+      }
+    }
   }
 
   useEffect(() => {
     if (userId) {
       runInAction(() => {
-        pictureStore.queryParams = { ...pictureStore.queryParams, userId, page: 1 }
+        pictureStore.clearPictureList();
+        pictureStore.queryParams.userId = userId
       });
       getPictureListWithCurrentQueryParams();
     }
   }, [userId, pictureStore, getPictureListWithCurrentQueryParams]);
 
   useEffect(() => {
+    pictureListContainer.current?.addEventListener("scroll", executeBatch);
     if (!isPersonalGallery) {
-      runInAction(() => {
-        pictureStore.queryParams = { ...pictureStore.queryParams, userId: 0, page: 1 }
-      });
+      pictureStore.clearPictureList();
       getPictureListWithCurrentQueryParams();
     }
   }, []);
@@ -81,19 +110,19 @@ const PictureList = ({ userId, isPersonalGallery }: IPictureListProps) => {
           :
           <ViewPictureModal isOpen={viewPictureModalIsOpen} setIsOpen={setViewPictureModalIsOpen} currentPictureId={currentPictureId} />
       }
-      <SearchPanel onChange={getPictureListWithCurrentQueryParams} />
-      <section className={listStyles["picture-list"]}>
+      <SearchPanel onChange={onSearchPanelQueryChange} />
+      <section ref={pictureListContainer} className={listStyles["picture-list"]}>
         {
           pictureStore.pictures.rows.map(pictureItem =>
             <PictureItem key={pictureItem.id} pictureItem={pictureItem} setCurrentPictureId={setCurrentPictureId} setIsOpen={setViewPictureModalIsOpen} />
           )
         }
       </section>
-      <PaginationInput
+      {/* <PaginationInput
         count={pictureStore.pictures.count}
         limit={pictureStore.queryParams.limit}
-        page={pictureStore.queryParams.page}
-        setPage={setPage} />
+        page={page}
+        setPage={setNewPage} /> */}
     </article>
   )
 };

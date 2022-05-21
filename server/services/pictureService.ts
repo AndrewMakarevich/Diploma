@@ -8,11 +8,9 @@ import ApiError from "../apiError/apiError";
 import { IPictureTag } from "../interfaces/tagInterfaces";
 import PictureTagService from "./pictureTagService";
 import PictureInfoService from "./pictureInfoService";
-import PictureValidator from "../validator/pictureValidator";
-import PictureTypeService from "./pictureTypeService";
-import sequelize from "sequelize";
+import sequelize, { LogicType, OrderItem, Sequelize } from "sequelize";
 import { Op } from "sequelize";
-import { ICreatePictureService } from "../interfaces/services/pictureServicesInterfaces";
+import { ICreatePictureService, IGetPicturesCursor } from "../interfaces/services/pictureServicesInterfaces";
 
 
 
@@ -58,22 +56,52 @@ class PictureService {
     return picture;
   }
 
-  static async getPictures(userId: number, pictureTypeId: number, query: string | undefined, limit: number = 10, page: number = 1, sort: string) {
-    if (!page) {
-      page = 1
-    }
+  static async getPictures(userId: number, pictureTypeId: number, query: string | undefined, cursor: IGetPicturesCursor, limit: number = 10) {
     if (!limit) {
       limit = 10
     }
-    let orderParam;
-
-    try {
-      orderParam = Array.isArray(sort) ? sort : JSON.parse(sort);
-    } catch (e: any) {
-      orderParam = ["createdAt", "DESC"]
-    }
+    let orderParam = [[sequelize.col(cursor.key), cursor.order], [sequelize.col("id"), cursor.order]];
 
     let whereStatement: { [key: string]: any } = {};
+    let cursorStatement: { [key: string]: any } = {};
+
+    function getCursorStatement(key: string, id: number, value: any, order: "ASC" | "DESC", literalString?: string) {
+      if (literalString) {
+        return {
+          [Op.or]: [
+            Sequelize.where(sequelize.literal(literalString), order === "DESC" ? Op.lt : Op.gt, cursor.value as LogicType),
+            {
+              [Op.and]: [
+                Sequelize.where(sequelize.literal(literalString), Op.eq, cursor.value as LogicType),
+                {
+                  "id": { [order === "DESC" ? Op.lt : Op.gt]: id }
+                }
+              ]
+            }
+          ]
+        }
+      }
+      return {
+        [Op.or]: {
+          [key]: { [order === "DESC" ? Op.lt : Op.gt]: value },
+          [Op.and]: {
+            [key]: { [Op.eq]: value },
+            "id": { [order === "DESC" ? Op.lt : Op.gt]: id }
+          }
+        }
+      }
+    }
+
+    if (cursor.value && cursor.id) {
+      const { id, key, value, order } = cursor;
+      if (cursor.key === "likesAmount") {
+        cursorStatement = getCursorStatement(key, id, value, order, '(SELECT COUNT(*) FROM "pictureLikes" WHERE "pictureLikes"."pictureId"=picture.id)');
+      } else if (cursor.key === "commentsAmount") {
+        cursorStatement = getCursorStatement(key, id, value, order, '(SELECT COUNT(*) FROM comments WHERE comments."pictureId"=picture.id)');
+      } else {
+        cursorStatement = getCursorStatement(key, id, value, order)
+      }
+    }
 
     if (userId) {
       whereStatement.userId = userId;
@@ -114,42 +142,44 @@ class PictureService {
       }
     }
 
-    let pictures = await models.Picture.findAll({
-      include: [
-        {
-          model: models.User,
-          as: "user",
-          attributes: ["nickname"],
-        },
-        {
-          model: models.PictureTag,
-          as: "tags",
-          attributes: ["text"],
-          through: {
-            attributes: [],
-          },
-        },
-        {
-          model: models.PictureInfo,
-          as: "pictureInfos",
+    const includeStatement = [
+      {
+        model: models.User,
+        as: "user",
+        attributes: ["nickname"],
+      },
+      {
+        model: models.PictureTag,
+        as: "tags",
+        attributes: [],
+        through: {
           attributes: [],
-        }
+        },
+      },
+      {
+        model: models.PictureInfo,
+        as: "pictureInfos",
+        attributes: [],
+      }
+    ]
 
-      ],
-      where: whereStatement,
-      order: [[sequelize.col(orderParam[0]), orderParam[1]]],
+    let pictures = await models.Picture.findAll({
+      where: {
+        ...whereStatement, ...cursorStatement
+      },
+      include: includeStatement,
       attributes: {
         include: [
           [sequelize.literal('(SELECT COUNT(*) FROM "pictureLikes" WHERE "pictureLikes"."pictureId"=picture.id)'), 'likesAmount'],
           [sequelize.literal('(SELECT COUNT(*) FROM comments WHERE comments."pictureId"=picture.id)'), 'commentsAmount']
         ]
       },
+      limit,
+
+      order: [orderParam[0] as OrderItem, orderParam[1] as OrderItem],
     });
 
-    const picturesCount = pictures.length;
-    console.log(page, limit);
-    pictures = pictures.slice((page - 1) * limit, ((page - 1) * limit) + limit);
-
+    const picturesCount = await models.Picture.count({ where: whereStatement });
     return { count: picturesCount, rows: pictures };
   }
 

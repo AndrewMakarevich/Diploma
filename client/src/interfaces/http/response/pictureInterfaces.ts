@@ -1,4 +1,5 @@
 interface mainPictureObjectProps {
+  [key: string]: any,
   id: number,
   img: string,
   mainTitle: string,
@@ -38,15 +39,6 @@ export interface IExtendedPictureObj extends mainPictureObjectProps {
     id: number,
     text: string
   }[],
-  // comments: {
-  //   id: number,
-  //   text: string,
-  //   createdAt: string,
-  //   updatedAt: string,
-  //   userId: number,
-  //   commentId: number | null,
-  //   pictureId: string
-  // }[]
 }
 
 export interface ICreatePictureResponse {

@@ -1,7 +1,8 @@
-import sequelize, { Sequelize, SequelizeScopeError } from "sequelize";
+import sequelize, { OrderItem, Sequelize, SequelizeScopeError } from "sequelize";
+import { Op } from "sequelize";
 import ApiError from "../apiError/apiError";
+import { IGetCommentsCursor } from "../interfaces/services/pictureCommentServiceInterfaces";
 import models from "../models/models";
-import PictureValidator from "../validator/pictureValidator";
 
 class PictureCommentService {
   static async getCommentById(commentId: number) {
@@ -35,19 +36,32 @@ class PictureCommentService {
     return comment;
   };
 
-  static async getComments(pictureId: number, commentId: number, page: number = 1, limit: number = 10) {
-    if (!page) {
-      page = 1;
-    }
-
+  static async getComments(pictureId: number, commentId: number, cursor: IGetCommentsCursor, limit: number = 10) {
     if (!limit) {
       limit = 10
     }
 
-    const offsetValue = ((page - 1) * limit);
+    let cursorAddParam = {};
 
-    const comments = await models.Comment.findAndCountAll({
-      where: { pictureId, commentId: commentId || null },
+    if (cursor.value) {
+      if (cursor.order === "ASC") {
+        cursorAddParam = {
+          [Op.and]: {
+            [cursor.key]: { [Op.gt]: cursor.value },
+            "id": { [Op.gt]: cursor.id }
+          }
+        }
+      } else if (cursor.order === "DESC") {
+        cursorAddParam = {
+          [cursor.key]: { [Op.lt]: cursor.value },
+          "id": { [Op.lt]: cursor.id }
+        }
+      }
+    }
+    const orderParams = [[sequelize.col(cursor.key), cursor.order], [sequelize.col("id"), cursor.order]];
+
+    const comments = await models.Comment.findAll({
+      where: { ...cursorAddParam, pictureId, commentId: commentId || null },
       attributes: {
         include:
           [
@@ -66,9 +80,11 @@ class PictureCommentService {
           attributes: ["avatar", "nickname"]
         },
       ],
-      distinct: true,
-      limit,
-      offset: offsetValue
+      order: [
+        orderParams[0] as OrderItem,
+        orderParams[1] as OrderItem
+      ],
+      limit
     }).catch((e) => {
       if (e.name === "SequelizeForeignKeyConstraintError" && e.parent.code === "23503" && e.parent.constraint.includes("pictureId")) {
         throw ApiError.badRequest("Picture from whom you want to get commentaries from doesn't exists");
@@ -77,7 +93,9 @@ class PictureCommentService {
       throw ApiError.badRequest(e.message)
     });
 
-    return comments;
+    const commentsCount = await models.Comment.count({ where: { pictureId, commentId: commentId || null } })
+
+    return { count: commentsCount, rows: comments };
   };
 
   static async addComment(pictureId: number, commentId: number, userId: number, text: string) {

@@ -9,10 +9,17 @@ class PictureCommentService {
 
   static async getPictureComments(
     pictureId: number,
+    key: string,
+    id: number,
+    value: string | number,
+    order: "ASC" | "DESC",
     commentId?: number | null,
-    page?: number,
     limit?: number): Promise<AxiosResponse<IGetCommentsResponseObj>> {
-    return $host.get<IGetCommentsResponseObj>("/api/picture-comment/get-many", { params: { pictureId, commentId, page, limit } });
+    return $host.get<IGetCommentsResponseObj>("/api/picture-comment/get-many",
+      {
+        params:
+          { pictureId, commentId, cursor: { key, id, value, order }, limit }
+      });
   };
 
   static async addComment(pictureId: string | number, text: string, commentId?: number | null): Promise<AxiosResponse<ICreateCommentResponseObj>> {
