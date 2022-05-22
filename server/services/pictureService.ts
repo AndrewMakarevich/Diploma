@@ -63,45 +63,6 @@ class PictureService {
     let orderParam = [[sequelize.col(cursor.key), cursor.order], [sequelize.col("id"), cursor.order]];
 
     let whereStatement: { [key: string]: any } = {};
-    let cursorStatement: { [key: string]: any } = {};
-
-    function getCursorStatement(key: string, id: number, value: any, order: "ASC" | "DESC", literalString?: string) {
-      if (literalString) {
-        return {
-          [Op.or]: [
-            Sequelize.where(sequelize.literal(literalString), order === "DESC" ? Op.lt : Op.gt, cursor.value as LogicType),
-            {
-              [Op.and]: [
-                Sequelize.where(sequelize.literal(literalString), Op.eq, cursor.value as LogicType),
-                {
-                  "id": { [order === "DESC" ? Op.lt : Op.gt]: id }
-                }
-              ]
-            }
-          ]
-        }
-      }
-      return {
-        [Op.or]: {
-          [key]: { [order === "DESC" ? Op.lt : Op.gt]: value },
-          [Op.and]: {
-            [key]: { [Op.eq]: value },
-            "id": { [order === "DESC" ? Op.lt : Op.gt]: id }
-          }
-        }
-      }
-    }
-
-    if (cursor.value && cursor.id) {
-      const { id, key, value, order } = cursor;
-      if (cursor.key === "likesAmount") {
-        cursorStatement = getCursorStatement(key, id, value, order, '(SELECT COUNT(*) FROM "pictureLikes" WHERE "pictureLikes"."pictureId"=picture.id)');
-      } else if (cursor.key === "commentsAmount") {
-        cursorStatement = getCursorStatement(key, id, value, order, '(SELECT COUNT(*) FROM comments WHERE comments."pictureId"=picture.id)');
-      } else {
-        cursorStatement = getCursorStatement(key, id, value, order)
-      }
-    }
 
     if (userId) {
       whereStatement.userId = userId;
@@ -114,31 +75,97 @@ class PictureService {
     const onlyByAuthorNickname = /^@/;
     const onlyByTags = /^#/
 
-    if (!query || query === "@" || query === "#") {
-    } else {
+    const getCheckPictureTagsSqlQuery = (searchValue: string) => `(EXISTS(
+      SELECT * FROM "pictureTags" 
+        INNER JOIN "picturesTags" 
+          ON "picturesTags"."pictureId"=picture.id 
+          AND "picturesTags"."pictureTagId"="pictureTags".id  
+        WHERE "pictureTags".text ~* '${searchValue}'
+      ))`
 
+    const getCheckPictureInfosSqlQuery = (searchValue: string) => `(EXISTS(
+        SELECT * FROM "pictureInfos" 
+          WHERE "pictureInfos"."pictureId"=picture.id
+            AND
+          ("pictureInfos".title ~* '${searchValue}' 
+            OR 
+            "pictureInfos".description ~* '${searchValue}')
+      ))`
+
+    if (query && query != "@" && query != "#") {
       if (onlyByAuthorNickname.test(query)) {
-
         whereStatement = {
           ...whereStatement,
-          "$user.nickname$": { [Op.iRegexp]: `${query.split("@")[1] || ""}` }
+          "$user.nickname$": { [Op.iRegexp]: query.split("@")[1] }
         }
       } else if (onlyByTags.test(query)) {
         whereStatement = {
           ...whereStatement,
-          "$tags.text$": { [Op.iRegexp]: `${query.split("#")[1] || ""}` }
+          [Op.and]: [
+            sequelize.where(sequelize.literal(getCheckPictureTagsSqlQuery(query.split("#")[1] || "")), Op.eq, "true")
+          ]
         }
       } else {
         whereStatement = {
-          ...whereStatement,
-          [Op.or]: {
-            mainTitle: { [Op.iRegexp]: `${query || ""}` },
-            description: { [Op.iRegexp]: `${query || ""}` },
-            "$tags.text$": { [Op.iRegexp]: `${query || ""}` },
-            "$pictureInfos.title$": { [Op.iRegexp]: `${query || ""}` },
-            "$pictureInfos.description$": { [Op.iRegexp]: `${query || ""}` },
-          },
+          [Op.and]: {
+            ...whereStatement,
+            [Op.or]: [
+              sequelize.where(sequelize.literal(getCheckPictureTagsSqlQuery(query)), Op.eq, "true"),
+              sequelize.where(sequelize.literal(getCheckPictureInfosSqlQuery(query)), Op.eq, "true"),
+              {
+                mainTitle: { [Op.iRegexp]: `${query || ""}` },
+              },
+              {
+                description: { [Op.iRegexp]: `${query || ""}` },
+              },
+            ]
+          }
         };
+      }
+    }
+
+    let cursorStatement: { [key: string]: any } = {};
+
+    function getCursorStatement(key: string, id: number, value: any, order: "ASC" | "DESC", whereStatement: object, literalString?: string) {
+      if (literalString) {
+        return {
+          [Op.or]: [
+            {
+              [Op.and]: [
+                Sequelize.where(sequelize.literal(literalString), order === "DESC" ? Op.lt : Op.gt, cursor.value as LogicType),
+                {
+                  ...whereStatement
+                }
+              ],
+            },
+            {
+              [Op.and]: [
+                Sequelize.where(sequelize.literal(literalString), Op.eq, cursor.value as LogicType),
+                {
+                  "id": { [order === "DESC" ? Op.lt : Op.gt]: id },
+                  ...whereStatement
+                }
+              ]
+            }
+          ]
+        }
+      }
+      return {
+        [Op.or]: [
+          { [key]: { [order === "DESC" ? Op.lt : Op.gt]: value } },
+          { [key]: { [Op.eq]: value }, "id": { [order === "DESC" ? Op.lt : Op.gt]: id } },
+        ],
+      }
+    }
+
+    if (cursor.value && cursor.id) {
+      const { id, key, value, order } = cursor;
+      if (cursor.key === "likesAmount") {
+        cursorStatement = getCursorStatement(key, id, value, order, whereStatement, '(SELECT COUNT(*) FROM "pictureLikes" WHERE "pictureLikes"."pictureId"=picture.id)');
+      } else if (cursor.key === "commentsAmount") {
+        cursorStatement = getCursorStatement(key, id, value, order, whereStatement, '(SELECT COUNT(*) FROM comments WHERE comments."pictureId"=picture.id)');
+      } else {
+        cursorStatement = getCursorStatement(key, id, value, order, whereStatement)
       }
     }
 
@@ -147,26 +174,10 @@ class PictureService {
         model: models.User,
         as: "user",
         attributes: ["nickname"],
-      },
-      {
-        model: models.PictureTag,
-        as: "tags",
-        attributes: [],
-        through: {
-          attributes: [],
-        },
-      },
-      {
-        model: models.PictureInfo,
-        as: "pictureInfos",
-        attributes: [],
       }
     ]
 
-    let pictures = await models.Picture.findAll({
-      where: {
-        ...whereStatement, ...cursorStatement
-      },
+    let pictures = await models.Picture.findAndCountAll({
       include: includeStatement,
       attributes: {
         include: [
@@ -174,13 +185,13 @@ class PictureService {
           [sequelize.literal('(SELECT COUNT(*) FROM comments WHERE comments."pictureId"=picture.id)'), 'commentsAmount']
         ]
       },
-      limit,
-
+      where: { ...cursorStatement, ...whereStatement },
       order: [orderParam[0] as OrderItem, orderParam[1] as OrderItem],
+      limit,
     });
 
-    const picturesCount = await models.Picture.count({ where: whereStatement });
-    return { count: picturesCount, rows: pictures };
+    // const picturesCount = await models.Picture.count({ where: whereStatement, include: includeStatement });
+    return pictures
   }
 
   static async createPicture(

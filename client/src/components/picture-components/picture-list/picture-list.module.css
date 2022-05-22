@@ -12,7 +12,7 @@
 }
 
 .picture-list {
-  max-height: 100vh;
+  max-height: 30vh;
   display: flex;
   flex-wrap: wrap;
   grid-gap: 15px;

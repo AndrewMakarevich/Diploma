@@ -29,10 +29,10 @@ const PictureList = ({ userId, isPersonalGallery }: IPictureListProps) => {
     if (pictureListContainer.current) {
       let rewriteValue = rewrite;
       do {
+        console.log('foo');
         if (pictureStore.picturesLoading) {
           return;
         }
-
         const data = await pictureStore.getPictures(rewriteValue);
 
         if (rewrite) {

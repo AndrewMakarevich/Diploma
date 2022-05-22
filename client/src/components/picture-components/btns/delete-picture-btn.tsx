@@ -26,6 +26,7 @@ const DeletePictureBtn = ({ pictureId, pictureMainTitle, setModalIsOpen, classNa
       try {
         if (isOwnPicture) {
           const response = await PictureService.deleteOwnPicture(pictureId);
+          pictureStore.deletePictureLocally(pictureId);
           alert(response.data.message);
         } else {
           const response = await PictureService.deleteElsesPicture(pictureId);

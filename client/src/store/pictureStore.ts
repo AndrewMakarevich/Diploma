@@ -4,6 +4,7 @@ import { IGetPicturesCursorInterface } from "../interfaces/services/pictureSeric
 import PictureService from "../services/picture-service";
 
 export interface IQueryParamsObj {
+  [key: string]: any,
   userId: number,
   pictureTypeId: number,
   queryString: string,
@@ -22,12 +23,12 @@ export interface IStoredPictures {
 
 class PictureStore {
   pictures: IStoredPictures;
-  nextPageFirstPicture: IStoredPicture | null;
+  locallyAddedPicturesIds: number[];
   picturesLoading: boolean;
   queryParams: IQueryParamsObj;
   constructor() {
     this.pictures = { count: -1, rows: [] };
-    this.nextPageFirstPicture = null;
+    this.locallyAddedPicturesIds = [];
     this.picturesLoading = false;
     this.queryParams = {
       userId: 0,
@@ -39,18 +40,20 @@ class PictureStore {
         value: 0,
         order: "DESC"
       },
-      limit: 2
+      limit: 5
     }
     makeAutoObservable(this);
   }
 
   async getPictures(rewrite = false) {
     try {
-      if (this.pictures.count === this.pictures.rows.length && !rewrite) {
+      if (this.pictures.count <= this.pictures.rows.length && !rewrite && this.pictures.count !== -1) {
         return;
       }
 
-
+      if (rewrite) {
+        this.clearPictureList();
+      }
 
       const { cursor, limit, pictureTypeId, userId, queryString } = this.queryParams;
       runInAction(() => this.picturesLoading = true);
@@ -62,7 +65,9 @@ class PictureStore {
           queryString,
           limit);
       runInAction(() => {
-        this.pictures = { count: data.count, rows: rewrite ? data.rows : [...this.pictures.rows, ...data.rows] };
+        const filteredForDuplicatesArr = data.rows.filter(picture => !this.locallyAddedPicturesIds.some(id => id === picture.id));
+
+        this.pictures = { count: data.count, rows: rewrite ? data.rows : [...this.pictures.rows, ...filteredForDuplicatesArr] };
 
         if (data.count) {
           cursor.value = data.rows[data.rows.length - 1][cursor.key]
@@ -81,16 +86,19 @@ class PictureStore {
     }
   }
 
-  async addPictureLocally(picture: IShortPictureObj) {
+  addPictureLocally(picture: IShortPictureObj) {
     this.pictures.count++;
+    this.pictures.rows.push(picture);
+    this.locallyAddedPicturesIds.push(picture.id);
+  };
 
-    if (this.pictures.rows.length >= this.queryParams.limit) {
-      this.pictures.rows.pop();
-    }
-    this.pictures.rows.unshift(picture);
+  deletePictureLocally(pictureToDeleteId: number) {
+    this.pictures.count--;
+    this.pictures.rows = this.pictures.rows.filter(picture => picture.id !== pictureToDeleteId)
   };
 
   clearPictureList() {
+    this.locallyAddedPicturesIds = [];
     this.queryParams.userId = 0;
     this.queryParams.cursor.value = 0;
     this.queryParams.cursor.id = 0;

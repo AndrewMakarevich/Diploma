@@ -121,8 +121,8 @@ const ViewPictureModal = ({ isOpen, setIsOpen, currentPictureId }: IViewPictureM
                         onClick={(e) => {
                           runInAction(() => {
                             const { cursor } = pictureStore.queryParams;
-                            pictureStore.queryParams = { ...pictureStore.queryParams, queryString: `#${tag.text}`, cursor: { ...cursor, value: 0 } };
-                            pictureStore.getPictures();
+                            pictureStore.queryParams = { ...pictureStore.queryParams, queryString: `#${tag.text}`, cursor: { ...cursor, value: 0, id: 0 } };
+                            pictureStore.getPictures(true);
                           });
                         }}
                         key={tag.id}

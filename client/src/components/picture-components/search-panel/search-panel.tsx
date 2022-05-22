@@ -16,13 +16,18 @@ const SearchPanel = ({ onChange: getPictureList }: ISearchPanelProps) => {
   const { pictureStore } = useContext(Context);
 
   const setQueryParam = async (target: EventTarget, paramName: string, paramValue: string | string[] | number | number[] | object) => {
+    if (pictureStore.picturesLoading) {
+      return;
+    }
+
     runInAction(() => {
-      const { cursor } = pictureStore.queryParams;
       if (paramName === "cursor") {
-        pictureStore.queryParams = { ...pictureStore.queryParams, cursor: { ...paramValue as IGetPicturesCursorInterface, value: 0 } }
+        pictureStore.queryParams.cursor = { ...paramValue as IGetPicturesCursorInterface }
       } else {
-        pictureStore.queryParams = { ...pictureStore.queryParams, [paramName]: paramValue, cursor: { ...cursor, value: 0 } }
+        pictureStore.queryParams[paramName] = paramValue;
       }
+
+      pictureStore.locallyAddedPicturesIds = [];
     });
 
     if (paramValue === "@" || paramValue === "#") {
@@ -35,12 +40,18 @@ const SearchPanel = ({ onChange: getPictureList }: ISearchPanelProps) => {
     <article className={panelStyles["search-panel"]}>
       <SearchInput
         value={pictureStore.queryParams.queryString}
+        disabled={pictureStore.picturesLoading}
         onChange={(e) => setQueryParam(e.target, "queryString", e.target.value)}></SearchInput>
 
-      <PicturesTypesSelect className={panelStyles["picture-types-select"]} value={pictureStore.queryParams.pictureTypeId} onChange={(e) => setQueryParam(e.target, "pictureTypeId", e.target.value)} />
+      <PicturesTypesSelect
+        className={panelStyles["picture-types-select"]}
+        value={pictureStore.queryParams.pictureTypeId}
+        disabled={pictureStore.picturesLoading}
+        onChange={(e) => setQueryParam(e.target, "pictureTypeId", e.target.value)} />
 
       <PictureSortSelect
         value={`[${pictureStore.queryParams.cursor.key}, ${pictureStore.queryParams.cursor.order}]`}
+        disabled={pictureStore.picturesLoading}
         onChange={(e) => {
           const { cursor } = pictureStore.queryParams;
           const arr = JSON.parse(e.target.value);
