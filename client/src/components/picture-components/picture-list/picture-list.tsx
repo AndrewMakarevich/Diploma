@@ -29,7 +29,6 @@ const PictureList = ({ userId, isPersonalGallery }: IPictureListProps) => {
     if (pictureListContainer.current) {
       let rewriteValue = rewrite;
       do {
-        console.log('foo');
         if (pictureStore.picturesLoading) {
           return;
         }
@@ -41,7 +40,7 @@ const PictureList = ({ userId, isPersonalGallery }: IPictureListProps) => {
 
         const { scrollHeight, clientHeight } = pictureListContainer.current;
 
-        if (pictureStore.pictures.rows.length === data?.count || data?.rows.length === 0 || scrollHeight > clientHeight) {
+        if (data?.rows.length === 0 || scrollHeight > clientHeight) {
           break;
         }
       } while (true)

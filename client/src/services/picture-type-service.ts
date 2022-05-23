@@ -1,14 +1,14 @@
 import { AxiosResponse } from "axios";
 import { $authHost, $host } from "../http";
 import { ICreatePictureTypeResponseObj, IDeletePictureTypeResponseObj, IEditPictureTypeResponseObj, IGetPictureTypesResponseObj } from "../interfaces/http/response/picture-type-interfaces";
+import { IGetPictureTypesCursor } from "../interfaces/services/pictureTypeServiceInterfaces";
 
 class PictureTypeService {
-  static async getPicturesTypes(queryString?: string, sort?: string[], page?: number, limit?: number): Promise<AxiosResponse<IGetPictureTypesResponseObj>> {
+  static async getPicturesTypes(queryString: string = "", cursor: IGetPictureTypesCursor, limit?: number): Promise<AxiosResponse<IGetPictureTypesResponseObj>> {
     return $host.get<IGetPictureTypesResponseObj>('/api/picture-type/get-all', {
       params: {
         queryString,
-        sort,
-        page,
+        cursor,
         limit
       }
     });

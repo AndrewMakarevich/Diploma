@@ -6,7 +6,7 @@ import PictureTypeService from "../../../../services/picture-type-service";
 const PicturesTypesSelect = ({ onChange, value, className }: ComponentProps<"select">) => {
   const [picturesTypes, setPicturesTypes] = useState<pictureTypeObj[]>();
   useEffect(() => {
-    PictureTypeService.getPicturesTypes().then(response => setPicturesTypes(response.data.rows))
+    PictureTypeService.getPicturesTypes("", { key: "createdAt", order: "DESC", id: 0, value: 0 }).then(response => setPicturesTypes(response.data.rows))
   }, []);
 
   return (

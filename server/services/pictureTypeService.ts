@@ -1,7 +1,9 @@
 import sequelize, { OrderItem, Sequelize } from "sequelize";
 import { Op } from "sequelize";
 import ApiError from "../apiError/apiError";
+import { IGetPictureTypesCursor } from "../interfaces/services/pictureTypesServiceInterfaces";
 import models from "../models/models";
+import { getCursorStatement } from "../utils/services/keysetPaginationHelpers";
 import PictureValidator from "../validator/pictureValidator";
 
 class PictureTypeService {
@@ -16,49 +18,45 @@ class PictureTypeService {
     return;
   }
 
-  static async getPictureTypes(queryString?: string, sort?: string, page?: number, limit?: number) {
-
-    console.log(sort);
-
-    let sortParam;
-    try {
-      if (sort) {
-        if (Array.isArray(sort) && sort.length === 2) {
-          sortParam = sort;
-        } else if (typeof sort === "string") {
-          const parsedSortParam = JSON.parse(sort);
-          if (Array.isArray(parsedSortParam) && parsedSortParam.length === 2) {
-            sortParam = parsedSortParam;
-          }
-        }
-      }
-
-      if (!sortParam) {
-        sortParam = ["createdAt", "DESC"]
-      }
-
-    } catch (e) {
-      throw ApiError.badRequest("Incorrect sort param");
+  static async getPictureTypes(queryString: string = "", cursor: IGetPictureTypesCursor, limit?: number) {
+    if (!limit) {
+      limit = undefined
     }
 
-    const limitValue = limit || undefined;
-    const pageValue = page || 1;
-    const offsetValue = (pageValue - 1) * (limitValue || 1);
+    const literals = [
+      {
+        name: 'picturesAmount',
+        string: '(SELECT COUNT(*) FROM pictures WHERE "pictureTypeId"="pictureType"."id")'
+      }
+    ];
 
-    const pictureTypes = await models.PictureType.findAndCountAll({
-      where: {
-        name: { [Op.iRegexp]: queryString || '' }
-      },
+    let cursorStatement = {};
+    const whereStatement = { name: { [Op.iRegexp]: queryString } };
+
+    if (cursor.id && cursor.value) {
+      const { id, key, value, order } = cursor;
+      if (cursor.key === literals[0].name) {
+        cursorStatement = getCursorStatement(key, id, value, order, whereStatement, literals[0].string)
+        return;
+      }
+      cursorStatement = getCursorStatement(key, id, value, order, whereStatement)
+    }
+
+    const orderParams = [[sequelize.col(cursor.key), cursor.order], [sequelize.col("id"), cursor.order]]
+
+    const pictureTypes = await models.PictureType.findAll({
+      where: cursorStatement,
       attributes: {
         include: [
-          [Sequelize.literal(`(SELECT COUNT(*) FROM pictures WHERE "pictureTypeId"="pictureType"."id")`), "picturesAmount"]
+          [Sequelize.literal(literals[0].string), literals[0].name]
         ]
       },
-      order: [[sequelize.col(sortParam[0]), sortParam[1]]],
-      limit: limitValue,
-      offset: offsetValue
+      order: [orderParams[0] as OrderItem, orderParams[1] as OrderItem],
+      limit
     });
-    return pictureTypes;
+
+    const pictureTypesCount = await models.PictureType.count({ where: cursorStatement });
+    return { count: pictureTypesCount, rows: pictureTypes };
   };
 
   static async createPictureType(typeName: string, userId: number) {

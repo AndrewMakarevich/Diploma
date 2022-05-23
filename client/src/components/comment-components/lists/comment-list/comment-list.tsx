@@ -17,7 +17,7 @@ const PictureCommentList = ({ pictureId, pictureAuthorId, commentId = null, comm
   const [commentsListIsOpen, setCommentsListIsOpen] = useState(true);
   const [addCommentFormOpen, setAddCommentFormOpen] = useState(false);
   const [comments, setComments] = useState<IGetCommentsResponseObj>({ count: 0, rows: [] });
-  const [commentsPaginationParams, setCommentsPaginationParams] = useState<IGetCommentsPagParams>({ key: "createdAt", value: 0, id: 0, order: "DESC", limit: 2 });
+  const [commentsPaginationParams, setCommentsPaginationParams] = useState<IGetCommentsPagParams>({ key: "commentLikesAmount", value: 0, id: 0, order: "DESC", limit: 2 });
 
   const getLastCommentItemParamValueAndId = useCallback((commentsArr: IGetCommentByIdResponseObj[]) => {
     const lastCommentItem = commentsArr[commentsArr.length - 1];

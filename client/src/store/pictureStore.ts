@@ -17,17 +17,18 @@ export interface IStoredPicture extends IShortPictureObj {
 }
 
 export interface IStoredPictures {
-  count: number,
   rows: IStoredPicture[]
 }
 
 class PictureStore {
   pictures: IStoredPictures;
+  allPicturesRecieved: boolean;
   locallyAddedPicturesIds: number[];
   picturesLoading: boolean;
   queryParams: IQueryParamsObj;
   constructor() {
-    this.pictures = { count: -1, rows: [] };
+    this.pictures = { rows: [] };
+    this.allPicturesRecieved = false;
     this.locallyAddedPicturesIds = [];
     this.picturesLoading = false;
     this.queryParams = {
@@ -40,16 +41,19 @@ class PictureStore {
         value: 0,
         order: "DESC"
       },
-      limit: 5
+      limit: 2
     }
     makeAutoObservable(this);
   }
 
   async getPictures(rewrite = false) {
     try {
-      if (this.pictures.count <= this.pictures.rows.length && !rewrite && this.pictures.count !== -1) {
+      if (this.allPicturesRecieved) {
         return;
       }
+      // if (this.pictures.count <= this.pictures.rows.length && !rewrite && this.pictures.count !== -1) {
+      //   return;
+      // }
 
       if (rewrite) {
         this.clearPictureList();
@@ -64,16 +68,17 @@ class PictureStore {
           pictureTypeId,
           queryString,
           limit);
+      const filteredForDuplicatesArr = data.rows.filter(picture => !this.locallyAddedPicturesIds.some(id => id === picture.id));
       runInAction(() => {
-        const filteredForDuplicatesArr = data.rows.filter(picture => !this.locallyAddedPicturesIds.some(id => id === picture.id));
-
-        this.pictures = { count: data.count, rows: rewrite ? data.rows : [...this.pictures.rows, ...filteredForDuplicatesArr] };
-
-        if (data.count) {
-          cursor.value = data.rows[data.rows.length - 1][cursor.key]
-          cursor.id = data.rows[data.rows.length - 1].id
-        }
+        this.pictures = { rows: rewrite ? data.rows : [...this.pictures.rows, ...filteredForDuplicatesArr] };
       });
+      if (data.rows.length) {
+        cursor.value = data.rows[data.rows.length - 1][cursor.key]
+        cursor.id = data.rows[data.rows.length - 1].id
+      } else {
+        this.allPicturesRecieved = true;
+        setTimeout(() => { this.allPicturesRecieved = false }, 1000 * 60)
+      }
       return data;
     } catch (e: any) {
       if (e.isAxiosError) {
@@ -87,13 +92,11 @@ class PictureStore {
   }
 
   addPictureLocally(picture: IShortPictureObj) {
-    this.pictures.count++;
     this.pictures.rows.push(picture);
     this.locallyAddedPicturesIds.push(picture.id);
   };
 
   deletePictureLocally(pictureToDeleteId: number) {
-    this.pictures.count--;
     this.pictures.rows = this.pictures.rows.filter(picture => picture.id !== pictureToDeleteId)
   };
 
@@ -102,7 +105,7 @@ class PictureStore {
     this.queryParams.userId = 0;
     this.queryParams.cursor.value = 0;
     this.queryParams.cursor.id = 0;
-    this.pictures = { count: -1, rows: [] }
+    this.pictures = { rows: [] }
   }
 };
 

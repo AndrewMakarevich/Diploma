@@ -8,9 +8,10 @@ import ApiError from "../apiError/apiError";
 import { IPictureTag } from "../interfaces/tagInterfaces";
 import PictureTagService from "./pictureTagService";
 import PictureInfoService from "./pictureInfoService";
-import sequelize, { LogicType, OrderItem, Sequelize } from "sequelize";
+import sequelize, { OrderItem } from "sequelize";
 import { Op } from "sequelize";
 import { ICreatePictureService, IGetPicturesCursor } from "../interfaces/services/pictureServicesInterfaces";
+import { getCursorStatement } from "../utils/services/keysetPaginationHelpers";
 
 
 
@@ -124,46 +125,24 @@ class PictureService {
       }
     }
 
+    const literals = [
+      {
+        name: 'likesAmount',
+        string: '(SELECT COUNT(*) FROM "pictureLikes" WHERE "pictureLikes"."pictureId"=picture.id)'
+      },
+      {
+        name: 'commentsAmount',
+        string: '(SELECT COUNT(*) FROM comments WHERE comments."pictureId"=picture.id)'
+      },
+    ]
     let cursorStatement: { [key: string]: any } = {};
-
-    function getCursorStatement(key: string, id: number, value: any, order: "ASC" | "DESC", whereStatement: object, literalString?: string) {
-      if (literalString) {
-        return {
-          [Op.or]: [
-            {
-              [Op.and]: [
-                Sequelize.where(sequelize.literal(literalString), order === "DESC" ? Op.lt : Op.gt, cursor.value as LogicType),
-                {
-                  ...whereStatement
-                }
-              ],
-            },
-            {
-              [Op.and]: [
-                Sequelize.where(sequelize.literal(literalString), Op.eq, cursor.value as LogicType),
-                {
-                  "id": { [order === "DESC" ? Op.lt : Op.gt]: id },
-                  ...whereStatement
-                }
-              ]
-            }
-          ]
-        }
-      }
-      return {
-        [Op.or]: [
-          { [key]: { [order === "DESC" ? Op.lt : Op.gt]: value } },
-          { [key]: { [Op.eq]: value }, "id": { [order === "DESC" ? Op.lt : Op.gt]: id } },
-        ],
-      }
-    }
 
     if (cursor.value && cursor.id) {
       const { id, key, value, order } = cursor;
-      if (cursor.key === "likesAmount") {
-        cursorStatement = getCursorStatement(key, id, value, order, whereStatement, '(SELECT COUNT(*) FROM "pictureLikes" WHERE "pictureLikes"."pictureId"=picture.id)');
-      } else if (cursor.key === "commentsAmount") {
-        cursorStatement = getCursorStatement(key, id, value, order, whereStatement, '(SELECT COUNT(*) FROM comments WHERE comments."pictureId"=picture.id)');
+      if (cursor.key === literals[0].name) {
+        cursorStatement = getCursorStatement(key, id, value, order, whereStatement, literals[0].string);
+      } else if (cursor.key === literals[1].name) {
+        cursorStatement = getCursorStatement(key, id, value, order, whereStatement, literals[1].string);
       } else {
         cursorStatement = getCursorStatement(key, id, value, order, whereStatement)
       }
@@ -177,12 +156,12 @@ class PictureService {
       }
     ]
 
-    let pictures = await models.Picture.findAndCountAll({
+    let pictures = await models.Picture.findAll({
       include: includeStatement,
       attributes: {
         include: [
-          [sequelize.literal('(SELECT COUNT(*) FROM "pictureLikes" WHERE "pictureLikes"."pictureId"=picture.id)'), 'likesAmount'],
-          [sequelize.literal('(SELECT COUNT(*) FROM comments WHERE comments."pictureId"=picture.id)'), 'commentsAmount']
+          [sequelize.literal(literals[0].string), 'likesAmount'],
+          [sequelize.literal(literals[1].string), 'commentsAmount']
         ]
       },
       where: { ...cursorStatement, ...whereStatement },
@@ -190,8 +169,7 @@ class PictureService {
       limit,
     });
 
-    // const picturesCount = await models.Picture.count({ where: whereStatement, include: includeStatement });
-    return pictures
+    return { rows: pictures }
   }
 
   static async createPicture(

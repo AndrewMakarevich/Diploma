@@ -1,8 +1,9 @@
-import sequelize, { OrderItem, Sequelize, SequelizeScopeError } from "sequelize";
+import sequelize, { LogicType, OrderItem, Sequelize, SequelizeScopeError } from "sequelize";
 import { Op } from "sequelize";
 import ApiError from "../apiError/apiError";
 import { IGetCommentsCursor } from "../interfaces/services/pictureCommentServiceInterfaces";
 import models from "../models/models";
+import { getCursorStatement } from "../utils/services/keysetPaginationHelpers";
 
 class PictureCommentService {
   static async getCommentById(commentId: number) {
@@ -41,31 +42,38 @@ class PictureCommentService {
       limit = 10
     }
 
-    let cursorAddParam = {};
+    const literals = [
+      {
+        name: "childCommentsAmount",
+        string: '(SELECT COUNT(*) FROM comments WHERE comments."commentId"=comment.id)'
+      },
+      {
+        name: "commentLikesAmount",
+        string: '(SELECT COUNT(*) FROM "commentLikes" WHERE "commentLikes"."commentId"=comment.id)'
+      },
+    ]
 
-    if (cursor.value) {
-      if (cursor.order === "ASC") {
-        cursorAddParam = {
-          [Op.and]: {
-            [cursor.key]: { [Op.gt]: cursor.value },
-            "id": { [Op.gt]: cursor.id }
-          }
-        }
-      } else if (cursor.order === "DESC") {
-        cursorAddParam = {
-          [cursor.key]: { [Op.lt]: cursor.value },
-          "id": { [Op.lt]: cursor.id }
-        }
+    let cursorStatement = {};
+
+    if (cursor.value && cursor.id) {
+      const { id, key, order, value } = cursor;
+      if (key === literals[0].name) {
+        cursorStatement = getCursorStatement(key, id, value, order, {}, literals[0].string);
+      } else if (key === literals[1].name) {
+        cursorStatement = getCursorStatement(key, id, value, order, {}, literals[1].string);
+      } else {
+        cursorStatement = getCursorStatement(key, id, value, order, {});
       }
     }
     const orderParams = [[sequelize.col(cursor.key), cursor.order], [sequelize.col("id"), cursor.order]];
 
     const comments = await models.Comment.findAll({
-      where: { ...cursorAddParam, pictureId, commentId: commentId || null },
+      where: { ...cursorStatement, pictureId, commentId: commentId || null },
       attributes: {
         include:
           [
-            [sequelize.literal("(SELECT COUNT(*) FROM comments WHERE comments.\"commentId\"=comment.id)"), "childCommentsAmount"]
+            [sequelize.literal(literals[0].string), literals[0].name],
+            [sequelize.literal(literals[1].string), literals[1].name]
           ]
       },
       include: [

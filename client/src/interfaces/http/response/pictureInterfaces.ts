@@ -47,7 +47,6 @@ export interface ICreatePictureResponse {
 }
 
 export interface IGetPicturesResponse {
-  count: number,
   rows: IShortPictureObj[]
 }
 

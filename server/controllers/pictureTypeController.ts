@@ -1,11 +1,15 @@
 import { NextFunction, Request, Response } from "express";
+import { IGetPicturesCursor } from "../interfaces/services/pictureServicesInterfaces";
 import PictureTypeService from "../services/pictureTypeService";
 
 class PictureTypeController {
   static async getPictureTypes(req: Request, res: Response, next: NextFunction) {
     try {
-      const { queryString, sort, page, limit } = req.query;
-      const response = await PictureTypeService.getPictureTypes(queryString as string, sort as string, Number(page), Number(limit));
+      const { queryString, cursor, limit } = req.query;
+      const response = await PictureTypeService.getPictureTypes(
+        String(queryString),
+        JSON.parse(String(cursor)) as IGetPicturesCursor,
+        Number(limit) || undefined);
 
       return res.json(response);
     } catch (e) {
