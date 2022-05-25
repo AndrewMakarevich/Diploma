@@ -1,37 +1,85 @@
 export default class UserValidator {
-  static validateNickname(nickname: string) {
+  static validateNickname(nickname: string, alert = true) {
     const min = 3;
     const max = 25;
     const regEx = new RegExp(`\^\[a-zA-Zа-яА-ЯёЁ0-9!@$*_-\]\{${min},${max}\}\$`);
 
     if (!regEx.test(nickname)) {
-      alert('Nickname does not match the specified pattern');
+      if (!alert) {
+        return false;
+      }
 
-      return false;
+      throw Error('Nickname does not match the specified pattern');
     }
 
     return true;
   }
-  static validateEmail(email: string, alertText?: string): boolean {
-    const regEx = /^[a-z0-9.\-_]{5,31}@([a-z]{2,10}.)?[a-z]{3,6}.[a-z]{2,10}$/;
 
-    if (!regEx.test(email)) {
-      alert(alertText ? alertText : 'Email does not match the specified pattern');
+  static validateEmail(email: string, alert = true): boolean {
+    const emailParts = email.split("@");
 
-      return false
+    if (emailParts.length === 1 || emailParts.length > 2) {
+      if (!alert) {
+        return false;
+      }
+
+      throw Error("@ symbol in email is required");
+    };
+
+    const recipientName = emailParts[0];
+    const domainName = emailParts[1];
+
+    if (!/^[a-zA-Z0-9!#$%&'*+-/=?^_`{}|]{1,64}$/.test(recipientName)) {
+      if (!alert) {
+        return false;
+      }
+      throw Error("Incorrect email recipient name");
+    };
+
+    if (domainName.length > 253) {
+      if (!alert) {
+        return false;
+      }
+      throw Error("Domain name is too long, maximum length is 253 symbols");
+    };
+
+    const subDomains = domainName.split(".");
+
+    if (subDomains.length < 2) {
+      throw Error("Incorrect sub domains recieved");
     }
 
-    return true
+    const topLevelDomain = subDomains.splice(-1, 1)[0];
+
+    subDomains.forEach(domain => {
+      if (!/^[a-zA-Z0-9-]+$/) {
+        if (!alert) {
+          return false;
+        }
+        throw Error(`Your sub domain \"${domain}\" doesnt match the specified pattern: a-zA-Z0-9 symbols available`)
+      }
+    });
+
+    if (!/^[a-z]{2,14}$/.test(topLevelDomain)) {
+      if (!alert) {
+        return false;
+      }
+      throw Error(`Your top level domain \"${topLevelDomain}\" doesn't match the specified pattern, a-z symbols available, with length range from 2 to 14 symbols`)
+    }
+    return true;
   }
-  static validatePassword(value: string, alertText?: string) {
+
+  static validatePassword(value: string, alert = true) {
     const min = 8;
     const max = 32;
     const regEx = new RegExp(`\^\[a-zA-Zа-яА-ЯёЁ0-9!@№#$%^:?&*()_+-=\]\{${min},${max}\}\$`);
 
     if (!regEx.test(value)) {
-      alert(alertText ? alertText : 'Password does not match the specified pattern');
+      if (!alert) {
+        return false;
+      }
 
-      return false;
+      throw Error('Password does not match the specified pattern');
     }
 
     return true;

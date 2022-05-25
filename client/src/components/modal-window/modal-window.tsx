@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useRef } from 'react';
+import React, { useEffect, useRef } from 'react';
 import { createPortal } from 'react-dom';
 import CloseIcon from '../../assets/img/icons/close-icon/close-icon';
 import modalStyles from './modal-window.module.css';

@@ -21,26 +21,31 @@ const LoginBtn = ({
   const { userStore } = useContext(Context);
   const [isLoading, setIsLoading] = useState(false);
 
+  const loginClickHandler = (e: React.MouseEvent<any>) => {
+    e.preventDefault();
+
+    if (onClick) {
+      onClick(e);
+    }
+
+    try {
+      UserValidator.validateEmail(email);
+      UserValidator.validatePassword(password);
+    } catch (e) {
+      alert(e);
+      return;
+    }
+
+    setIsLoading(true);
+    userStore.login(email, password).then(() => setIsLoading(false));
+  };
+
   return (
     <StandartButton
       className={btnStyles["log-btn"]}
       disabled={isLoading}
       id={stylesById}
-      onClick={(e: React.MouseEvent<any>) => {
-        e.preventDefault();
-
-        if (onClick) {
-          onClick(e);
-        }
-
-        if (
-          UserValidator.validateEmail(email) &&
-          UserValidator.validatePassword(password)
-        ) {
-          setIsLoading(true);
-          userStore.login(email, password).then(() => setIsLoading(false));
-        }
-      }}
+      onClick={loginClickHandler}
       {...restProps}
     >
       {children || "Authentificate"}

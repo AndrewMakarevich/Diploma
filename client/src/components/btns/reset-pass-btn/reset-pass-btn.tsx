@@ -28,12 +28,10 @@ const ResetPassBtn = ({
       return;
     }
 
-    if (
-      !UserValidator.validatePassword(
-        newPass,
-        "New password doesn't match specified pattern"
-      )
-    ) {
+    try {
+      UserValidator.validatePassword(newPass)
+    } catch (e) {
+      alert(e);
       return;
     }
 
@@ -43,18 +41,20 @@ const ResetPassBtn = ({
   const { executeCallback: resetPassword, isLoading: resetIsLoading } =
     useFetching(() => sendResetPassRequest(newPass, repeatNewPass));
 
+  const resetPassClickHandler = (e: React.MouseEvent<HTMLButtonElement, MouseEvent>) => {
+    e.preventDefault();
+
+    if (onClick) {
+      onClick(e);
+    }
+
+    resetPassword();
+  }
+
   return (
     <StandartButton
       id={id}
-      onClick={(e) => {
-        e.preventDefault();
-
-        if (onClick) {
-          onClick(e);
-        }
-
-        resetPassword();
-      }}
+      onClick={resetPassClickHandler}
       disabled={resetIsLoading}
       {...restProps}
     >

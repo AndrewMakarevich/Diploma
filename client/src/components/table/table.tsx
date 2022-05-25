@@ -8,7 +8,7 @@ const Table = <T,>({ tableHeaders, entities, paramsToShow, actions, className }:
   const [actionLoading, setActionLoading] = useState(false);
   return (
     <table className={`${tableStyles["table"]} ${className ? className : ""}`}>
-      <thead>
+      <thead className={tableStyles["table-head"]}>
         <tr>
           {tableHeaders.map(header => (
             <th>{header}</th>

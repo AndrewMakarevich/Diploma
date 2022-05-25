@@ -7,7 +7,7 @@ import formStyles from "./edit-picture-type-form.module.css";
 import DeleteButton from "../../../../UI/delete-button/delete-button";
 
 interface IEditPictureTypeFormProps {
-  initialParams: pictureTypeObj,
+  initialParams?: pictureTypeObj,
   isOpen: boolean,
   setIsOpen: React.Dispatch<React.SetStateAction<boolean>>,
   pictureTypes: IGetPictureTypesResponseObj,
@@ -19,6 +19,9 @@ const EditPictureTypeForm = ({ initialParams, isOpen, setIsOpen, pictureTypes, s
     useFetching((id: number, name: string) => PictureTypeService.editPictureType(id, name));
 
   const onSubmit = async (editedParams: pictureTypeObj) => {
+    if (!initialParams) {
+      return;
+    }
     try {
       await editPictureType(initialParams.id, editedParams.name);
 

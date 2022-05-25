@@ -5,7 +5,9 @@
   row-gap: 5px;
 }
 
-.table{
+.table-wrapper{
+  max-height: 15vh;
+  overflow-y: auto;
   align-self: stretch;
 }
 

@@ -26,26 +26,28 @@ const PictureList = ({ userId, isPersonalGallery }: IPictureListProps) => {
   const [currentPictureId, setCurrentPictureId] = useState(0);
 
   const getPictures = useCallback(async (rewrite = false) => {
-    if (pictureListContainer.current) {
-      let rewriteValue = rewrite;
-      do {
-        if (pictureStore.picturesLoading) {
-          return;
-        }
-        const data = await pictureStore.getPictures(rewriteValue);
-
-        if (rewrite) {
-          rewriteValue = false;
-        }
-
-        const { scrollHeight, clientHeight } = pictureListContainer.current;
-
-        if (data?.rows.length === 0 || scrollHeight > clientHeight) {
-          break;
-        }
-      } while (true)
+    if (!pictureListContainer.current) {
+      return;
     }
 
+    let rewriteValue = rewrite;
+
+    do {
+      if (pictureStore.picturesLoading) {
+        return;
+      }
+      const data = await pictureStore.getPictures(rewriteValue);
+
+      if (rewrite) {
+        rewriteValue = false;
+      }
+
+      const { scrollTop, scrollHeight, clientHeight } = pictureListContainer.current;
+
+      if (data?.rows.length === 0 || scrollTop < (scrollHeight - clientHeight)) {
+        break;
+      }
+    } while (true)
   }, [pictureStore,]);
 
   const {
@@ -72,13 +74,15 @@ const PictureList = ({ userId, isPersonalGallery }: IPictureListProps) => {
   }, [getPictureListWithCurrentQueryParams]);
 
   function infiniteLoading() {
+    if (fetchPicturesLoading || delayedFetchPicturesLoading) {
+      return;
+    }
+
     if (pictureListContainer.current) {
       const { clientHeight, scrollTop, scrollHeight } = pictureListContainer.current;
+
       if ((scrollHeight - clientHeight) - scrollTop < 25) {
-        if (fetchPicturesLoading || delayedFetchPicturesLoading) {
-          return;
-        }
-        fetchPictures()
+        fetchPictures();
       }
     }
   }
@@ -94,7 +98,6 @@ const PictureList = ({ userId, isPersonalGallery }: IPictureListProps) => {
   }, [userId, pictureStore, getPictureListWithCurrentQueryParams]);
 
   useEffect(() => {
-    pictureListContainer.current?.addEventListener("scroll", executeBatch);
     if (!isPersonalGallery) {
       pictureStore.clearPictureList();
       getPictureListWithCurrentQueryParams();
@@ -110,18 +113,13 @@ const PictureList = ({ userId, isPersonalGallery }: IPictureListProps) => {
           <ViewPictureModal isOpen={viewPictureModalIsOpen} setIsOpen={setViewPictureModalIsOpen} currentPictureId={currentPictureId} />
       }
       <SearchPanel onChange={onSearchPanelQueryChange} />
-      <section ref={pictureListContainer} className={listStyles["picture-list"]}>
+      <section ref={pictureListContainer} className={listStyles["picture-list"]} onScroll={executeBatch}>
         {
           pictureStore.pictures.rows.map(pictureItem =>
             <PictureItem key={pictureItem.id} pictureItem={pictureItem} setCurrentPictureId={setCurrentPictureId} setIsOpen={setViewPictureModalIsOpen} />
           )
         }
       </section>
-      {/* <PaginationInput
-        count={pictureStore.pictures.count}
-        limit={pictureStore.queryParams.limit}
-        page={page}
-        setPage={setNewPage} /> */}
     </article>
   )
 };

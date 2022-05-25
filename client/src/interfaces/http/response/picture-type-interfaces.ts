@@ -1,4 +1,5 @@
 export interface pictureTypeObj {
+  [key: string]: string | number,
   id: number,
   name: string,
   userId: number,

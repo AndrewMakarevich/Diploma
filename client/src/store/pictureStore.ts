@@ -51,9 +51,6 @@ class PictureStore {
       if (this.allPicturesRecieved) {
         return;
       }
-      // if (this.pictures.count <= this.pictures.rows.length && !rewrite && this.pictures.count !== -1) {
-      //   return;
-      // }
 
       if (rewrite) {
         this.clearPictureList();
@@ -61,17 +58,19 @@ class PictureStore {
 
       const { cursor, limit, pictureTypeId, userId, queryString } = this.queryParams;
       runInAction(() => this.picturesLoading = true);
-      const { data } =
-        await PictureService.getPictures(
-          cursor,
-          userId,
-          pictureTypeId,
-          queryString,
-          limit);
+
+      const { data } = await PictureService.getPictures(
+        cursor,
+        userId,
+        pictureTypeId,
+        queryString,
+        limit);
+
       const filteredForDuplicatesArr = data.rows.filter(picture => !this.locallyAddedPicturesIds.some(id => id === picture.id));
       runInAction(() => {
         this.pictures = { rows: rewrite ? data.rows : [...this.pictures.rows, ...filteredForDuplicatesArr] };
       });
+
       if (data.rows.length) {
         cursor.value = data.rows[data.rows.length - 1][cursor.key]
         cursor.id = data.rows[data.rows.length - 1].id
@@ -101,6 +100,7 @@ class PictureStore {
   };
 
   clearPictureList() {
+    this.allPicturesRecieved = false;
     this.locallyAddedPicturesIds = [];
     this.queryParams.userId = 0;
     this.queryParams.cursor.value = 0;

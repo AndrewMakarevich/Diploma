@@ -24,33 +24,40 @@ const RegistrationBtn = ({
   const { userStore } = useContext(Context);
   const [isLoading, setIsLoading] = useState(false);
 
+  const registarteClickHandler = (e: React.MouseEvent<HTMLButtonElement, MouseEvent>) => {
+    e.preventDefault();
+
+    if (onClick) {
+      onClick(e);
+    }
+
+    if (password !== repPassword) {
+      alert("Passwords aren't equal to each other");
+      return;
+    }
+
+    try {
+      UserValidator.validateEmail(email);
+      UserValidator.validateNickname(nickname);
+      UserValidator.validatePassword(password);
+    } catch (e) {
+      alert(e);
+      return;
+    }
+
+    setIsLoading(true);
+    userStore
+      .registration(email, nickname, password)
+      .then(() => setIsLoading(false));
+  };
+
+
+
   return (
     <StandartButton
       className={`${btnStyles["reg-btn"]} ${className || ""}`}
       disabled={isLoading}
-      onClick={(e) => {
-        e.preventDefault();
-
-        if (onClick) {
-          onClick(e);
-        }
-
-        if (password !== repPassword) {
-          alert("Passwords aren't equal to each other");
-          return;
-        }
-
-        if (
-          UserValidator.validateEmail(email) &&
-          UserValidator.validateNickname(nickname) &&
-          UserValidator.validatePassword(password)
-        ) {
-          setIsLoading(true);
-          userStore
-            .registration(email, nickname, password)
-            .then(() => setIsLoading(false));
-        }
-      }}
+      onClick={registarteClickHandler}
       {...restProps}
     >
       {children || "Registrate"}

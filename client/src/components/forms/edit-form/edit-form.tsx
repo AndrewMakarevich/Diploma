@@ -5,7 +5,7 @@ import StandartInput from "../../../UI/standart-input/standart-input";
 import formStyles from "./edit-form.module.css";
 
 interface IEditFormProps<T> {
-  initialParams: T,
+  initialParams?: T,
   paramsAbleToEdit: { placeholder: string, paramName: string }[],
   onSubmit: (editedParams: T) => Promise<void>,
   isLoading: boolean

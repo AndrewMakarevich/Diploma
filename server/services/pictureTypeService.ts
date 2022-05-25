@@ -42,10 +42,12 @@ class PictureTypeService {
       cursorStatement = getCursorStatement(key, id, value, order, whereStatement)
     }
 
+    console.log({ ...whereStatement, ...cursorStatement });
+
     const orderParams = [[sequelize.col(cursor.key), cursor.order], [sequelize.col("id"), cursor.order]]
 
     const pictureTypes = await models.PictureType.findAll({
-      where: cursorStatement,
+      where: { ...cursorStatement, ...whereStatement },
       attributes: {
         include: [
           [Sequelize.literal(literals[0].string), literals[0].name]

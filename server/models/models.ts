@@ -43,6 +43,11 @@ const User = sequelize.define<IUserInstance>('user', {
         };
 
         const subDomains = domainName.split(".");
+
+        if (subDomains.length < 2) {
+          throw Error("Incorrect sub domains recieved");
+        }
+
         const topLevelDomain = subDomains.splice(-1, 1)[0];
 
         subDomains.forEach(domain => {
