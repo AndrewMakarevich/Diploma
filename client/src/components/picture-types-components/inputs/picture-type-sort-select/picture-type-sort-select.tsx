@@ -51,7 +51,7 @@ const PictureTypeSortSelect = (props: ComponentProps<"select">) => {
           <optgroup key={optGroup.name} label={optGroup.name}>
             {
               optGroup.options.map(option =>
-                <option key={option.name} label={option.name} value={option.value}></option>
+                <option key={option.name} label={option.name} value={JSON.stringify(option.value)}></option>
               )
             }
           </optgroup>

@@ -58,11 +58,11 @@ class PictureCommentService {
     if (cursor.value && cursor.id) {
       const { id, key, order, value } = cursor;
       if (key === literals[0].name) {
-        cursorStatement = getCursorStatement(key, id, value, order, {}, literals[0].string);
+        cursorStatement = getCursorStatement(key, id, value, order, literals[0].string);
       } else if (key === literals[1].name) {
-        cursorStatement = getCursorStatement(key, id, value, order, {}, literals[1].string);
+        cursorStatement = getCursorStatement(key, id, value, order, literals[1].string);
       } else {
-        cursorStatement = getCursorStatement(key, id, value, order, {});
+        cursorStatement = getCursorStatement(key, id, value, order);
       }
     }
     const orderParams = [[sequelize.col(cursor.key), cursor.order], [sequelize.col("id"), cursor.order]];

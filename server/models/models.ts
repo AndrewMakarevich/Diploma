@@ -122,7 +122,19 @@ const PictureInfo = sequelize.define<IPictureInfoInstance>('pictureInfo', {
 
 const PictureType = sequelize.define('pictureType', {
   id: { type: DataTypes.INTEGER, primaryKey: true, autoIncrement: true },
-  name: { type: DataTypes.STRING }
+  name: {
+    type: DataTypes.STRING, validate: {
+      checkPictureTypeName(typeName: string) {
+        if (!typeName.split(" ").join("")) {
+          throw Error("Picture type which consists of only spaces does not allowed")
+        }
+
+        if (!/^[a-zA-Z\s]{3,35}$/.test(typeName)) {
+          throw Error("Picture type name doesn't match the specified pattern, a-zA-Z symbols and space allowed with length from 3 to 35 symbols")
+        }
+      }
+    }
+  }
 });
 
 const PictureTag = sequelize.define<IPictureTagInstance>('pictureTag', {

@@ -1,3 +1,26 @@
+.nav-item{
+  padding: 7px 0;
+}
+
+.nav-item{
+  padding: 7px 3px;
+  transition: background-color .2s;
+}
+
+.nav-item:hover{
+  background-color: var(--extra-light);
+}
+
+.nav-item a{
+  color: var(--extra-light);
+  text-decoration: none;
+  transition: color .2s;
+}
+
+.nav-item:hover a{
+  color: var(--extra-dark);
+}
+
 .no-permission{
   position:relative;
 }

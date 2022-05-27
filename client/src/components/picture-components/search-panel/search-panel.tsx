@@ -21,12 +21,7 @@ const SearchPanel = ({ onChange: getPictureList }: ISearchPanelProps) => {
     }
 
     runInAction(() => {
-      if (paramName === "cursor") {
-        pictureStore.queryParams.cursor = { ...paramValue as IGetPicturesCursorInterface }
-      } else {
-        pictureStore.queryParams[paramName] = paramValue;
-      }
-
+      pictureStore.queryParams[paramName] = paramValue;
       pictureStore.locallyAddedPicturesIds = [];
     });
 
@@ -50,7 +45,7 @@ const SearchPanel = ({ onChange: getPictureList }: ISearchPanelProps) => {
         onChange={(e) => setQueryParam(e.target, "pictureTypeId", e.target.value)} />
 
       <PictureSortSelect
-        value={`[${pictureStore.queryParams.cursor.key}, ${pictureStore.queryParams.cursor.order}]`}
+        value={`["${pictureStore.queryParams.cursor.key}","${pictureStore.queryParams.cursor.order}"]`}
         disabled={pictureStore.picturesLoading}
         onChange={(e) => {
           const { cursor } = pictureStore.queryParams;

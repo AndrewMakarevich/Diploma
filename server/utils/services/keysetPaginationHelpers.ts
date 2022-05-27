@@ -1,6 +1,6 @@
 import sequelize, { Op, LogicType } from "sequelize"
 
-export function getCursorStatement(key: string, id: number, value: any, order: "ASC" | "DESC", whereStatement: object, literalString?: string) {
+export function getCursorStatement(key: string, id: number, value: any, order: "ASC" | "DESC", literalString?: string) {
   if (literalString) {
     return {
       [Op.or]: [

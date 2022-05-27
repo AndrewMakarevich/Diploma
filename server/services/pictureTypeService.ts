@@ -36,10 +36,10 @@ class PictureTypeService {
     if (cursor.id && cursor.value) {
       const { id, key, value, order } = cursor;
       if (cursor.key === literals[0].name) {
-        cursorStatement = getCursorStatement(key, id, value, order, whereStatement, literals[0].string)
-        return;
+        cursorStatement = getCursorStatement(key, id, value, order, literals[0].string)
+      } else {
+        cursorStatement = getCursorStatement(key, id, value, order)
       }
-      cursorStatement = getCursorStatement(key, id, value, order, whereStatement)
     }
 
     console.log({ ...whereStatement, ...cursorStatement });

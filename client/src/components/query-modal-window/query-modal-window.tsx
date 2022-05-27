@@ -3,7 +3,7 @@ import { useContext, useEffect, useRef } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { Context } from '../..';
 import modalStyles from './modal-window.module.css';
-const QueryModalWindow = ({ stylesById, children }: { stylesById: string, children: JSX.Element }) => {
+const QueryModalWindow = ({ stylesById, children, className }: { stylesById: string, children: JSX.Element, className?: string }) => {
   const { modalStore } = useContext(Context);
   const [searchParams, setSearchParams] = useSearchParams();
 

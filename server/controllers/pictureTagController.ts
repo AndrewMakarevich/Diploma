@@ -13,6 +13,20 @@ class PictureTagController {
     }
   }
 
+  static async getTags(req: Request, res: Response, next: NextFunction) {
+    try {
+      const { queryString, cursor, limit } = req.query;
+      const response = await PictureTagService.getTags(
+        queryString ? String(queryString) : undefined,
+        String(cursor),
+        Number(limit) || undefined);
+
+      return res.json(response);
+    } catch (e) {
+      next(e);
+    }
+  }
+
   static async deletePictureTagConnection(req: Request, res: Response, next: NextFunction) {
     try {
       const { pictureId, tagIdValueOrArray } = req.query;

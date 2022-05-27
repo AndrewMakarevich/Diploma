@@ -1,8 +1,17 @@
-import sequelize from "sequelize";
+import sequelize, { OrderItem } from "sequelize";
 import { Op } from "sequelize";
 import ApiError from "../apiError/apiError";
+import { IGetTagsCursor } from "../interfaces/services/pictureTagsServiceInterfaces";
 import models from "../models/models";
+import { getCursorStatement } from "../utils/services/keysetPaginationHelpers";
 import PictureValidator from "../validator/pictureValidator";
+
+const baseCursorValue: IGetTagsCursor = {
+  id: 0,
+  key: "createdAt",
+  order: "ASC",
+  value: 0
+}
 
 class PictureTagService {
   static async getTagsByText(tagText: string) {
@@ -23,6 +32,35 @@ class PictureTagService {
         limit: 5
       }
     );
+
+    return tags;
+  }
+
+  static async getTags(queryString: string = "", cursor: string = "", limit = 5) {
+    let parsedCursor: IGetTagsCursor;
+    try {
+      parsedCursor = JSON.parse(cursor)
+    } catch (e) {
+      parsedCursor = baseCursorValue
+    }
+    const whereStatement = { text: { [Op.iRegexp]: queryString } };
+    const orderParams = [[sequelize.col(parsedCursor.key), parsedCursor.order], [sequelize.col("id"), parsedCursor.order]];
+
+    let cursorStatement = {};
+
+    if (parsedCursor.value && parsedCursor.id) {
+      const { id, key, order, value } = parsedCursor;
+      cursorStatement = getCursorStatement(key, id, value, order);
+    }
+
+    const tags = await models.PictureTag.findAll({
+      where: { ...cursorStatement, ...whereStatement },
+      order: [
+        orderParams[0] as OrderItem,
+        orderParams[1] as OrderItem
+      ],
+      limit
+    });
 
     return tags;
   }

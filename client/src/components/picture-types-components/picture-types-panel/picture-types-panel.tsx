@@ -34,7 +34,7 @@ const PictureTypesPanel = () => {
     limit: 1
   });
 
-  const sendRequestToGetPictureTypes = useCallback(async (queryString: string, rewrite = false) => {
+  const sendRequestToGetPictureTypes = useCallback(async (queryStringVal: string = queryString, paginationObj: IPaginationParams = pagination, rewrite = false) => {
 
     if (!tableWrapperRef.current) {
       return;
@@ -44,10 +44,11 @@ const PictureTypesPanel = () => {
       return;
     }
 
-    let currentPaginationState = pagination;
+    let currentPaginationState = paginationObj;
 
     if (rewrite) {
-      currentPaginationState = { ...pagination, cursor: { ...pagination.cursor, id: 0, value: 0 } };
+      currentPaginationState = { ...paginationObj, cursor: { ...paginationObj.cursor, id: 0, value: 0 } };
+      console.log(currentPaginationState)
       setAllPictureTypesRecieved(false);
     }
 
@@ -55,8 +56,7 @@ const PictureTypesPanel = () => {
     let currentPicturesTypesListState = pictureTypes;
 
     do {
-      const { scrollTop, scrollHeight, clientHeight } = tableWrapperRef.current;
-      const { data } = await PictureTypeService.getPicturesTypes(queryString, currentPaginationState.cursor, currentPaginationState.limit);
+      const { data } = await PictureTypeService.getPicturesTypes(queryStringVal, currentPaginationState.cursor, currentPaginationState.limit);
       const { count, rows } = data;
 
       if (!rows.length) {
@@ -69,7 +69,6 @@ const PictureTypesPanel = () => {
 
       if (rewriteCurrentState) {
         currentPicturesTypesListState = { count, rows: filteredFromDulicatesTypesArr }
-        rewriteCurrentState = false
       } else {
         currentPicturesTypesListState.rows = [...currentPicturesTypesListState.rows, ...filteredFromDulicatesTypesArr];
 
@@ -77,42 +76,56 @@ const PictureTypesPanel = () => {
       setPictureTypes(currentPicturesTypesListState);
 
       const lastResponseItem = rows[rows.length - 1]
-      currentPaginationState = { ...pagination, cursor: { ...pagination.cursor, id: lastResponseItem.id, value: lastResponseItem[pagination.cursor.key] } }
+      currentPaginationState = { ...currentPaginationState, cursor: { ...currentPaginationState.cursor, id: lastResponseItem.id, value: lastResponseItem[currentPaginationState.cursor.key] } }
       setPagination(currentPaginationState);
 
-      if ((scrollTop < (scrollHeight - clientHeight)) && !rewrite) {
-        break;
+      const { scrollTop, scrollHeight, clientHeight } = tableWrapperRef.current;
+
+      if (rewriteCurrentState) {
+        if (scrollHeight > clientHeight) {
+          break;
+        }
+      } else {
+        if (scrollTop < (scrollHeight - clientHeight - 25)) {
+          break;
+        }
+      }
+
+
+
+      if (rewriteCurrentState) {
+        rewriteCurrentState = false;
       }
     } while (true)
-  }, [pagination, pictureTypes, allPictureTypesRecieved, locallyAddedPictureTypesIds])
+  }, [pagination, queryString, pictureTypes, allPictureTypesRecieved, locallyAddedPictureTypesIds])
 
   const { executeCallback: fetchPictureTypes, isLoading: pictureTypesLoading } = useFetching(sendRequestToGetPictureTypes);
   const { executeCallback: delayFetchPictureTypes, isLoading: delayPictureTypesLoading } = useDelayFetching<void>(sendRequestToGetPictureTypes, 200);
 
-  const getPictureTypesWithCurrentQueryParams = useCallback((queryString: string, target?: EventTarget, rewrite = false) => {
+  const getPictureTypesWithCurrentQueryParams = useCallback((queryString: string, paginationObj: IPaginationParams = pagination, target?: EventTarget, rewrite = false) => {
     if (target instanceof HTMLButtonElement || target instanceof HTMLSelectElement || !target) {
-      fetchPictureTypes(queryString, rewrite);
+      fetchPictureTypes(queryString, paginationObj, rewrite);
       return;
     }
 
-    delayFetchPictureTypes(queryString, rewrite);
+    delayFetchPictureTypes(queryString, paginationObj, rewrite);
 
-  }, [fetchPictureTypes, delayFetchPictureTypes])
+  }, [pagination, fetchPictureTypes, delayFetchPictureTypes])
 
   const setQueryStringAndGetPictureTypes = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
     setQueryString(e.target?.value);
-    getPictureTypesWithCurrentQueryParams(e.target.value, e.target, true);
-  }, [getPictureTypesWithCurrentQueryParams]);
+    getPictureTypesWithCurrentQueryParams(e.target.value, pagination, e.target, true);
+  }, [getPictureTypesWithCurrentQueryParams, pagination]);
 
   const setSortParamsAndGetPictureTypes = useCallback((e: React.ChangeEvent<HTMLSelectElement>) => {
-    const keyAndOrder = e.target.value.split(",");
+    const keyAndOrder = JSON.parse(e.target.value);
     const key = keyAndOrder[0];
     const order = keyAndOrder[1] === "ASC" || keyAndOrder[1] === "DESC" ? keyAndOrder[1] : "DESC";
 
     const newPaginationParams: IPaginationParams = { ...pagination, cursor: { ...pagination.cursor, key, order } }
     setPagination(newPaginationParams);
 
-    getPictureTypesWithCurrentQueryParams(queryString, e.target, true);
+    getPictureTypesWithCurrentQueryParams(queryString, newPaginationParams, e.target, true);
 
   }, [getPictureTypesWithCurrentQueryParams, queryString, pagination]);
 
@@ -173,7 +186,7 @@ const PictureTypesPanel = () => {
       <div className={panelStyles["forms"]}>
         <CreatePictureTypeForm actualizeList={actualizeListAfterAddingType} />
         <EditPictureTypeForm
-          initialParams={pictureTypes.rows.find(pictureType => +pictureType.id === +pictureTypeToEditId)}
+          initialParams={pictureTypes.rows.find(pictureType => +pictureType.id === +pictureTypeToEditId)!}
           isOpen={editFormOpen}
           setIsOpen={setEditFormOpen}
           pictureTypes={pictureTypes}

@@ -10,6 +10,7 @@ import { Context } from "../../..";
 import { observer } from "mobx-react-lite";
 import { runInAction } from "mobx";
 import useBatching from "../../../hooks/useBatching";
+import useWindowResize from "../../../hooks/useElementResize";
 
 interface IPictureListProps {
   userId: number,
@@ -20,35 +21,72 @@ const PictureList = ({ userId, isPersonalGallery }: IPictureListProps) => {
   const { pictureStore } = useContext(Context);
 
   const pictureListContainer = useRef<HTMLElement>(null);
+
   const { executeBatch } = useBatching(infiniteLoading)
 
   const [viewPictureModalIsOpen, setViewPictureModalIsOpen] = useState(false);
   const [currentPictureId, setCurrentPictureId] = useState(0);
 
   const getPictures = useCallback(async (rewrite = false) => {
-    if (!pictureListContainer.current) {
+    if (!pictureListContainer.current || pictureStore.picturesLoading) {
       return;
     }
 
     let rewriteValue = rewrite;
-
     do {
-      if (pictureStore.picturesLoading) {
-        return;
-      }
       const data = await pictureStore.getPictures(rewriteValue);
 
-      if (rewrite) {
-        rewriteValue = false;
+      if (pictureStore.allPicturesRecieved) {
+        break;
       }
 
       const { scrollTop, scrollHeight, clientHeight } = pictureListContainer.current;
 
-      if (data?.rows.length === 0 || scrollTop < (scrollHeight - clientHeight)) {
+      if (data?.rows.length === 0) {
         break;
+      }
+
+      if (rewrite) {
+        if (scrollHeight > clientHeight) {
+          break;
+        }
+      } else {
+        if (scrollTop < (scrollHeight - clientHeight - 20)) {
+          break;
+        }
+      }
+
+      if (rewriteValue) {
+        rewriteValue = false;
       }
     } while (true)
   }, [pictureStore,]);
+
+  const getPicturesOnResize = async () => {
+    if (!pictureListContainer.current) {
+      return;
+    }
+
+    do {
+      if (pictureStore.picturesLoading) {
+        break;
+      }
+
+      const { scrollHeight, clientHeight } = pictureListContainer.current;
+
+      if (scrollHeight > clientHeight) {
+        break;
+      }
+
+      const data = await pictureStore.getPictures(false);
+
+      if (data?.rows.length === 0) {
+        break;
+      }
+    } while (true)
+  }
+
+  useWindowResize(getPicturesOnResize)
 
   const {
     executeCallback: fetchPictures, isLoading: fetchPicturesLoading
@@ -90,7 +128,7 @@ const PictureList = ({ userId, isPersonalGallery }: IPictureListProps) => {
   useEffect(() => {
     if (userId) {
       runInAction(() => {
-        pictureStore.clearPictureList();
+        pictureStore.clearPictureStore();
         pictureStore.queryParams.userId = userId
       });
       getPictureListWithCurrentQueryParams();
@@ -99,7 +137,7 @@ const PictureList = ({ userId, isPersonalGallery }: IPictureListProps) => {
 
   useEffect(() => {
     if (!isPersonalGallery) {
-      pictureStore.clearPictureList();
+      pictureStore.clearPictureStore();
       getPictureListWithCurrentQueryParams();
     }
   }, []);

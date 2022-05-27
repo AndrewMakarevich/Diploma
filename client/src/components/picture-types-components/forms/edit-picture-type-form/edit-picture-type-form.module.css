@@ -7,6 +7,12 @@
   border-radius: 10px;
 }
 
+.form{
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
 .form-header{
   color: var(--extra-light);
   padding: 2px;

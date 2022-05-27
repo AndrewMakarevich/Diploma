@@ -1,13 +1,20 @@
-import EditForm from "../../../forms/edit-form/edit-form";
 import { IGetPictureTypesResponseObj, pictureTypeObj } from "../../../../interfaces/http/response/picture-type-interfaces";
 import PictureTypeService from "../../../../services/picture-type-service";
 import useFetching from "../../../../hooks/useFetching";
 
 import formStyles from "./edit-picture-type-form.module.css";
 import DeleteButton from "../../../../UI/delete-button/delete-button";
+import FormInput from "../../../forms/root-form/form-input/form-input";
+import { useEffect, useState } from "react";
+import PictureTypeValidator from "../../../../validator/picture-type-validator";
+import StandartButton from "../../../../UI/standart-button/standart-button";
+
+interface ITypeParamsAbleToEdit {
+  name: string;
+}
 
 interface IEditPictureTypeFormProps {
-  initialParams?: pictureTypeObj,
+  initialParams: pictureTypeObj,
   isOpen: boolean,
   setIsOpen: React.Dispatch<React.SetStateAction<boolean>>,
   pictureTypes: IGetPictureTypesResponseObj,
@@ -15,10 +22,15 @@ interface IEditPictureTypeFormProps {
 }
 
 const EditPictureTypeForm = ({ initialParams, isOpen, setIsOpen, pictureTypes, setPictureTypes }: IEditPictureTypeFormProps) => {
+  const [editedParams, setEditedParams] = useState<ITypeParamsAbleToEdit>({
+    name: "",
+  });
   const { executeCallback: editPictureType, isLoading: editPictureTypeLoading } =
     useFetching((id: number, name: string) => PictureTypeService.editPictureType(id, name));
 
-  const onSubmit = async (editedParams: pictureTypeObj) => {
+  const onSubmit = (editedParams: ITypeParamsAbleToEdit) => async (event: React.MouseEvent<HTMLButtonElement, MouseEvent>) => {
+    event.preventDefault();
+
     if (!initialParams) {
       return;
     }
@@ -43,6 +55,24 @@ const EditPictureTypeForm = ({ initialParams, isOpen, setIsOpen, pictureTypes, s
     }
   };
 
+  const onChangeHandler = (paramName: string) => (event: React.ChangeEvent<HTMLInputElement>) => {
+    setEditedParams({ ...editedParams, [paramName]: event.target.value });
+  }
+
+  const onValidateHandler = (validator: Function) => (event: React.FocusEvent<HTMLInputElement, Element>) => {
+    validator(event.target.value);
+  }
+
+  const onClearChanges = () => {
+    setEditedParams(initialParams);
+  }
+
+  useEffect(() => {
+    if (initialParams) {
+      setEditedParams(initialParams);
+    }
+  }, [initialParams]);
+
   if (!isOpen) {
     return null;
   }
@@ -50,10 +80,19 @@ const EditPictureTypeForm = ({ initialParams, isOpen, setIsOpen, pictureTypes, s
   return (
     <div className={formStyles["form-wrapper"]}>
       <p className={formStyles["form-header"]}>Edit picture type</p>
-      <EditForm<pictureTypeObj> initialParams={initialParams} paramsAbleToEdit={[{ placeholder: "Type name", paramName: "name" }]} onSubmit={onSubmit} isLoading={editPictureTypeLoading} />
-      <DeleteButton type="button" onClick={() => setIsOpen(false)}>Close</DeleteButton>
+      <form className={formStyles["form"]}>
+        <FormInput
+          disabled={editPictureTypeLoading}
+          value={editedParams["name"]}
+          header="Type name"
+          onChange={onChangeHandler("name")}
+          type="text"
+          onValidate={onValidateHandler(PictureTypeValidator.validateTypeName)} />
+        <StandartButton disabled={editPictureTypeLoading} type="submit" onClick={onSubmit(editedParams)}>Submit changes</StandartButton>
+        <StandartButton disabled={editPictureTypeLoading} type="button" onClick={onClearChanges}>Clear changes</StandartButton>
+        <DeleteButton disabled={editPictureTypeLoading} type="button" onClick={() => setIsOpen(false)}>Close</DeleteButton>
+      </form>
     </div>
-
   )
 };
 

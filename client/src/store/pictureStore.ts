@@ -36,7 +36,7 @@ class PictureStore {
       pictureTypeId: 0,
       queryString: "",
       cursor: {
-        key: "createdAt",
+        key: "likesAmount",
         id: 0,
         value: 0,
         order: "DESC"
@@ -48,12 +48,13 @@ class PictureStore {
 
   async getPictures(rewrite = false) {
     try {
-      if (this.allPicturesRecieved) {
-        return;
+      if (rewrite) {
+        this.clearPictures();
+        this.clearCursor();
       }
 
-      if (rewrite) {
-        this.clearPictureList();
+      if (this.allPicturesRecieved) {
+        return;
       }
 
       const { cursor, limit, pictureTypeId, userId, queryString } = this.queryParams;
@@ -75,8 +76,10 @@ class PictureStore {
         cursor.value = data.rows[data.rows.length - 1][cursor.key]
         cursor.id = data.rows[data.rows.length - 1].id
       } else {
-        this.allPicturesRecieved = true;
-        setTimeout(() => { this.allPicturesRecieved = false }, 1000 * 60)
+        runInAction(() => {
+          this.allPicturesRecieved = true;
+          setTimeout(() => { this.allPicturesRecieved = false }, 1000 * 60)
+        })
       }
       return data;
     } catch (e: any) {
@@ -86,7 +89,9 @@ class PictureStore {
         alert(e.message);
       }
     } finally {
-      this.picturesLoading = false;
+      runInAction(() => {
+        this.picturesLoading = false;
+      })
     }
   }
 
@@ -99,13 +104,21 @@ class PictureStore {
     this.pictures.rows = this.pictures.rows.filter(picture => picture.id !== pictureToDeleteId)
   };
 
-  clearPictureList() {
-    this.allPicturesRecieved = false;
+  clearPictures() {
     this.locallyAddedPicturesIds = [];
-    this.queryParams.userId = 0;
+    this.allPicturesRecieved = false;
+    this.pictures = { rows: [] }
+  }
+
+  clearCursor() {
     this.queryParams.cursor.value = 0;
     this.queryParams.cursor.id = 0;
-    this.pictures = { rows: [] }
+  }
+
+  clearPictureStore() {
+    this.clearPictures();
+    this.clearCursor();
+    this.queryParams.userId = 0;
   }
 };
 

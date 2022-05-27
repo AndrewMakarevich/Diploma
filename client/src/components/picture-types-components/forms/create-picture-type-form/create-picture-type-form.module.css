@@ -1,13 +1,19 @@
-.form{
+.form-wrapper{
   display: flex;
-  gap:2.5px;
   flex-direction: column;
-  border-radius: 10px;
+  gap:2.5px;
   padding: 5px 10px;
   background-color: rgba(0, 0, 0, 0.7);
+  border-radius: 10px;
+}
+
+.form{
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
 }
 
 .form-header{
-  padding: 2px;
   color: var(--extra-light);
+  padding: 2px;
 }
