@@ -1,31 +1,39 @@
-import { HTMLInputTypeAttribute } from "react";
 import StandartButton from "../../../UI/standart-button/standart-button";
-import RootFormInput from "./form-input/form-input";
+import FormInput from "./form-input/form-input";
+import { IRootFormProps } from "./interfaces";
 
-interface IField {
-  placeholder: string,
-  propName: string,
-  type: HTMLInputTypeAttribute
-}
-interface IRootFormProps {
-  fields: IField[],
-  onSubmit: (...args: unknown[]) => {}
-}
+import formStyles from "./root-form.module.css";
 
-const RootForm = ({ fields, onSubmit }: IRootFormProps) => {
-  const submitHandler = (e: React.MouseEvent<HTMLButtonElement, MouseEvent>) => {
-    e.preventDefault();
-    onSubmit();
-  }
 
+const RootForm = ({ fields, buttons }: IRootFormProps) => {
   return (
-    <form>
-      {/* {
-        fields.map(({ type, propName, placeholder }) => (
-          <RootFormInput type={type} propName={propName} placeholder={placeholder} />
-        ))
-      }
-      <StandartButton type="submit" onClick={submitHandler}></StandartButton> */}
+    <form className={formStyles["form"]}>
+      <section className={formStyles["inputs-container"]}>
+        {
+          fields.map(fieldsRow => (
+            <div className={formStyles["inputs-column"]}>
+              {
+                fieldsRow.map(({ type, header, value, disabled, onChange, onValidate }) => (
+                  <FormInput type={type} header={header} value={value} disabled={disabled} onChange={onChange} onValidate={onValidate} />
+                ))
+              }
+            </div>
+          ))
+        }
+      </section>
+      <section className={formStyles["buttons-container"]}>
+        {
+          buttons.map(buttonsRow => (
+            <div className={formStyles["buttons-column"]}>
+              {
+                buttonsRow.map(({ type, header, onClick }) => (
+                  <StandartButton type={type} onClick={onClick}>{header}</StandartButton>
+                ))
+              }
+            </div>
+          ))
+        }
+      </section>
     </form>
   )
 };

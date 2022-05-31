@@ -133,13 +133,28 @@ const PictureType = sequelize.define('pictureType', {
           throw Error("Picture type name doesn't match the specified pattern, a-zA-Z symbols and space allowed with length from 3 to 35 symbols")
         }
       }
-    }
+    },
+    unique: true,
   }
 });
 
 const PictureTag = sequelize.define<IPictureTagInstance>('pictureTag', {
   id: { type: DataTypes.INTEGER, primaryKey: true, autoIncrement: true },
-  text: { type: DataTypes.TEXT, allowNull: false, validate: { is: /^[a-zA-Z0-9\s]{3,20}$/ }, unique: true }
+  text: {
+    type: DataTypes.TEXT, allowNull: false,
+    validate: {
+      checkTagText(tagText: string) {
+        tagText = tagText.split(" ").join("");
+        if (!tagText.split(" ").join("")) {
+          throw Error("Tag that consists of only spaces is not allowed");
+        }
+        if (!/^[a-zA-Z0-9\s]{3,25}$/.test(tagText)) {
+          throw Error("Tag text doesn't match to the specified pattern. A-Za-z0-9 symbols availible, with length from 3 to 25 symbols");
+        }
+      }
+    },
+    unique: true
+  }
 });
 
 const PicturesTags = sequelize.define<IPicturesTagsInstance>('picturesTags', {

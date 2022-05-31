@@ -32,7 +32,7 @@ app.use(errorMiddleware);
 const start = async () => {
     try {
         await sequelize.authenticate();
-        await sequelize.sync({ alter: true });
+        await sequelize.sync();
         RoleService.checkBaseRoles();
         dbCleaner();
         app.listen(PORT, () => console.log(`Server started at port ${PORT}`));

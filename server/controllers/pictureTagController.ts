@@ -27,6 +27,39 @@ class PictureTagController {
     }
   }
 
+  static async createTag(req: Request, res: Response, next: NextFunction) {
+    try {
+      const { text } = req.body;
+      const response = await PictureTagService.addTag(text);
+
+      return res.json(response);
+    } catch (e) {
+      next(e);
+    }
+  }
+
+  static async editTag(req: Request, res: Response, next: NextFunction) {
+    try {
+      const { id, text } = req.body;
+      const response = await PictureTagService.editTag(id, text);
+
+      return res.json(response);
+    } catch (e) {
+      next(e);
+    }
+  }
+
+  static async deleteTag(req: Request, res: Response, next: NextFunction) {
+    try {
+      const { id } = req.params;
+      const response = await PictureTagService.deleteTag(+id);
+
+      return res.json(response);
+    } catch (e) {
+      next(e);
+    }
+  }
+
   static async deletePictureTagConnection(req: Request, res: Response, next: NextFunction) {
     try {
       const { pictureId, tagIdValueOrArray } = req.query;

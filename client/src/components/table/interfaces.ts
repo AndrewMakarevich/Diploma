@@ -2,7 +2,7 @@ import { ComponentProps } from "react"
 
 export interface ITableProps<T> extends ComponentProps<"table"> {
   tableHeaders: string[],
-  actions: IAction[],
+  actions?: IAction[],
   entities: T[],
   paramsToShow: string[]
 }
@@ -10,7 +10,7 @@ export interface ITableProps<T> extends ComponentProps<"table"> {
 export interface ITableRowProps {
   entity: { [key: string]: any },
   paramsToShow: string[]
-  actions: IAction[],
+  actions?: IAction[],
   isLoading: boolean,
   setIsLoading: React.Dispatch<React.SetStateAction<boolean>>
 }

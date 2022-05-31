@@ -13,7 +13,7 @@ const Table = <T,>({ tableHeaders, entities, paramsToShow, actions, className }:
           {tableHeaders.map(header => (
             <th>{header}</th>
           ))}
-          {Boolean(actions.length) && <th>Actions</th>}
+          {Boolean(actions?.length) && <th>Actions</th>}
         </tr>
       </thead>
       <tbody>

@@ -8,7 +8,7 @@ interface IFormInputProps {
   header: string,
   type: HTMLInputTypeAttribute,
   onChange: (e: ChangeEvent<HTMLInputElement>) => unknown
-  onValidate: (e: FocusEvent<HTMLInputElement, Element>) => void
+  onValidate: (paramValue: string, alert: boolean) => boolean
 }
 
 const FormInput = ({ disabled, value, type, header, onChange, onValidate }: IFormInputProps) => {
@@ -17,7 +17,7 @@ const FormInput = ({ disabled, value, type, header, onChange, onValidate }: IFor
 
   const onValidateHandler = (e: FocusEvent<HTMLInputElement, Element>) => {
     try {
-      onValidate(e);
+      onValidate(e.target.value, true);
 
       if (valueIsInvalid) {
         setValueIsInvalid(false);

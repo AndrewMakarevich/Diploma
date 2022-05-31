@@ -11,22 +11,25 @@ const TableRow = ({ entity, paramsToShow, actions, isLoading, setIsLoading }: IT
           <td>{entity[paramKey]}</td>
         ))
       }
-      <td className={tableStyles["actions-table-cell"]}>
-        {
-          actions.map(action => (
-            <StandartButton
-              disabled={isLoading}
-              onClick={async () => {
-                try {
-                  setIsLoading(true);
-                  await action.clickHandler(entity);
-                } finally {
-                  setIsLoading(false);
-                }
-              }}>{action.header}</StandartButton>
-          ))
-        }
-      </td>
+      {
+        Boolean(actions?.length) &&
+        <td className={tableStyles["actions-table-cell"]}>
+          {
+            actions?.map(action => (
+              <StandartButton
+                disabled={isLoading}
+                onClick={async () => {
+                  try {
+                    setIsLoading(true);
+                    await action.clickHandler(entity);
+                  } finally {
+                    setIsLoading(false);
+                  }
+                }}>{action.header}</StandartButton>
+            ))
+          }
+        </td>
+      }
     </tr>
   )
 };

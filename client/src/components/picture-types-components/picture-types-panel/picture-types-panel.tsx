@@ -11,7 +11,6 @@ import EditPictureTypeForm from "../forms/edit-picture-type-form/edit-picture-ty
 import panelStyles from "./picture-types-panel.module.css";
 import PictureTypesSearchPanel from "../picture-types-search-panel/picture-types-search-panel";
 import { IGetPictureTypesCursor } from "../../../interfaces/services/pictureTypeServiceInterfaces";
-import useBatching from "../../../hooks/useBatching";
 
 interface IPaginationParams {
   cursor: IGetPictureTypesCursor,
@@ -35,6 +34,7 @@ const PictureTypesPanel = () => {
   });
 
   const sendRequestToGetPictureTypes = useCallback(async (queryStringVal: string = queryString, paginationObj: IPaginationParams = pagination, rewrite = false) => {
+    let preventer = 0;
 
     if (!tableWrapperRef.current) {
       return;
@@ -48,7 +48,6 @@ const PictureTypesPanel = () => {
 
     if (rewrite) {
       currentPaginationState = { ...paginationObj, cursor: { ...paginationObj.cursor, id: 0, value: 0 } };
-      console.log(currentPaginationState)
       setAllPictureTypesRecieved(false);
     }
 
@@ -81,20 +80,18 @@ const PictureTypesPanel = () => {
 
       const { scrollTop, scrollHeight, clientHeight } = tableWrapperRef.current;
 
-      if (rewriteCurrentState) {
-        if (scrollHeight > clientHeight) {
-          break;
-        }
-      } else {
-        if (scrollTop < (scrollHeight - clientHeight - 25)) {
-          break;
-        }
+      if (scrollHeight - clientHeight - scrollTop >= 25) {
+        break;
       }
-
-
 
       if (rewriteCurrentState) {
         rewriteCurrentState = false;
+      }
+
+      preventer++;
+
+      if (preventer === 100) {
+        break;
       }
     } while (true)
   }, [pagination, queryString, pictureTypes, allPictureTypesRecieved, locallyAddedPictureTypesIds])
@@ -174,8 +171,6 @@ const PictureTypesPanel = () => {
     }
   }, [tableWrapperRef, queryString, fetchPictureTypes, pictureTypesLoading, delayPictureTypesLoading, allPictureTypesRecieved])
 
-  const { executeBatch } = useBatching(infiniteTypesLoading);
-
   useEffect(() => {
     getPictureTypesWithCurrentQueryParams(queryString);
   }, []);
@@ -192,7 +187,7 @@ const PictureTypesPanel = () => {
           pictureTypes={pictureTypes}
           setPictureTypes={setPictureTypes} />
       </div>
-      <div ref={tableWrapperRef} className={panelStyles["table-wrapper"]} onScroll={executeBatch}>
+      <div ref={tableWrapperRef} className={panelStyles["table-wrapper"]} onScroll={infiniteTypesLoading}>
         <Table<pictureTypeObj>
           tableHeaders={["ID", "Name", "Pictures amount"]}
           entities={pictureTypes.rows}

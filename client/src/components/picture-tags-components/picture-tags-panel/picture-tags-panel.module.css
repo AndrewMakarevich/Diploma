@@ -1,0 +1,10 @@
+.forms{
+  display: flex;
+  justify-content: center;
+}
+
+.container{
+  max-height: 15vh;
+  overflow-y: auto;
+  align-self: stretch;
+}

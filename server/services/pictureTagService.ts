@@ -1,3 +1,4 @@
+
 import sequelize, { OrderItem } from "sequelize";
 import { Op } from "sequelize";
 import ApiError from "../apiError/apiError";
@@ -62,39 +63,54 @@ class PictureTagService {
       limit
     });
 
-    return tags;
+    return { rows: tags };
   }
 
   static async addTag(tagText: string) {
     tagText = tagText.split(" ").join("").toLowerCase();
 
-    PictureValidator.validatePictureTag(tagText, true);
-
-    const alreadyExTag = await models.PictureTag.findOne({
-      where: {
-        text: tagText
-      }
-    });
-
-    if (alreadyExTag) {
-      throw ApiError.badRequest("Such tag is already exists");
-    }
-
-    await models.PictureTag.create({
+    const createdTag = await models.PictureTag.create({
       text: tagText
     }).catch(e => {
-      throw ApiError.badRequest(e);
+      if (e.name === "SequelizeUniqueConstraintError") {
+        throw ApiError.badRequest(`Tag with text "${tagText}" already exists`);
+      }
+      throw ApiError.badRequest(e.message);
     });
 
-    return { message: "Tag created succesfully" };
+    return { message: "Tag created successfully", tag: createdTag };
+  }
+
+  static async editTag(id: number, tagText: string = "") {
+    tagText = tagText.split(" ").join("").toLowerCase();
+
+    const editedTag = await models.PictureTag.update({
+      text: tagText
+    }, { where: { id } }).catch(error => {
+      if (error.name === "SequelizeUniqueConstraintError") {
+        throw ApiError.badRequest(`Tag with text "${tagText}" already exists`);
+      }
+
+      throw ApiError.badRequest(error.message);
+    });
+
+    if (editedTag[0] === 0) {
+      throw ApiError.badRequest("Tag with such id doesnt exists");
+    }
+
+    return { message: "Tag edited successfully", tag: editedTag }
   }
 
   static async deleteTag(tagId: number) {
-    await models.PictureTag.destroy({ where: { id: tagId } }).catch(e => {
+    const deletedTag = await models.PictureTag.destroy({ where: { id: tagId } }).catch(e => {
       throw ApiError.badRequest(e);
     });
 
-    return { message: "Tag deleted successfully" }
+    if (deletedTag === 0) {
+      throw ApiError.badRequest("Tag you try to delete doesn't exists or have been already deleted")
+    }
+
+    return { message: "Tag deleted successfully", tag: deletedTag }
   }
 
   static async createPictureTagConnection(pictureId: number, tagText: string) {

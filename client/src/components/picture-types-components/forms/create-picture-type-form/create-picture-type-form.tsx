@@ -1,4 +1,4 @@
-import { FocusEvent, FormEvent, useState } from "react";
+import { FormEvent, useState } from "react";
 import PictureTypeService from "../../../../services/picture-type-service";
 import { pictureTypeObj } from "../../../../interfaces/http/response/picture-type-interfaces";
 
@@ -33,10 +33,6 @@ const CreatePictureTypeForm = ({ actualizeList }: ICreatePictureTypeFormProps) =
     setTypeName(e.target.value)
   }
 
-  const onValidateHandler = (validator: (paramName: string, alert: boolean) => boolean) => (e: FocusEvent<HTMLInputElement>) => {
-    validator(e.target.value, true);
-  }
-
   const onClearChangesHandler = () => {
     setTypeName("");
   }
@@ -45,7 +41,7 @@ const CreatePictureTypeForm = ({ actualizeList }: ICreatePictureTypeFormProps) =
     <div className={formStyles["form-wrapper"]}>
       <p className={formStyles["form-header"]}>Create picture type</p>
       <form className={formStyles["form"]}>
-        <FormInput disabled={formLoading} value={typeName} type="text" header="Type name" onChange={onChangeHandler} onValidate={onValidateHandler(PictureTypeValidator.validateTypeName)} />
+        <FormInput disabled={formLoading} value={typeName} type="text" header="Type name" onChange={onChangeHandler} onValidate={PictureTypeValidator.validateTypeName} />
         <StandartButton disabled={formLoading} type="submit" onClick={createPictureType}>Create</StandartButton>
         <DeleteButton disabled={formLoading} type="button" onClick={onClearChangesHandler}>Clear</DeleteButton>
       </form>

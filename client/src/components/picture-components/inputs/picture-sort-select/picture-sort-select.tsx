@@ -1,5 +1,5 @@
 import { ComponentProps } from "react";
-import MySelect from "../../../../UI/my-select/my-select";
+import SortSelect from "../../../inputs/sort-select/sort-select";
 
 const selectOptions = [
   {
@@ -58,19 +58,7 @@ const selectOptions = [
 
 const PictureSortSelect = (props: ComponentProps<"select">) => {
   return (
-    <MySelect {...props}>
-      {
-        selectOptions.map(optGroup =>
-          <optgroup key={optGroup.name} label={optGroup.name}>
-            {
-              optGroup.options.map(option =>
-                <option key={option.name} label={option.name} value={JSON.stringify(option.value)}></option>
-              )
-            }
-          </optgroup>
-        )
-      }
-    </MySelect>
+    <SortSelect selectOptions={selectOptions} {...props} />
   )
 };
 

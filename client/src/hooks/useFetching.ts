@@ -16,7 +16,6 @@ const useFetching = <T, K extends Array<unknown>>(callback: (...args: K) => Prom
         setError(e.response.data.message)
         alert(e.response.data.message);
       }
-      alert(e);
       return null;
     } finally {
       setIsLoading(false);

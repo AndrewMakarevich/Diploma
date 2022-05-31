@@ -17,7 +17,7 @@ const useWindowResize = (callback: Function) => {
   useEffect(() => {
     window.addEventListener("resize", onSetElementSize);
     return () => { window.removeEventListener("resize", onSetElementSize) };
-  }, []);
+  }, [onSetElementSize]);
 
   return elementSize;
 }

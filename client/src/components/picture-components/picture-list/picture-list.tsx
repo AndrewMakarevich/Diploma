@@ -9,7 +9,6 @@ import EditPictureModal from "../modals/edit-picture-modal/edit-picture-modal";
 import { Context } from "../../..";
 import { observer } from "mobx-react-lite";
 import { runInAction } from "mobx";
-import useBatching from "../../../hooks/useBatching";
 import useWindowResize from "../../../hooks/useElementResize";
 
 interface IPictureListProps {
@@ -22,12 +21,11 @@ const PictureList = ({ userId, isPersonalGallery }: IPictureListProps) => {
 
   const pictureListContainer = useRef<HTMLElement>(null);
 
-  const { executeBatch } = useBatching(infiniteLoading)
-
   const [viewPictureModalIsOpen, setViewPictureModalIsOpen] = useState(false);
   const [currentPictureId, setCurrentPictureId] = useState(0);
 
   const getPictures = useCallback(async (rewrite = false) => {
+    let preventer = 0;
     if (!pictureListContainer.current || pictureStore.picturesLoading) {
       return;
     }
@@ -42,27 +40,24 @@ const PictureList = ({ userId, isPersonalGallery }: IPictureListProps) => {
 
       const { scrollTop, scrollHeight, clientHeight } = pictureListContainer.current;
 
-      if (data?.rows.length === 0) {
+      if (!data || data?.rows.length === 0 || scrollHeight - clientHeight - scrollTop >= 25) {
         break;
-      }
-
-      if (rewrite) {
-        if (scrollHeight > clientHeight) {
-          break;
-        }
-      } else {
-        if (scrollTop < (scrollHeight - clientHeight - 20)) {
-          break;
-        }
       }
 
       if (rewriteValue) {
         rewriteValue = false;
       }
+      preventer++;
+
+      if (preventer === 100) {
+        break;
+      }
+
     } while (true)
-  }, [pictureStore,]);
+  }, [pictureListContainer, pictureStore]);
 
   const getPicturesOnResize = async () => {
+    let preventer = 0
     if (!pictureListContainer.current) {
       return;
     }
@@ -80,7 +75,13 @@ const PictureList = ({ userId, isPersonalGallery }: IPictureListProps) => {
 
       const data = await pictureStore.getPictures(false);
 
-      if (data?.rows.length === 0) {
+      if (data?.rows.length === 0 || !data) {
+        break;
+      }
+
+      preventer++;
+
+      if (preventer === 100) {
         break;
       }
     } while (true)
@@ -119,28 +120,18 @@ const PictureList = ({ userId, isPersonalGallery }: IPictureListProps) => {
     if (pictureListContainer.current) {
       const { clientHeight, scrollTop, scrollHeight } = pictureListContainer.current;
 
-      if ((scrollHeight - clientHeight) - scrollTop < 25) {
+      if (scrollHeight - clientHeight - scrollTop < 25) {
         fetchPictures();
       }
     }
   }
 
   useEffect(() => {
-    if (userId) {
-      runInAction(() => {
-        pictureStore.clearPictureStore();
-        pictureStore.queryParams.userId = userId
-      });
-      getPictureListWithCurrentQueryParams();
-    }
-  }, [userId, pictureStore, getPictureListWithCurrentQueryParams]);
-
-  useEffect(() => {
-    if (!isPersonalGallery) {
-      pictureStore.clearPictureStore();
-      getPictureListWithCurrentQueryParams();
-    }
-  }, []);
+    runInAction(() => {
+      pictureStore.queryParams.userId = userId ? userId : 0
+    })
+    getPictureListWithCurrentQueryParams(undefined, true);
+  }, [userId]);
 
   return (
     <article className={`${listStyles["picture-list__wrapper"]} ${fetchPicturesLoading || delayedFetchPicturesLoading ? listStyles["loading-list"] : ""}`}>
@@ -151,7 +142,7 @@ const PictureList = ({ userId, isPersonalGallery }: IPictureListProps) => {
           <ViewPictureModal isOpen={viewPictureModalIsOpen} setIsOpen={setViewPictureModalIsOpen} currentPictureId={currentPictureId} />
       }
       <SearchPanel onChange={onSearchPanelQueryChange} />
-      <section ref={pictureListContainer} className={listStyles["picture-list"]} onScroll={executeBatch}>
+      <section ref={pictureListContainer} className={listStyles["picture-list"]} onScroll={infiniteLoading}>
         {
           pictureStore.pictures.rows.map(pictureItem =>
             <PictureItem key={pictureItem.id} pictureItem={pictureItem} setCurrentPictureId={setCurrentPictureId} setIsOpen={setViewPictureModalIsOpen} />
