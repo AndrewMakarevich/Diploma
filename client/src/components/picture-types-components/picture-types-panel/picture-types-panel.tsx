@@ -33,7 +33,10 @@ const PictureTypesPanel = () => {
     limit: 1
   });
 
-  const sendRequestToGetPictureTypes = useCallback(async (queryStringVal: string = queryString, paginationObj: IPaginationParams = pagination, rewrite = false) => {
+  const sendRequestToGetPictureTypes = useCallback(async (
+    queryStringVal: string = queryString,
+    paginationObj: IPaginationParams = pagination,
+    rewrite = false) => {
     let preventer = 0;
 
     if (!tableWrapperRef.current) {
@@ -97,9 +100,13 @@ const PictureTypesPanel = () => {
   }, [pagination, queryString, pictureTypes, allPictureTypesRecieved, locallyAddedPictureTypesIds])
 
   const { executeCallback: fetchPictureTypes, isLoading: pictureTypesLoading } = useFetching(sendRequestToGetPictureTypes);
-  const { executeCallback: delayFetchPictureTypes, isLoading: delayPictureTypesLoading } = useDelayFetching<void>(sendRequestToGetPictureTypes, 200);
+  const { executeCallback: delayFetchPictureTypes, isLoading: delayPictureTypesLoading } = useDelayFetching(sendRequestToGetPictureTypes, 200);
 
-  const getPictureTypesWithCurrentQueryParams = useCallback((queryString: string, paginationObj: IPaginationParams = pagination, target?: EventTarget, rewrite = false) => {
+  const getPictureTypesWithCurrentQueryParams = useCallback((
+    queryString: string,
+    paginationObj: IPaginationParams = pagination,
+    target?: EventTarget,
+    rewrite = false) => {
     if (target instanceof HTMLButtonElement || target instanceof HTMLSelectElement || !target) {
       fetchPictureTypes(queryString, paginationObj, rewrite);
       return;
@@ -110,7 +117,7 @@ const PictureTypesPanel = () => {
   }, [pagination, fetchPictureTypes, delayFetchPictureTypes])
 
   const setQueryStringAndGetPictureTypes = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
-    setQueryString(e.target?.value);
+    setQueryString(e.target.value);
     getPictureTypesWithCurrentQueryParams(e.target.value, pagination, e.target, true);
   }, [getPictureTypesWithCurrentQueryParams, pagination]);
 

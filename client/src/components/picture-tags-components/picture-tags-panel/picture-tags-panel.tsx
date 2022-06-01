@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useRef, useState } from "react";
+import { ChangeEvent, useCallback, useEffect, useMemo, useRef, useState } from "react";
 import useDelayFetching from "../../../hooks/useDelayFetching";
 import useWindowResize from "../../../hooks/useElementResize";
 import useFetching from "../../../hooks/useFetching";
@@ -10,7 +10,6 @@ import CreatePictureTagForm from "../forms/create-picture-tag-form/create-pictur
 import EditPictureTagForm from "../forms/edit-picture-tag-form/edit-picture-tag-form";
 import PictureTagsSearchPanel from "../picture-tags-search-panel/picture-tags-search-panel";
 import { IAction } from "../../table/interfaces";
-
 
 import panelStyles from "./picture-tags-panel.module.css";
 
@@ -36,11 +35,11 @@ const PictureTagsPanel = () => {
   const [editPanelIsOpen, setPanelIsOpen] = useState(false);
   const [currentTagToEditId, setCurrentTagToEditId] = useState(0);
 
-  const sendRequestToGetTags = async (queryString: string, cursor: IGetPictureTagsCursor, limit: number) => {
+  const sendRequestToGetTags = useCallback(async (queryString: string, cursor: IGetPictureTagsCursor, limit: number) => {
     const { data } = await PictureTagService.getTags(queryString, cursor, limit);
     const parsedData = data.rows.filter(tag => !locallyCreatedTagsIds.some(tagId => tagId === tag.id));
     return parsedData;
-  };
+  }, [locallyCreatedTagsIds]);
 
   const sendRequestToDeleteTag = useCallback(async (pictureTag: ITagResponseObj) => {
     if (window.confirm("Are you sure you want to delete this tag?")) {
@@ -50,11 +49,12 @@ const PictureTagsPanel = () => {
     }
   }, [pictureTags]);
 
-  const { executeCallback: fetchTags, isLoading: tagsLoading } = useFetching(sendRequestToGetTags);
-  const { executeCallback: delayedFetchTags, isLoading: delayedTagsLoading } = useDelayFetching(sendRequestToGetTags, 400);
-
-  const getTags = useCallback(async (rewrite: boolean) => {
-    if (!pictureTagsContainerRef.current || tagsLoading || delayedTagsLoading) {
+  const getTags = useCallback(async (
+    queryStringValue = queryString,
+    cursorVal = paginationParams.cursor,
+    limitVal = paginationParams.limit,
+    rewrite = false) => {
+    if (!pictureTagsContainerRef.current) {
       return;
     }
 
@@ -63,13 +63,16 @@ const PictureTagsPanel = () => {
     }
 
     let preventer = 0;
-    const { limit, cursor } = paginationParams;
-    let cursorState = cursor;
+    let cursorState = cursorVal;
     let rewriteState = rewrite;
     let pictureTagsState = pictureTags;
 
     do {
-      const tags = await fetchTags(queryString, cursorState, limit);
+      if (rewriteState) {
+        cursorState = { ...cursorState, id: 0, value: 0 }
+      }
+
+      const tags = await sendRequestToGetTags(queryStringValue, cursorState, limitVal);
 
       if (!tags || tags.length === 0) {
         setAllTagsRecieved(true);
@@ -86,11 +89,8 @@ const PictureTagsPanel = () => {
         setPictureTags(pictureTagsState);
       }
 
-
       const lastResElement = tags[tags.length - 1];
       cursorState = { ...cursorState, id: lastResElement["id"], value: lastResElement[cursorState.key] }
-
-
       const { scrollTop, scrollHeight, clientHeight } = pictureTagsContainerRef.current;
 
       if (scrollHeight - clientHeight - scrollTop >= 25) {
@@ -100,7 +100,44 @@ const PictureTagsPanel = () => {
       preventer++;
     } while (preventer < 99)
     setPaginationParams({ ...paginationParams, cursor: cursorState });
-  }, [queryString, paginationParams, pictureTags, allTagsRecieved, fetchTags, delayedTagsLoading, tagsLoading]);
+  }, [queryString, paginationParams, pictureTags, allTagsRecieved, sendRequestToGetTags]);
+
+  const { executeCallback: fetchTags, isLoading: tagsLoading } = useFetching(getTags);
+  const { executeCallback: delayedFetchTags, isLoading: delayedTagsLoading } = useDelayFetching(getTags, 400);
+
+  const getTagsBasedOnElementType = useCallback((
+    rewrite = false,
+    event: ChangeEvent,
+    queryStringVal = queryString,
+    cursor = paginationParams.cursor,
+    limit = paginationParams.limit,) => {
+    if (event.target instanceof HTMLInputElement) {
+      delayedFetchTags(queryStringVal, cursor, limit, rewrite);
+      return;
+    }
+
+    fetchTags(queryStringVal, cursor, limit, rewrite);
+  }, [queryString, paginationParams, delayedFetchTags, fetchTags])
+
+  const onQueryStringChange = useCallback((event: ChangeEvent<HTMLInputElement>) => {
+    setQueryString(event.target.value);
+    getTagsBasedOnElementType(true, event, event.target.value);
+  }, [getTagsBasedOnElementType])
+
+  const onOrderParamChange = useCallback((event: ChangeEvent<HTMLSelectElement>) => {
+    let parsedValue;
+    try {
+      parsedValue = JSON.parse(event.target.value);
+    } catch (e) {
+      parsedValue = ["createdAt", "DESC"]
+    }
+
+    const { cursor } = paginationParams;
+    const newCursorState = { ...cursor, key: parsedValue[0], order: parsedValue[1] }
+    setPaginationParams({ ...paginationParams, cursor: newCursorState });
+
+    getTagsBasedOnElementType(true, event, undefined, newCursorState)
+  }, [paginationParams, getTagsBasedOnElementType])
 
   const getTagsOnResize = useCallback(async () => {
     let preventer = 0;
@@ -113,17 +150,13 @@ const PictureTagsPanel = () => {
     let pictureTagsState = pictureTags;
 
     do {
-      if (tagsLoading || delayedTagsLoading) {
-        break;
-      }
-
       const { clientHeight, scrollHeight } = pictureTagsContainerRef.current;
 
       if (scrollHeight > clientHeight) {
         break;
       }
 
-      const tags = await fetchTags(queryString, cursorState, limit);
+      const tags = await sendRequestToGetTags(queryString, cursorState, limit);
 
       if (!tags || tags.length === 0) {
         setAllTagsRecieved(true);
@@ -138,21 +171,22 @@ const PictureTagsPanel = () => {
     } while (preventer < 99)
 
     setPaginationParams({ ...paginationParams, cursor: cursorState });
-  }, [allTagsRecieved, paginationParams, queryString, pictureTags, tagsLoading, delayedTagsLoading, fetchTags]);
+  }, [allTagsRecieved, paginationParams, queryString, pictureTags, sendRequestToGetTags]);
+  const { executeCallback: fetchTagsOnResize, isLoading: tagsOnResizeLoading } = useFetching(getTagsOnResize);
 
-  useWindowResize(getTagsOnResize);
+  useWindowResize(fetchTagsOnResize);
 
   const infiniteLoading = useCallback(() => {
-    if (!pictureTagsContainerRef.current || tagsLoading || delayedTagsLoading) {
+    if (!pictureTagsContainerRef.current || tagsLoading || delayedTagsLoading || tagsOnResizeLoading) {
       return;
     }
 
     const { scrollTop, scrollHeight, clientHeight } = pictureTagsContainerRef.current;
 
     if (scrollHeight - clientHeight - scrollTop < 25) {
-      getTags(false);
+      fetchTags();
     }
-  }, [pictureTagsContainerRef, getTags, tagsLoading, delayedTagsLoading]);
+  }, [pictureTagsContainerRef, tagsLoading, delayedTagsLoading, fetchTags, tagsOnResizeLoading]);
 
   const onCreateNewTag = useCallback((newTag: ITagResponseObj) => {
     setPictureTags([...pictureTags, newTag]);
@@ -174,7 +208,7 @@ const PictureTagsPanel = () => {
     setPanelIsOpen(true)
   }, [])
 
-  const actionsArr: IAction[] = [
+  const actionsArr: IAction[] = useMemo(() => [
     {
       header: "edit",
       clickHandler: openEditPanel
@@ -183,15 +217,15 @@ const PictureTagsPanel = () => {
       header: "delete",
       clickHandler: sendRequestToDeleteTag
     }
-  ]
+  ], [openEditPanel, sendRequestToDeleteTag])
 
   useEffect(() => {
-    getTags(true);
+    fetchTags()
   }, [])
 
   return (
     <>
-      <PictureTagsSearchPanel />
+      <PictureTagsSearchPanel onQueryStringChange={onQueryStringChange} onOrderParamChange={onOrderParamChange} />
       <div className={panelStyles["forms"]}>
         <CreatePictureTagForm actualizeList={onCreateNewTag} />
         {
@@ -199,7 +233,7 @@ const PictureTagsPanel = () => {
         }
       </div>
       <div ref={pictureTagsContainerRef} className={panelStyles["container"]} onScroll={infiniteLoading}>
-        <Table tableHeaders={["ID", "Text"]} paramsToShow={["id", "text"]} entities={pictureTags} actions={actionsArr} />
+        <Table tableHeaders={["ID", "Text", "Attached pictures amount"]} paramsToShow={["id", "text", "attachedPicturesAmount"]} entities={pictureTags} actions={actionsArr} />
       </div>
     </>
 

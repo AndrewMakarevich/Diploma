@@ -2,6 +2,7 @@ export interface ITagResponseObj {
   [key: string]: string | number,
   id: number,
   text: string,
+  attachedPicturesAmount: string,
   createdAt: string,
   updatedAt: string
 }

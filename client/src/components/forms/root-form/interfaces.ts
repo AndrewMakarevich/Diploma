@@ -6,7 +6,6 @@ export interface IField {
   value?: string,
   onChange: (e: React.ChangeEvent<HTMLInputElement>) => unknown,
   onValidate: (paramValue: string, alert: boolean) => boolean,
-  disabled?: boolean
 }
 
 export interface IButton {
@@ -16,6 +15,14 @@ export interface IButton {
 }
 
 export interface IRootFormProps {
-  fields: IField[][],
-  buttons: IButton[][],
+  fields: IField[][][],
+  buttons: IButton[][][],
+  disabled: boolean,
+  formClassName?: string,
+  fieldsContainerClassName?: string,
+  fieldsRowClassName?: string,
+  fieldsColumnClassName?: string,
+  buttonsContainerClassName?: string,
+  buttonsRowClassName?: string,
+  buttonsColumnClassName?: string,
 }

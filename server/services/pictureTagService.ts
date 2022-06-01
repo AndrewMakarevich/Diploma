@@ -5,7 +5,6 @@ import ApiError from "../apiError/apiError";
 import { IGetTagsCursor } from "../interfaces/services/pictureTagsServiceInterfaces";
 import models from "../models/models";
 import { getCursorStatement } from "../utils/services/keysetPaginationHelpers";
-import PictureValidator from "../validator/pictureValidator";
 
 const baseCursorValue: IGetTagsCursor = {
   id: 0,
@@ -47,15 +46,32 @@ class PictureTagService {
     const whereStatement = { text: { [Op.iRegexp]: queryString } };
     const orderParams = [[sequelize.col(parsedCursor.key), parsedCursor.order], [sequelize.col("id"), parsedCursor.order]];
 
+    const literals = [
+      {
+        name: 'attachedPicturesAmount',
+        string: '(SELECT COUNT(*) FROM "picturesTags" WHERE "picturesTags"."pictureTagId" = "pictureTag".id)'
+      },
+    ]
+
     let cursorStatement = {};
 
     if (parsedCursor.value && parsedCursor.id) {
       const { id, key, order, value } = parsedCursor;
-      cursorStatement = getCursorStatement(key, id, value, order);
+      if (key === literals[0].name) {
+        cursorStatement = getCursorStatement(key, id, value, order, literals[0].string);
+      } else {
+        cursorStatement = getCursorStatement(key, id, value, order);
+      }
+
     }
 
     const tags = await models.PictureTag.findAll({
       where: { ...cursorStatement, ...whereStatement },
+      attributes: {
+        include: [
+          [sequelize.literal(literals[0].string), literals[0].name]
+        ]
+      },
       order: [
         orderParams[0] as OrderItem,
         orderParams[1] as OrderItem

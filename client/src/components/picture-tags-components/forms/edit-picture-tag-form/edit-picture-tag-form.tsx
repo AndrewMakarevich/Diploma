@@ -2,11 +2,9 @@ import { ChangeEvent, useCallback, useEffect, useState } from "react";
 import useFetching from "../../../../hooks/useFetching";
 import { ITagResponseObj } from "../../../../interfaces/http/response/pictureTagInterfaces";
 import PictureTagService from "../../../../services/picture-tag-service";
-import DeleteButton from "../../../../UI/delete-button/delete-button";
-import StandartButton from "../../../../UI/standart-button/standart-button";
 import PictureTagValidator from "../../../../validator/picture-tag-validator";
-import FormInput from "../../../forms/root-form/form-input/form-input";
 import { IField } from "../../../forms/root-form/interfaces";
+import StandartOneColumnForm from "../../../forms/standart-one-column-form/standart-one-column-form";
 
 interface IEditPictureTagFormProps {
   initialParams?: ITagResponseObj,
@@ -51,7 +49,6 @@ const EditPictureTagForm = ({ initialParams, actualizeList }: IEditPictureTagFor
       value: paramsToEdit.text,
       onValidate: PictureTagValidator.validateTagText,
       onChange: onChangeHandler("text"),
-      disabled: tagLoading
     }
   ];
 
@@ -63,16 +60,12 @@ const EditPictureTagForm = ({ initialParams, actualizeList }: IEditPictureTagFor
   return (
     <div>
       <p>Edit tag:</p>
-      <form>
-        {
-          fields.map(({ type, header, value, onValidate, onChange, disabled }) => (
-            <FormInput type={type} header={header} value={value} onValidate={onValidate} onChange={onChange} disabled={disabled} />
-          ))
-        }
-        <StandartButton type="submit" onClick={onSubmitHandler}>Submit</StandartButton>
-        <StandartButton type="button" onClick={onClearChangesHandler}>Clear changes</StandartButton>
-        <DeleteButton type="button">Close</DeleteButton>
-      </form>
+      <StandartOneColumnForm
+        fields={fields}
+        disabled={tagLoading}
+        onSubmit={onSubmitHandler}
+        onClearChanges={onClearChangesHandler}
+        clearButtonText="Clear changes" />
     </div>
   )
 };

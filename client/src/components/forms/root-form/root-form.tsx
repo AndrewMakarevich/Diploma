@@ -5,29 +5,64 @@ import { IRootFormProps } from "./interfaces";
 import formStyles from "./root-form.module.css";
 
 
-const RootForm = ({ fields, buttons }: IRootFormProps) => {
+const RootForm = ({
+  fields,
+  buttons,
+  disabled,
+  formClassName = "",
+  fieldsContainerClassName = "",
+  fieldsRowClassName = "",
+  fieldsColumnClassName = "",
+  buttonsContainerClassName = "",
+  buttonsRowClassName = "",
+  buttonsColumnClassName = "" }: IRootFormProps) => {
+
+  const formStyle = `${formStyles["form"]} ${formClassName}`;
+  const fieldsContainerStyles = `${formStyles["fields-container"]} ${fieldsContainerClassName}`;
+  const fieldsRowStyles = `${formStyles["fields-row"]} ${fieldsRowClassName}`;
+  const fieldsColumnStyles = `${formStyles["fields-column"]} ${fieldsColumnClassName}`;
+  const buttonsContainerStyles = `${formStyles["buttons-container"]} ${buttonsContainerClassName}`;
+  const buttonsRowStyles = `${formStyles["buttons-row"]} ${buttonsRowClassName}`;
+  const buttonsColumnStyles = `${formStyles["buttons-column"]} ${buttonsColumnClassName}`;
+
   return (
-    <form className={formStyles["form"]}>
-      <section className={formStyles["inputs-container"]}>
+    <form className={formStyle}>
+      <section className={fieldsContainerStyles}>
         {
           fields.map(fieldsRow => (
-            <div className={formStyles["inputs-column"]}>
+            <div className={fieldsRowStyles}>
               {
-                fieldsRow.map(({ type, header, value, disabled, onChange, onValidate }) => (
-                  <FormInput type={type} header={header} value={value} disabled={disabled} onChange={onChange} onValidate={onValidate} />
+                fieldsRow.map(fieldsColumn => (
+                  <ul className={fieldsColumnStyles}>
+                    {
+                      fieldsColumn.map(({ type, header, value, onChange, onValidate }) => (
+                        <li>
+                          <FormInput type={type} header={header} value={value} disabled={disabled} onChange={onChange} onValidate={onValidate} />
+                        </li>
+                      ))
+                    }
+                  </ul>
                 ))
               }
             </div>
           ))
         }
       </section>
-      <section className={formStyles["buttons-container"]}>
+      <section className={buttonsContainerStyles}>
         {
           buttons.map(buttonsRow => (
-            <div className={formStyles["buttons-column"]}>
+            <div className={buttonsRowStyles}>
               {
-                buttonsRow.map(({ type, header, onClick }) => (
-                  <StandartButton type={type} onClick={onClick}>{header}</StandartButton>
+                buttonsRow.map(buttonsColumn => (
+                  <ul className={buttonsColumnStyles}>
+                    {
+                      buttonsColumn.map(({ type, header, onClick }) => (
+                        <li>
+                          <StandartButton type={type} onClick={onClick} disabled={disabled}>{header}</StandartButton>
+                        </li>
+                      ))
+                    }
+                  </ul>
                 ))
               }
             </div>

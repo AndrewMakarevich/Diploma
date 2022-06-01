@@ -1,8 +1,7 @@
-import { AxiosResponse } from "axios";
+
 import { useEffect, useRef, useState } from "react";
 import componentStyles from "./matching-tags-list.module.css";
 import useDelayFetching from "../../../hooks/useDelayFetching";
-import { ITagsByTextResponseObj } from "../../../interfaces/http/response/pictureTagInterfaces";
 import PictureTagService from "../../../services/picture-tag-service";
 import { newTagObj } from "../forms/create-picture-form/create-picture-form";
 
@@ -18,7 +17,7 @@ const MatchingTagsList = ({ tagInputRef, tagObj, setTagValue }: IMatchingTagsLis
     executeCallback: findTags,
     isLoading: tagsIsLoading,
     executeResult: tagsArray }
-    = useDelayFetching<AxiosResponse<ITagsByTextResponseObj[]>>(() => PictureTagService.getTagByTagText(tagObj.text), 400);
+    = useDelayFetching(() => PictureTagService.getTagByTagText(tagObj.text), 400);
   const matchingTagsListRef = useRef<HTMLElement>(null);
 
   useEffect(() => {
