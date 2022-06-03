@@ -1,7 +1,5 @@
-import { ChangeEvent, useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { ChangeEvent, useCallback, useMemo, useState } from "react";
 import useDelayFetching from "../../../hooks/useDelayFetching";
-import useWindowResize from "../../../hooks/useElementResize";
-import useFetching from "../../../hooks/useFetching";
 import { ITagResponseObj } from "../../../interfaces/http/response/pictureTagInterfaces";
 import { IGetPictureTagsCursor } from "../../../interfaces/services/pictureTagsInterfaces";
 import PictureTagService from "../../../services/picture-tag-service";
@@ -12,6 +10,7 @@ import PictureTagsSearchPanel from "../picture-tags-search-panel/picture-tags-se
 import { IAction } from "../../table/interfaces";
 
 import panelStyles from "./picture-tags-panel.module.css";
+import InfiniteScroll from "../../infinite-scroll/infinite-scroll";
 
 interface ITagsPaginationParams {
   limit: number,
@@ -19,9 +18,9 @@ interface ITagsPaginationParams {
 }
 
 const PictureTagsPanel = () => {
-  const pictureTagsContainerRef = useRef<HTMLDivElement>(null);
   const [queryString, setQueryString] = useState("");
   const [pictureTags, setPictureTags] = useState<ITagResponseObj[]>([]);
+  const [rewriteTags, setRewriteTags] = useState(false);
   const [paginationParams, setPaginationParams] = useState<ITagsPaginationParams>({
     limit: 5, cursor: {
       id: 0,
@@ -49,80 +48,43 @@ const PictureTagsPanel = () => {
     }
   }, [pictureTags]);
 
-  const getTags = useCallback(async (
-    queryStringValue = queryString,
-    cursorVal = paginationParams.cursor,
-    limitVal = paginationParams.limit,
-    rewrite = false) => {
-    if (!pictureTagsContainerRef.current) {
-      return;
+  const getTags = useCallback(async () => {
+    let { cursor, limit } = paginationParams;
+
+    if (rewriteTags) {
+      cursor = { ...cursor, id: 0, value: 0 };
+      setAllTagsRecieved(false);
     }
 
-    if (!rewrite && allTagsRecieved) {
-      return;
+    const tags = await sendRequestToGetTags(queryString, cursor, limit);
+
+    if (tags.length === 0) {
+      setAllTagsRecieved(true);
+      setTimeout(() => setAllTagsRecieved(false), 1000 * 60)
     }
 
-    let preventer = 0;
-    let cursorState = cursorVal;
-    let rewriteState = rewrite;
-    let pictureTagsState = pictureTags;
-
-    do {
-      if (rewriteState) {
-        cursorState = { ...cursorState, id: 0, value: 0 }
-      }
-
-      const tags = await sendRequestToGetTags(queryStringValue, cursorState, limitVal);
-
-      if (!tags || tags.length === 0) {
-        setAllTagsRecieved(true);
-        setTimeout(() => setAllTagsRecieved(false), 1000 * 60)
-        break;
-      }
-
-      if (rewriteState) {
-        rewriteState = false;
-        pictureTagsState = tags;
-        setPictureTags(pictureTagsState);
-      } else {
-        pictureTagsState = [...pictureTagsState, ...tags];
-        setPictureTags(pictureTagsState);
-      }
-
-      const lastResElement = tags[tags.length - 1];
-      cursorState = { ...cursorState, id: lastResElement["id"], value: lastResElement[cursorState.key] }
-      const { scrollTop, scrollHeight, clientHeight } = pictureTagsContainerRef.current;
-
-      if (scrollHeight - clientHeight - scrollTop >= 25) {
-        break;
-      }
-
-      preventer++;
-    } while (preventer < 99)
-    setPaginationParams({ ...paginationParams, cursor: cursorState });
-  }, [queryString, paginationParams, pictureTags, allTagsRecieved, sendRequestToGetTags]);
-
-  const { executeCallback: fetchTags, isLoading: tagsLoading } = useFetching(getTags);
-  const { executeCallback: delayedFetchTags, isLoading: delayedTagsLoading } = useDelayFetching(getTags, 400);
-
-  const getTagsBasedOnElementType = useCallback((
-    rewrite = false,
-    event: ChangeEvent,
-    queryStringVal = queryString,
-    cursor = paginationParams.cursor,
-    limit = paginationParams.limit,) => {
-    if (event.target instanceof HTMLInputElement) {
-      delayedFetchTags(queryStringVal, cursor, limit, rewrite);
-      return;
+    if (rewriteTags) {
+      setPictureTags(tags);
+      setRewriteTags(false);
+    } else {
+      setPictureTags([...pictureTags, ...tags])
     }
 
-    fetchTags(queryStringVal, cursor, limit, rewrite);
-  }, [queryString, paginationParams, delayedFetchTags, fetchTags])
+    const lastRecievedTag = tags[tags.length - 1]
+    setPaginationParams({ ...paginationParams, cursor: { ...cursor, id: lastRecievedTag.id, value: lastRecievedTag[cursor.key] } })
+
+  }, [queryString, paginationParams, pictureTags, sendRequestToGetTags, rewriteTags]);
+
+  const setRewriteStateToTrue = useCallback(async () => {
+    setRewriteTags(true);
+  }, []);
+
+  const { executeCallback: delaySetRewriteState } = useDelayFetching(setRewriteStateToTrue, 400);
 
   const onQueryStringChange = useCallback((event: ChangeEvent<HTMLInputElement>) => {
     setQueryString(event.target.value);
-    getTagsBasedOnElementType(true, event, event.target.value);
-  }, [getTagsBasedOnElementType])
+    delaySetRewriteState();
+  }, [delaySetRewriteState])
 
   const onOrderParamChange = useCallback((event: ChangeEvent<HTMLSelectElement>) => {
     let parsedValue;
@@ -135,58 +97,8 @@ const PictureTagsPanel = () => {
     const { cursor } = paginationParams;
     const newCursorState = { ...cursor, key: parsedValue[0], order: parsedValue[1] }
     setPaginationParams({ ...paginationParams, cursor: newCursorState });
-
-    getTagsBasedOnElementType(true, event, undefined, newCursorState)
-  }, [paginationParams, getTagsBasedOnElementType])
-
-  const getTagsOnResize = useCallback(async () => {
-    let preventer = 0;
-
-    if (allTagsRecieved || !pictureTagsContainerRef.current) {
-      return;
-    }
-    const { limit, cursor } = paginationParams;
-    let cursorState = cursor;
-    let pictureTagsState = pictureTags;
-
-    do {
-      const { clientHeight, scrollHeight } = pictureTagsContainerRef.current;
-
-      if (scrollHeight > clientHeight) {
-        break;
-      }
-
-      const tags = await sendRequestToGetTags(queryString, cursorState, limit);
-
-      if (!tags || tags.length === 0) {
-        setAllTagsRecieved(true);
-        break;
-      }
-
-      const lastArrElement = tags[tags.length - 1];
-      cursorState = { ...cursorState, id: lastArrElement["id"], value: lastArrElement[cursorState.key] }
-      pictureTagsState = [...pictureTagsState, ...tags];
-      setPictureTags(pictureTagsState);
-      preventer++;
-    } while (preventer < 99)
-
-    setPaginationParams({ ...paginationParams, cursor: cursorState });
-  }, [allTagsRecieved, paginationParams, queryString, pictureTags, sendRequestToGetTags]);
-  const { executeCallback: fetchTagsOnResize, isLoading: tagsOnResizeLoading } = useFetching(getTagsOnResize);
-
-  useWindowResize(fetchTagsOnResize);
-
-  const infiniteLoading = useCallback(() => {
-    if (!pictureTagsContainerRef.current || tagsLoading || delayedTagsLoading || tagsOnResizeLoading) {
-      return;
-    }
-
-    const { scrollTop, scrollHeight, clientHeight } = pictureTagsContainerRef.current;
-
-    if (scrollHeight - clientHeight - scrollTop < 25) {
-      fetchTags();
-    }
-  }, [pictureTagsContainerRef, tagsLoading, delayedTagsLoading, fetchTags, tagsOnResizeLoading]);
+    setRewriteTags(true);
+  }, [paginationParams])
 
   const onCreateNewTag = useCallback((newTag: ITagResponseObj) => {
     setPictureTags([...pictureTags, newTag]);
@@ -219,10 +131,6 @@ const PictureTagsPanel = () => {
     }
   ], [openEditPanel, sendRequestToDeleteTag])
 
-  useEffect(() => {
-    fetchTags()
-  }, [])
-
   return (
     <>
       <PictureTagsSearchPanel onQueryStringChange={onQueryStringChange} onOrderParamChange={onOrderParamChange} />
@@ -232,11 +140,10 @@ const PictureTagsPanel = () => {
           Boolean(editPanelIsOpen) && <EditPictureTagForm initialParams={pictureTags.find(tag => tag.id === currentTagToEditId)} actualizeList={onUpdateTag} />
         }
       </div>
-      <div ref={pictureTagsContainerRef} className={panelStyles["container"]} onScroll={infiniteLoading}>
+      <InfiniteScroll callback={getTags} stopValue={allTagsRecieved} rewrite={rewriteTags}>
         <Table tableHeaders={["ID", "Text", "Attached pictures amount"]} paramsToShow={["id", "text", "attachedPicturesAmount"]} entities={pictureTags} actions={actionsArr} />
-      </div>
+      </InfiniteScroll>
     </>
-
   )
 };
 

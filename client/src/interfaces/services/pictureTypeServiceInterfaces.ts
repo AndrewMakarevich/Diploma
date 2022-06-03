@@ -1,6 +1,4 @@
-export interface IGetPictureTypesCursor {
-  key: string,
-  id: number,
-  value: string | number,
-  order: "ASC" | "DESC"
+import { ICursor } from "../pagination";
+
+export interface IGetPictureTypesCursor extends ICursor {
 }

@@ -1,9 +1,18 @@
 import StandartButton from "../../UI/standart-button/standart-button";
-import { ITableRowProps } from "./interfaces";
+import { IAction, ITableRowProps } from "./interfaces";
 
 import tableStyles from "./table.module.css";
 
 const TableRow = ({ entity, paramsToShow, actions, isLoading, setIsLoading }: ITableRowProps) => {
+  const onActionHandler = (action: IAction) => async () => {
+    try {
+      setIsLoading(true);
+      await action.clickHandler(entity);
+    } finally {
+      setIsLoading(false);
+    }
+  }
+
   return (
     <tr>
       {
@@ -18,14 +27,7 @@ const TableRow = ({ entity, paramsToShow, actions, isLoading, setIsLoading }: IT
             actions?.map(action => (
               <StandartButton
                 disabled={isLoading}
-                onClick={async () => {
-                  try {
-                    setIsLoading(true);
-                    await action.clickHandler(entity);
-                  } finally {
-                    setIsLoading(false);
-                  }
-                }}>{action.header}</StandartButton>
+                onClick={onActionHandler(action)}>{action.header}</StandartButton>
             ))
           }
         </td>

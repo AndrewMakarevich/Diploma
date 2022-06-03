@@ -1,35 +1,13 @@
 import { ComponentProps } from "react";
-import MySelect from "../../../UI/my-select/my-select";
-
-interface optionObj {
-  value: string | number | string[],
-  name: string
-}
-
-interface IOptGroupObj {
-  name: string,
-  options: optionObj[]
-}
+import MySelect, { MySelectOptGroupField } from "../../../UI/my-select/my-select";
 
 interface ISortSelectProps extends ComponentProps<"select"> {
-  selectOptions: IOptGroupObj[]
+  selectOptions: MySelectOptGroupField[]
 }
 
 const SortSelect = ({ selectOptions, ...restProps }: ISortSelectProps) => {
   return (
-    <MySelect {...restProps}>
-      {
-        selectOptions.map(optGroup =>
-          <optgroup key={optGroup.name} label={optGroup.name}>
-            {
-              optGroup.options.map(option =>
-                <option key={option.name} label={option.name} value={JSON.stringify(option.value)}></option>
-              )
-            }
-          </optgroup>
-        )
-      }
-    </MySelect>
+    <MySelect fields={selectOptions} {...restProps}></MySelect>
   )
 };
 

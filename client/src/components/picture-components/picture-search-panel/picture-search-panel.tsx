@@ -12,7 +12,7 @@ interface ISearchPanelProps {
   onChange: (target?: EventTarget) => void
 }
 
-const SearchPanel = ({ onChange: getPictureList }: ISearchPanelProps) => {
+const PictureSearchPanel = ({ onChange: getPictureList }: ISearchPanelProps) => {
   const { pictureStore } = useContext(Context);
 
   const setQueryParam = async (target: EventTarget, paramName: string, paramValue: string | string[] | number | number[] | object) => {
@@ -56,4 +56,4 @@ const SearchPanel = ({ onChange: getPictureList }: ISearchPanelProps) => {
   )
 };
 
-export default observer(SearchPanel);
+export default observer(PictureSearchPanel);

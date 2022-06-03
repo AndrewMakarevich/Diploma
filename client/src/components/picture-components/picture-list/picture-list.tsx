@@ -2,7 +2,7 @@ import listStyles from "./picture-list.module.css";
 import { useCallback, useContext, useEffect, useRef, useState } from "react";
 import useFetching from "../../../hooks/useFetching";
 import PictureItem from "../picture-item/picture-item";
-import SearchPanel from "../search-panel/search-panel";
+import PictureSearchPanel from "../picture-search-panel/picture-search-panel";
 import useDelayFetching from "../../../hooks/useDelayFetching";
 import ViewPictureModal from "../modals/view-picture-modal/view-picture-modal";
 import EditPictureModal from "../modals/edit-picture-modal/edit-picture-modal";
@@ -141,7 +141,7 @@ const PictureList = ({ userId, isPersonalGallery }: IPictureListProps) => {
           :
           <ViewPictureModal isOpen={viewPictureModalIsOpen} setIsOpen={setViewPictureModalIsOpen} currentPictureId={currentPictureId} />
       }
-      <SearchPanel onChange={onSearchPanelQueryChange} />
+      <PictureSearchPanel onChange={onSearchPanelQueryChange} />
       <section ref={pictureListContainer} className={listStyles["picture-list"]} onScroll={infiniteLoading}>
         {
           pictureStore.pictures.rows.map(pictureItem =>

@@ -1,7 +1,4 @@
-export interface IGetPictureTagsCursor {
-  [key: string]: string | number,
-  key: string,
-  id: number,
-  value: string | number,
-  order: "ASC" | "DESC"
+import { ICursor } from "../pagination";
+
+export interface IGetPictureTagsCursor extends ICursor {
 }
