@@ -33,6 +33,7 @@ const PictureTagsPanel = () => {
   const [allTagsRecieved, setAllTagsRecieved] = useState(false);
   const [editPanelIsOpen, setPanelIsOpen] = useState(false);
   const [currentTagToEditId, setCurrentTagToEditId] = useState(0);
+  const currentTagToEdit = useMemo(() => pictureTags.find(tag => tag.id === currentTagToEditId), [currentTagToEditId, pictureTags])
 
   const sendRequestToGetTags = useCallback(async (queryString: string, cursor: IGetPictureTagsCursor, limit: number) => {
     const { data } = await PictureTagService.getTags(queryString, cursor, limit);
@@ -48,7 +49,7 @@ const PictureTagsPanel = () => {
     }
   }, [pictureTags]);
 
-  const getTags = useCallback(async () => {
+  const getTags = useCallback(async (rewrite: boolean, unmountFlag: React.MutableRefObject<boolean>) => {
     let { cursor, limit } = paginationParams;
 
     if (rewriteTags) {
@@ -57,6 +58,11 @@ const PictureTagsPanel = () => {
     }
 
     const tags = await sendRequestToGetTags(queryString, cursor, limit);
+
+    if (unmountFlag.current) {
+      setAllTagsRecieved(false);
+      return;
+    }
 
     if (tags.length === 0) {
       setAllTagsRecieved(true);
@@ -137,7 +143,7 @@ const PictureTagsPanel = () => {
       <div className={panelStyles["forms"]}>
         <CreatePictureTagForm actualizeList={onCreateNewTag} />
         {
-          Boolean(editPanelIsOpen) && <EditPictureTagForm initialParams={pictureTags.find(tag => tag.id === currentTagToEditId)} actualizeList={onUpdateTag} />
+          Boolean(editPanelIsOpen) && Boolean(currentTagToEdit) && <EditPictureTagForm initialParams={currentTagToEdit} actualizeList={onUpdateTag} />
         }
       </div>
       <InfiniteScroll callback={getTags} stopValue={allTagsRecieved} rewrite={rewriteTags}>

@@ -29,7 +29,7 @@ class UserController {
       const { email, password } = req.body;
       const response = await UserService.login(userIp, email, password);
       res.cookie('refreshToken', response.refreshToken, { maxAge: 30 * 24 * 68 * 60 * 1000, httpOnly: true })
-      return res.json(response);
+      return res.json({ accessToken: response.accessToken });
     } catch (e) {
       next(e);
     }
@@ -53,7 +53,7 @@ class UserController {
       const { refreshToken } = req.cookies;
       const response = await UserService.refresh(userIp, refreshToken);
       res.cookie('refreshToken', response.refreshToken, { maxAge: 30 * 24 * 68 * 60 * 1000, httpOnly: true });
-      return res.json(response);
+      return res.json({ accessToken: response.accessToken });
     } catch (e) {
       next(e);
     }

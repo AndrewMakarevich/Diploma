@@ -1,8 +1,9 @@
 .container{
-  max-height: 12vh;
+  max-height: 100vh;
   display: flex;
   flex-wrap: wrap;
   grid-gap: 15px;
   justify-content: center;
   overflow-y: auto;
+  width: 100%;
 }

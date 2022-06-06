@@ -1,15 +1,14 @@
 import listStyles from "./picture-list.module.css";
-import { useCallback, useContext, useEffect, useRef, useState } from "react";
-import useFetching from "../../../hooks/useFetching";
+import { ChangeEvent, useCallback, useContext, useLayoutEffect, useState } from "react";
 import PictureItem from "../picture-item/picture-item";
 import PictureSearchPanel from "../picture-search-panel/picture-search-panel";
-import useDelayFetching from "../../../hooks/useDelayFetching";
 import ViewPictureModal from "../modals/view-picture-modal/view-picture-modal";
 import EditPictureModal from "../modals/edit-picture-modal/edit-picture-modal";
 import { Context } from "../../..";
 import { observer } from "mobx-react-lite";
 import { runInAction } from "mobx";
-import useWindowResize from "../../../hooks/useElementResize";
+import InfiniteScroll from "../../infinite-scroll/infinite-scroll";
+import useDelayFetching from "../../../hooks/useDelayFetching";
 
 interface IPictureListProps {
   userId: number,
@@ -19,136 +18,87 @@ interface IPictureListProps {
 const PictureList = ({ userId, isPersonalGallery }: IPictureListProps) => {
   const { pictureStore } = useContext(Context);
 
-  const pictureListContainer = useRef<HTMLElement>(null);
-
   const [viewPictureModalIsOpen, setViewPictureModalIsOpen] = useState(false);
   const [currentPictureId, setCurrentPictureId] = useState(0);
+  const [rewriteState, setRewriteState] = useState(false);
 
-  const getPictures = useCallback(async (rewrite = false) => {
-    let preventer = 0;
-    if (!pictureListContainer.current || pictureStore.picturesLoading) {
-      return;
+  const getPictures = useCallback(async (rewrite = false, unmountFlag) => {
+    await pictureStore.getPictures(rewrite, unmountFlag);
+
+    if (rewrite) {
+      setRewriteState(false);
     }
 
-    let rewriteValue = rewrite;
-    do {
-      const data = await pictureStore.getPictures(rewriteValue);
+  }, [pictureStore]);
 
-      if (pictureStore.allPicturesRecieved) {
-        break;
-      }
+  const setRewriteStateTrue = useCallback(async () => {
+    setRewriteState(true);
+  }, [])
+  const { executeCallback: delayedSetRewriteStateToTrue } = useDelayFetching(setRewriteStateTrue, 400);
 
-      const { scrollTop, scrollHeight, clientHeight } = pictureListContainer.current;
+  const setQueryParam = useCallback(async (paramName: string, paramValue: string | string[] | number | number[] | object) => {
+    // if (pictureStore.picturesLoading) {
+    //   return;
+    // }
 
-      if (!data || data?.rows.length === 0 || scrollHeight - clientHeight - scrollTop >= 25) {
-        break;
-      }
-
-      if (rewriteValue) {
-        rewriteValue = false;
-      }
-      preventer++;
-
-      if (preventer === 100) {
-        break;
-      }
-
-    } while (true)
-  }, [pictureListContainer, pictureStore]);
-
-  const getPicturesOnResize = async () => {
-    let preventer = 0
-    if (!pictureListContainer.current) {
-      return;
-    }
-
-    do {
-      if (pictureStore.picturesLoading) {
-        break;
-      }
-
-      const { scrollHeight, clientHeight } = pictureListContainer.current;
-
-      if (scrollHeight > clientHeight) {
-        break;
-      }
-
-      const data = await pictureStore.getPictures(false);
-
-      if (data?.rows.length === 0 || !data) {
-        break;
-      }
-
-      preventer++;
-
-      if (preventer === 100) {
-        break;
-      }
-    } while (true)
-  }
-
-  useWindowResize(getPicturesOnResize)
-
-  const {
-    executeCallback: fetchPictures, isLoading: fetchPicturesLoading
-  } = useFetching(getPictures);
-
-  const {
-    executeCallback: delayedFetchPictures,
-    isLoading: delayedFetchPicturesLoading,
-  } = useDelayFetching(getPictures, 500);
-
-
-  const getPictureListWithCurrentQueryParams = useCallback((target?: EventTarget, rewrite = false) => {
-    if (target instanceof HTMLButtonElement || target instanceof HTMLSelectElement || !target) {
-      fetchPictures(rewrite);
-      return;
-    }
-    delayedFetchPictures(rewrite);
-
-  }, [delayedFetchPictures, fetchPictures]);
-
-  const onSearchPanelQueryChange = useCallback((target?: EventTarget) => {
-    getPictureListWithCurrentQueryParams(target, true);
-  }, [getPictureListWithCurrentQueryParams]);
-
-  function infiniteLoading() {
-    if (fetchPicturesLoading || delayedFetchPicturesLoading) {
-      return;
-    }
-
-    if (pictureListContainer.current) {
-      const { clientHeight, scrollTop, scrollHeight } = pictureListContainer.current;
-
-      if (scrollHeight - clientHeight - scrollTop < 25) {
-        fetchPictures();
-      }
-    }
-  }
-
-  useEffect(() => {
     runInAction(() => {
-      pictureStore.queryParams.userId = userId ? userId : 0
+      pictureStore.queryParams[paramName] = paramValue;
+      pictureStore.locallyAddedPicturesIds = [];
+    });
+
+    if (paramValue === "@" || paramValue === "#") {
+      return;
+    }
+  }, [pictureStore])
+
+  const onQueryStringChange = useCallback(async (event: ChangeEvent<HTMLInputElement>) => {
+    setQueryParam("queryString", event.target.value);
+    delayedSetRewriteStateToTrue();
+  }, [delayedSetRewriteStateToTrue, setQueryParam]);
+
+  const onPictureTypeChange = useCallback((event: ChangeEvent<HTMLSelectElement>) => {
+    setQueryParam("pictureTypeId", event.target.value);
+    setRewriteState(true);
+  }, [setQueryParam]);
+
+  const onOrderParamChange = useCallback((event: ChangeEvent<HTMLSelectElement>) => {
+    const { cursor } = pictureStore.queryParams;
+    let orderArr;
+
+    try {
+      orderArr = JSON.parse(event.target.value)
+    } catch (e) {
+      alert("Incorrect order param chosen, ordered by default createdAt DESC param. It may happened because of incorrect value in code")
+      orderArr = ["createdAt", "DESC"];
+    }
+    setQueryParam("cursor", { ...cursor, key: orderArr[0], order: orderArr[1] });
+    setRewriteState(true);
+  }, [pictureStore.queryParams, setQueryParam]);
+
+  useLayoutEffect(() => {
+    runInAction(() => {
+      pictureStore.queryParams.userId = userId;
+      pictureStore.clearPictures();
+      pictureStore.clearCursor();
     })
-    getPictureListWithCurrentQueryParams(undefined, true);
   }, [userId]);
 
   return (
-    <article className={`${listStyles["picture-list__wrapper"]} ${fetchPicturesLoading || delayedFetchPicturesLoading ? listStyles["loading-list"] : ""}`}>
+    <article className={`${listStyles["picture-list__wrapper"]}`}>
       {
         isPersonalGallery ?
           <EditPictureModal isOpen={viewPictureModalIsOpen} setIsOpen={setViewPictureModalIsOpen} currentPictureId={currentPictureId} />
           :
           <ViewPictureModal isOpen={viewPictureModalIsOpen} setIsOpen={setViewPictureModalIsOpen} currentPictureId={currentPictureId} />
       }
-      <PictureSearchPanel onChange={onSearchPanelQueryChange} />
-      <section ref={pictureListContainer} className={listStyles["picture-list"]} onScroll={infiniteLoading}>
+      <PictureSearchPanel onQueryStringChange={onQueryStringChange} onPictureTypeChange={onPictureTypeChange} onOrderParamChange={onOrderParamChange} />
+      <InfiniteScroll callback={getPictures} stopValue={pictureStore.allPicturesRecieved} rewrite={rewriteState}>
         {
           pictureStore.pictures.rows.map(pictureItem =>
             <PictureItem key={pictureItem.id} pictureItem={pictureItem} setCurrentPictureId={setCurrentPictureId} setIsOpen={setViewPictureModalIsOpen} />
           )
         }
-      </section>
+      </InfiniteScroll>
     </article>
   )
 };

@@ -46,7 +46,7 @@ class PictureStore {
     makeAutoObservable(this);
   }
 
-  async getPictures(rewrite = false) {
+  async getPictures(rewrite = false, unmountFlag: React.MutableRefObject<boolean> = { current: false }) {
     try {
       if (rewrite) {
         this.clearPictures();
@@ -67,6 +67,15 @@ class PictureStore {
         queryString,
         limit);
 
+      console.log("unmountFlags", unmountFlag)
+
+      if (unmountFlag.current) {
+        this.clearPictures();
+        this.clearCursor();
+        return;
+      }
+
+
       const filteredForDuplicatesArr = data.rows.filter(picture => !this.locallyAddedPicturesIds.some(id => id === picture.id));
       runInAction(() => {
         this.pictures = { rows: rewrite ? data.rows : [...this.pictures.rows, ...filteredForDuplicatesArr] };
@@ -81,6 +90,7 @@ class PictureStore {
           setTimeout(() => { this.allPicturesRecieved = false }, 1000 * 60)
         })
       }
+
       return data;
     } catch (e: any) {
       if (e.isAxiosError) {

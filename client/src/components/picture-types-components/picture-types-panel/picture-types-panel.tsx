@@ -24,7 +24,6 @@ const PictureTypesPanel = () => {
   });
   const [locallyAddedPictureTypesIds, setLocallyAddedPictureTypesIds] = useState<number[]>([])
   const [allPictureTypesRecieved, setAllPictureTypesRecieved] = useState<boolean>(false);
-  const [pictureTypeToEditId, setPictureTypeToEditId] = useState<number>(0);
   const [editFormOpen, setEditFormOpen] = useState(false);
   const [queryString, setQueryString] = useState("");
   const [pagination, setPagination] = useState<IPaginationParams>({
@@ -32,8 +31,10 @@ const PictureTypesPanel = () => {
     limit: 1
   });
   const [rewriteTypes, setRewriteTypes] = useState(false);
+  const [pictureTypeToEditId, setPictureTypeToEditId] = useState<number>(0);
+  const picturetTypeToEdit = useMemo(() => pictureTypes.rows.find(pictureType => +pictureType.id === +pictureTypeToEditId), [pictureTypeToEditId, pictureTypes]);
 
-  const getTypes = useCallback(async (rewrite = false) => {
+  const getTypes = useCallback(async (rewrite: boolean, unmountFlag: React.MutableRefObject<boolean>) => {
     const { cursor, limit } = pagination;
     if (rewrite) {
       cursor.id = 0;
@@ -42,6 +43,12 @@ const PictureTypesPanel = () => {
     }
 
     const { data } = await PictureTypeService.getPicturesTypes(queryString, cursor, limit);
+
+    if (unmountFlag.current) {
+      setAllPictureTypesRecieved(true);
+      return
+    }
+
     const { count, rows } = data;
 
     if (!rows.length) {
@@ -124,12 +131,17 @@ const PictureTypesPanel = () => {
       <PictureTypesSearchPanel setQueryString={setQueryStringAndGetPictureTypes} setSortParam={setSortParamsAndGetPictureTypes} />
       <div className={panelStyles["forms"]}>
         <CreatePictureTypeForm actualizeList={actualizeListAfterAddingType} />
-        <EditPictureTypeForm
-          initialParams={pictureTypes.rows.find(pictureType => +pictureType.id === +pictureTypeToEditId)!}
-          isOpen={editFormOpen}
-          setIsOpen={setEditFormOpen}
-          pictureTypes={pictureTypes}
-          setPictureTypes={setPictureTypes} />
+        {
+          Boolean(editFormOpen) &&
+          Boolean(picturetTypeToEdit) &&
+          <EditPictureTypeForm
+            initialParams={picturetTypeToEdit!}
+            isOpen={editFormOpen}
+            setIsOpen={setEditFormOpen}
+            pictureTypes={pictureTypes}
+            setPictureTypes={setPictureTypes} />
+        }
+
       </div>
       <InfiniteScroll callback={getTypes} stopValue={allPictureTypesRecieved} rewrite={rewriteTypes}>
         <Table<pictureTypeObj>

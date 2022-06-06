@@ -1,23 +1,29 @@
 import { ComponentProps, useEffect, useState } from "react";
-import selectStyles from "./pictures-types-select.module.css";
 import { pictureTypeObj } from "../../../../interfaces/http/response/picture-type-interfaces";
 import PictureTypeService from "../../../../services/picture-type-service";
+import MySelect, { MySelectOptionField } from "../../../../UI/my-select/my-select";
 
-const PicturesTypesSelect = ({ onChange, value, className }: ComponentProps<"select">) => {
-  const [picturesTypes, setPicturesTypes] = useState<pictureTypeObj[]>();
+const PicturesTypesSelect = ({ onChange, value, ...restProps }: ComponentProps<"select">) => {
+  const [picturesTypes, setPicturesTypes] = useState<pictureTypeObj[]>([]);
   useEffect(() => {
     PictureTypeService.getPicturesTypes("", { key: "createdAt", order: "DESC", id: 0, value: 0 }).then(response => setPicturesTypes(response.data.rows))
   }, []);
 
-  return (
-    <select value={value} onChange={onChange} className={className || selectStyles["select"]}>
-      <option value="">Picture's type</option>
+  const fields: MySelectOptionField[] = [
+    {
+      name: "Picture's type",
+      value: ""
+    },
+    ...picturesTypes.map(pictureType => (
       {
-        picturesTypes?.length && picturesTypes.map(pictureType =>
-          <option key={pictureType.id} value={pictureType.id}>{pictureType.name}</option>
-        )
+        name: pictureType.name,
+        value: pictureType.id
       }
-    </select>
+    )),
+  ]
+
+  return (
+    <MySelect value={value} onChange={onChange} fields={fields} {...restProps} />
   )
 };
 

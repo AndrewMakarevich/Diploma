@@ -18,10 +18,6 @@ const AppRouter = () => {
   const [authLoading, setAuthLoading] = useState(true);
 
   useEffect(() => {
-    console.log(authLoading)
-  }, [authLoading])
-
-  useEffect(() => {
     userStore.autoAuth().then(() => { setAuthLoading(false) }, () => { setAuthLoading(false) });
   }, []);
 

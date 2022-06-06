@@ -56,7 +56,7 @@ const EditPictureTagForm = ({ initialParams, actualizeList }: IEditPictureTagFor
     if (initialParams) {
       setParamsToEdit(initialParams);
     }
-  }, [initialParams])
+  }, [initialParams]);
   return (
     <div>
       <p>Edit tag:</p>
