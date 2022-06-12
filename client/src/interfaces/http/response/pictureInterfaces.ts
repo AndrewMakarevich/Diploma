@@ -19,6 +19,11 @@ export interface IShortPictureObj extends mainPictureObjectProps {
   commentsAmount: number
 }
 
+export interface ITagObjInExtendedPictureObj {
+  id: number,
+  text: string
+}
+
 export interface IExtendedPictureObj extends mainPictureObjectProps {
   rootCommentsAmount: number,
   user: {
@@ -35,10 +40,7 @@ export interface IExtendedPictureObj extends mainPictureObjectProps {
     createdAt: string,
     updatedAt: string
   }[],
-  tags: {
-    id: number,
-    text: string
-  }[],
+  tags: ITagObjInExtendedPictureObj[],
 }
 
 export interface ICreatePictureResponse {

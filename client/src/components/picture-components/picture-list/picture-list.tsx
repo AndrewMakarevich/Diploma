@@ -37,10 +37,6 @@ const PictureList = ({ userId, isPersonalGallery }: IPictureListProps) => {
   const { executeCallback: delayedSetRewriteStateToTrue } = useDelayFetching(setRewriteStateTrue, 400);
 
   const setQueryParam = useCallback(async (paramName: string, paramValue: string | string[] | number | number[] | object) => {
-    // if (pictureStore.picturesLoading) {
-    //   return;
-    // }
-
     runInAction(() => {
       pictureStore.queryParams[paramName] = paramValue;
       pictureStore.locallyAddedPicturesIds = [];
@@ -53,6 +49,10 @@ const PictureList = ({ userId, isPersonalGallery }: IPictureListProps) => {
 
   const onQueryStringChange = useCallback(async (event: ChangeEvent<HTMLInputElement>) => {
     setQueryParam("queryString", event.target.value);
+
+    if (event.target.value === "@" || event.target.value === "#") {
+      return;
+    }
     delayedSetRewriteStateToTrue();
   }, [delayedSetRewriteStateToTrue, setQueryParam]);
 
@@ -89,7 +89,7 @@ const PictureList = ({ userId, isPersonalGallery }: IPictureListProps) => {
         isPersonalGallery ?
           <EditPictureModal isOpen={viewPictureModalIsOpen} setIsOpen={setViewPictureModalIsOpen} currentPictureId={currentPictureId} />
           :
-          <ViewPictureModal isOpen={viewPictureModalIsOpen} setIsOpen={setViewPictureModalIsOpen} currentPictureId={currentPictureId} />
+          <ViewPictureModal isOpen={viewPictureModalIsOpen} setIsOpen={setViewPictureModalIsOpen} currentPictureId={currentPictureId} setRewriteListStateToTrue={setRewriteStateTrue} />
       }
       <PictureSearchPanel onQueryStringChange={onQueryStringChange} onPictureTypeChange={onPictureTypeChange} onOrderParamChange={onOrderParamChange} />
       <InfiniteScroll callback={getPictures} stopValue={pictureStore.allPicturesRecieved} rewrite={rewriteState}>

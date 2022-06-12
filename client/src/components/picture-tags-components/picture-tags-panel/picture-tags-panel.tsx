@@ -8,9 +8,11 @@ import CreatePictureTagForm from "../forms/create-picture-tag-form/create-pictur
 import EditPictureTagForm from "../forms/edit-picture-tag-form/edit-picture-tag-form";
 import PictureTagsSearchPanel from "../picture-tags-search-panel/picture-tags-search-panel";
 import { IAction } from "../../table/interfaces";
+import InfiniteScroll from "../../infinite-scroll/infinite-scroll";
+import ModalWindow from "../../modal-window/modal-window";
+import StandartButton from "../../../UI/standart-button/standart-button";
 
 import panelStyles from "./picture-tags-panel.module.css";
-import InfiniteScroll from "../../infinite-scroll/infinite-scroll";
 
 interface ITagsPaginationParams {
   limit: number,
@@ -22,7 +24,7 @@ const PictureTagsPanel = () => {
   const [pictureTags, setPictureTags] = useState<ITagResponseObj[]>([]);
   const [rewriteTags, setRewriteTags] = useState(false);
   const [paginationParams, setPaginationParams] = useState<ITagsPaginationParams>({
-    limit: 5, cursor: {
+    limit: 25, cursor: {
       id: 0,
       key: "createdAt",
       value: 0,
@@ -31,6 +33,7 @@ const PictureTagsPanel = () => {
   });
   const [locallyCreatedTagsIds, setLocallyCreatedTagsIds] = useState<number[]>([]);
   const [allTagsRecieved, setAllTagsRecieved] = useState(false);
+  const [createPanelIsOpen, setCreatePanelIsOpen] = useState(false);
   const [editPanelIsOpen, setPanelIsOpen] = useState(false);
   const [currentTagToEditId, setCurrentTagToEditId] = useState(0);
   const currentTagToEdit = useMemo(() => pictureTags.find(tag => tag.id === currentTagToEditId), [currentTagToEditId, pictureTags])
@@ -66,7 +69,8 @@ const PictureTagsPanel = () => {
 
     if (tags.length === 0) {
       setAllTagsRecieved(true);
-      setTimeout(() => setAllTagsRecieved(false), 1000 * 60)
+      setTimeout(() => setAllTagsRecieved(false), 1000 * 60);
+      return;
     }
 
     if (rewriteTags) {
@@ -124,6 +128,10 @@ const PictureTagsPanel = () => {
   const openEditPanel = useCallback((pictureTag: ITagResponseObj) => {
     setCurrentTagToEditId(pictureTag.id);
     setPanelIsOpen(true)
+  }, []);
+
+  const openCreatePanel = useCallback(() => {
+    setCreatePanelIsOpen(true);
   }, [])
 
   const actionsArr: IAction[] = useMemo(() => [
@@ -141,9 +149,18 @@ const PictureTagsPanel = () => {
     <>
       <PictureTagsSearchPanel onQueryStringChange={onQueryStringChange} onOrderParamChange={onOrderParamChange} />
       <div className={panelStyles["forms"]}>
-        <CreatePictureTagForm actualizeList={onCreateNewTag} />
+        <StandartButton onClick={openCreatePanel}>Create new tag</StandartButton>
         {
-          Boolean(editPanelIsOpen) && Boolean(currentTagToEdit) && <EditPictureTagForm initialParams={currentTagToEdit} actualizeList={onUpdateTag} />
+          Boolean(createPanelIsOpen) &&
+          <ModalWindow isOpen={createPanelIsOpen} setIsOpen={setCreatePanelIsOpen}>
+            <CreatePictureTagForm actualizeList={onCreateNewTag} />
+          </ModalWindow>
+        }
+        {
+          Boolean(editPanelIsOpen) && Boolean(currentTagToEdit) &&
+          <ModalWindow isOpen={editPanelIsOpen} setIsOpen={setPanelIsOpen}>
+            <EditPictureTagForm initialParams={currentTagToEdit!} actualizeList={onUpdateTag} />
+          </ModalWindow>
         }
       </div>
       <InfiniteScroll callback={getTags} stopValue={allTagsRecieved} rewrite={rewriteTags}>

@@ -29,6 +29,7 @@ const InfiniteScroll = ({ callback, children, stopValue, rewrite }: IInfiniteScr
 
   useEffect(() => {
     if (!isLoading && (!stopValue || rewrite)) {
+      console.log("GOO")
       infiniteScroll();
     }
   }, [isLoading, stopValue, rewrite]);

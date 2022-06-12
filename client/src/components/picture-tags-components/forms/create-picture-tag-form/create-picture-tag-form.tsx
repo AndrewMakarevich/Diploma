@@ -6,6 +6,8 @@ import PictureTagValidator from "../../../../validator/picture-tag-validator";
 import { IField } from "../../../forms/root-form/interfaces";
 import StandartOneColumnForm from "../../../forms/standart-one-column-form/standart-one-column-form";
 
+import formStyles from "./create-picture-tag-form.module.css";
+
 interface ICreatePictureTagFormProps {
   actualizeList: (newTag: ITagResponseObj) => unknown
 }
@@ -15,28 +17,25 @@ const CreatePictureTagForm = ({ actualizeList }: ICreatePictureTagFormProps) => 
     text: ""
   });
 
-  const sendRequestToGetTag = useCallback(() => {
-    return PictureTagService.createTag(tagToCreate.text);
-  }, [tagToCreate]);
-
-  const { executeCallback: createTag, isLoading: tagLoading } = useFetching(sendRequestToGetTag)
-
   const onChangeHandler = (paramName: string) => (event: ChangeEvent<HTMLInputElement>) => {
     setTagToCreate({ ...tagToCreate, [paramName]: event.target.value });
-  }
+  };
 
   const onSubmitHandler = useCallback(async (e: React.MouseEvent<HTMLButtonElement>) => {
     e.preventDefault();
-    PictureTagValidator.validateTagText(tagToCreate.text)
-    const response = await createTag();
-    if (response) {
-      actualizeList(response?.data.tag);
-    }
-  }, [tagToCreate, createTag, actualizeList]);
+    PictureTagValidator.validateTagText(tagToCreate.text);
+
+    const response = await PictureTagService.createTag(tagToCreate.text);
+
+    alert(response.data.message);
+    actualizeList({ ...response?.data.tag, attachedPicturesAmount: "0" });
+  }, [tagToCreate, actualizeList]);
+
+  const { executeCallback: submitChanges, isLoading: submitLoading } = useFetching(onSubmitHandler)
 
   const onClearChangesHandler = () => {
     setTagToCreate({ text: "" })
-  }
+  };
 
   const fields: IField[] = [
     {
@@ -47,13 +46,14 @@ const CreatePictureTagForm = ({ actualizeList }: ICreatePictureTagFormProps) => 
       onValidate: PictureTagValidator.validateTagText,
     }
   ];
+
   return (
-    <div>
-      <p>Create tag:</p>
+    <div className={formStyles["form-wrapper"]}>
+      <p className={formStyles["form-header"]}>Create tag:</p>
       <StandartOneColumnForm
         fields={fields}
-        disabled={tagLoading}
-        onSubmit={onSubmitHandler}
+        disabled={submitLoading}
+        onSubmit={submitChanges}
         onClearChanges={onClearChangesHandler}
         submitButtonText="Create tag" />
     </div>

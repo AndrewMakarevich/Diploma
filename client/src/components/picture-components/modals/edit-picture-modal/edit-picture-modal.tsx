@@ -10,7 +10,7 @@ interface IEditPictureModalProps {
 
 const EditPictureModal = ({ isOpen, setIsOpen, currentPictureId }: IEditPictureModalProps) => {
   return (
-    <ModalWindow closeBtnId={modalStyles["close-btn"]} isOpen={isOpen} setIsOpen={setIsOpen}>
+    <ModalWindow closeBtnId={modalStyles["close-btn"]} isOpen={isOpen} setIsOpen={setIsOpen} modalWindowContentClassName={modalStyles["edit-picture-modal-content"]}>
       <EditPictureForm pictureId={currentPictureId} setModalIsOpen={setIsOpen} />
     </ModalWindow>
   )

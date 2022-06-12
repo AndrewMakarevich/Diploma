@@ -8,10 +8,11 @@ interface IModalWindow {
   closeBtnId?: string,
   children: JSX.Element | string,
   isOpen: boolean,
-  setIsOpen: React.Dispatch<React.SetStateAction<boolean>>
+  setIsOpen: React.Dispatch<React.SetStateAction<boolean>>,
+  modalWindowContentClassName?: string
 }
 
-const ModalWindow = ({ id, closeBtnId, children, isOpen, setIsOpen }: IModalWindow) => {
+const ModalWindow = ({ id, closeBtnId, children, isOpen, setIsOpen, modalWindowContentClassName }: IModalWindow) => {
   const closeModalBtnRef = useRef<HTMLButtonElement>(null);
   const lastFocusableElementRef = useRef<HTMLButtonElement>(null)
 
@@ -78,7 +79,7 @@ const ModalWindow = ({ id, closeBtnId, children, isOpen, setIsOpen }: IModalWind
               setIsOpen(false)
             }
           }}><CloseIcon /></button>
-        <div className={modalStyles['modal-window__content']}>
+        <div className={`${modalStyles['modal-window__content']} ${modalWindowContentClassName || ""}`}>
           {children}
         </div>
       </div>

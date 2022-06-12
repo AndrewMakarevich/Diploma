@@ -1,7 +1,7 @@
 import modalStyles from "./view-picture-modal.module.css";
 
 import { useCallback, useContext, useEffect, useMemo, useState } from "react";
-import { IExtendedPictureObj } from "../../../../interfaces/http/response/pictureInterfaces";
+import { IExtendedPictureObj, ITagObjInExtendedPictureObj } from "../../../../interfaces/http/response/pictureInterfaces";
 import PictureService from "../../../../services/picture-service";
 import ModalWindow from "../../../modal-window/modal-window";
 import ArrowIcon from "../../../../assets/img/icons/arrow-icon/arrow-icon";
@@ -20,10 +20,11 @@ interface IViewPictureModalProps {
   isOpen: boolean,
   setIsOpen: React.Dispatch<React.SetStateAction<boolean>>,
   currentPictureId: number,
+  setRewriteListStateToTrue: () => void
 }
 
 
-const ViewPictureModal = ({ isOpen, setIsOpen, currentPictureId }: IViewPictureModalProps) => {
+const ViewPictureModal = ({ isOpen, setIsOpen, currentPictureId, setRewriteListStateToTrue }: IViewPictureModalProps) => {
   const { userStore, pictureStore } = useContext(Context);
   const [pictureInfo, setPictureInfo] = useState<IExtendedPictureObj | null>(null);
   const [pictureLikes, setPictureLikes] = useState<IGetPictureLikesResponseObj[]>([]);
@@ -44,6 +45,22 @@ const ViewPictureModal = ({ isOpen, setIsOpen, currentPictureId }: IViewPictureM
     PictureService.getPicture(currentPictureId).then(({ data }) => setPictureInfo(data));
   }, [currentPictureId]);
 
+  const onLikeHandler = useCallback(async () => {
+    const response = await PictureLikeService.likePicture(pictureInfo!.id);
+    runInAction(() => pictureStore.pictures.rows.forEach(picture => {
+      if (+picture.id === +currentPictureId) {
+        response.data.liked ? picture.likesAmount++ : picture.likesAmount--
+
+      }
+    }))
+  }, [pictureInfo, pictureStore.pictures, currentPictureId]);
+
+  const onClickTagHandler = useCallback((tag: ITagObjInExtendedPictureObj) => async () => {
+    runInAction(() => {
+      pictureStore.queryParams.queryString = `#${tag.text}`
+    });
+    setRewriteListStateToTrue();
+  }, [pictureStore, setRewriteListStateToTrue])
 
   useEffect(() => {
     if (currentPictureId && isOpen) {
@@ -53,10 +70,10 @@ const ViewPictureModal = ({ isOpen, setIsOpen, currentPictureId }: IViewPictureM
   }, [currentPictureId, getLikes, getPictureInfo, isOpen]);
 
   return (
-    <ModalWindow isOpen={isOpen} setIsOpen={setIsOpen} closeBtnId={modalStyles["close-btn"]}>
+    <ModalWindow isOpen={isOpen} setIsOpen={setIsOpen} closeBtnId={modalStyles["close-btn"]} modalWindowContentClassName={modalStyles["view-picture-content"]}>
       {
         pictureInfo ?
-          <section className={modalStyles["wrapper"]}>
+          <>
             <div className={modalStyles["picture-img-block"]}>
               <img
                 className={modalStyles["img"]}
@@ -66,15 +83,7 @@ const ViewPictureModal = ({ isOpen, setIsOpen, currentPictureId }: IViewPictureM
 
             <div className={modalStyles["picture-like-block"]}>
               <LikeEssenceBtn
-                sendLikeRequest={async () => {
-                  const response = await PictureLikeService.likePicture(pictureInfo.id);
-                  runInAction(() => pictureStore.pictures.rows.forEach(picture => {
-                    if (+picture.id === +currentPictureId) {
-                      response.data.liked ? picture.likesAmount++ : picture.likesAmount--
-
-                    }
-                  }))
-                }}
+                sendLikeRequest={onLikeHandler}
                 actualizeInfoAfterLike={() => getLikes()}
                 active={pictureIsLiked} />
               <p>{pictureLikes?.length}</p>
@@ -118,13 +127,7 @@ const ViewPictureModal = ({ isOpen, setIsOpen, currentPictureId }: IViewPictureM
                   <ul className={modalStyles["picture-tags__list"]}>
                     {pictureInfo.tags.map(tag => (
                       <button
-                        onClick={(e) => {
-                          runInAction(() => {
-                            const { cursor } = pictureStore.queryParams;
-                            pictureStore.queryParams = { ...pictureStore.queryParams, queryString: `#${tag.text}`, cursor: { ...cursor, value: 0, id: 0 } };
-                            pictureStore.getPictures(true);
-                          });
-                        }}
+                        onClick={onClickTagHandler(tag)}
                         key={tag.id}
                         className={modalStyles["picture-tags__item"]}>
                         {tag.text}
@@ -137,7 +140,7 @@ const ViewPictureModal = ({ isOpen, setIsOpen, currentPictureId }: IViewPictureM
               </div>
 
             </div>
-          </section>
+          </>
           :
           <p>Can't find picture's id, to send correct request to the server</p>
       }

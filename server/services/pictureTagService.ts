@@ -110,6 +110,8 @@ class PictureTagService {
       throw ApiError.badRequest(error.message);
     });
 
+    console.log(editedTag);
+
     if (editedTag[0] === 0) {
       throw ApiError.badRequest("Tag with such id doesnt exists");
     }

@@ -16,8 +16,8 @@ const TableRow = ({ entity, paramsToShow, actions, isLoading, setIsLoading }: IT
   return (
     <tr>
       {
-        paramsToShow.map(paramKey => (
-          <td>{entity[paramKey]}</td>
+        paramsToShow.map((paramKey, index) => (
+          <td key={index}>{entity[paramKey]}</td>
         ))
       }
       {
@@ -26,6 +26,7 @@ const TableRow = ({ entity, paramsToShow, actions, isLoading, setIsLoading }: IT
           {
             actions?.map(action => (
               <StandartButton
+                key={action.header}
                 disabled={isLoading}
                 onClick={onActionHandler(action)}>{action.header}</StandartButton>
             ))

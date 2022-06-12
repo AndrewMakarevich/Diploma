@@ -3,10 +3,9 @@ import PictureTypeService from "../../../../services/picture-type-service";
 import { pictureTypeObj } from "../../../../interfaces/http/response/picture-type-interfaces";
 
 import formStyles from "./create-picture-type-form.module.css";
-import FormInput from "../../../forms/root-form/form-input/form-input";
-import StandartButton from "../../../../UI/standart-button/standart-button";
-import DeleteButton from "../../../../UI/delete-button/delete-button";
 import PictureTypeValidator from "../../../../validator/picture-type-validator";
+import StandartOneColumnForm from "../../../forms/standart-one-column-form/standart-one-column-form";
+import { IField } from "../../../forms/root-form/interfaces";
 
 interface ICreatePictureTypeFormProps {
   actualizeList: (newPictureType: pictureTypeObj) => void;
@@ -19,8 +18,12 @@ const CreatePictureTypeForm = ({ actualizeList }: ICreatePictureTypeFormProps) =
   const createPictureType = async (e: FormEvent<HTMLButtonElement>) => {
     e.preventDefault();
     try {
+      PictureTypeValidator.validateTypeName(typeName, true);
       setFormLoading(true);
+
       const response = await PictureTypeService.createPictureType(typeName);
+      alert(response.data.message);
+
       await actualizeList(response.data.pictureType);
     } catch (e: any) {
       alert(e.isAxiosError ? e.response.data.message : e.message);
@@ -37,14 +40,21 @@ const CreatePictureTypeForm = ({ actualizeList }: ICreatePictureTypeFormProps) =
     setTypeName("");
   }
 
+  const fields: IField[] = [
+    {
+      header: "Type name",
+      onChange: onChangeHandler,
+      onValidate: PictureTypeValidator.validateTypeName,
+      type: "text",
+      value: typeName,
+    }
+  ]
+
   return (
     <div className={formStyles["form-wrapper"]}>
       <p className={formStyles["form-header"]}>Create picture type</p>
-      <form className={formStyles["form"]}>
-        <FormInput disabled={formLoading} value={typeName} type="text" header="Type name" onChange={onChangeHandler} onValidate={PictureTypeValidator.validateTypeName} />
-        <StandartButton disabled={formLoading} type="submit" onClick={createPictureType}>Create</StandartButton>
-        <DeleteButton disabled={formLoading} type="button" onClick={onClearChangesHandler}>Clear</DeleteButton>
-      </form>
+      <StandartOneColumnForm
+        fields={fields} disabled={formLoading} onSubmit={createPictureType} onClearChanges={onClearChangesHandler} />
     </div>
   )
 };

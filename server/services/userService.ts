@@ -12,7 +12,6 @@ import UserValidator from "../validator/userValidator";
 import { IUser } from "../interfaces/modelInterfaces";
 import fileUpload from "express-fileupload";
 import ImageService from "./imageService";
-import { SequelizeScopeError, UniqueConstraintError, ValidationError } from "sequelize/dist";
 
 class UserService {
 

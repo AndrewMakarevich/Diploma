@@ -1,8 +1,7 @@
 import listStyles from "./tag-list.module.css";
-import PictureTagService from "../../../../../services/picture-tag-service";
 import StandartButton from "../../../../../UI/standart-button/standart-button";
-import { tagObj } from "../edit-picture-form";
 import TagItem from "../tag-item/tag-item";
+import { tagObj } from "../interfaces";
 
 interface ITagListProps {
   pictureId: number,
@@ -12,7 +11,7 @@ interface ITagListProps {
   setInitialTagsArr: React.Dispatch<React.SetStateAction<tagObj[]>>
 }
 
-const TagList = ({ pictureId, tagsArr, setTagsArr, initialTagsArr, setInitialTagsArr }: ITagListProps) => {
+const TagList = ({ tagsArr, setTagsArr }: ITagListProps) => {
   const addNewTag = () => {
     setTagsArr([...tagsArr, { id: Date.now(), text: "" }]);
   };

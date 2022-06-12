@@ -10,6 +10,8 @@ import StandartButton from "../../../../UI/standart-button/standart-button";
 import NewTagList from "./new-tag-list/new-tag-list";
 import NewSectionList from "./new-section-list/new-section-list";
 import { Context } from "../../../..";
+import { PictureValidator } from "../../../../validator/picture-validator";
+import PictureTagValidator from "../../../../validator/picture-tag-validator";
 
 export interface newSectionObj {
   [key: string]: any,
@@ -51,6 +53,9 @@ const CreatePictureForm = ({ setModalIsOpen }: ICreatePictureFormProps) => {
   function groupData() {
     const formData = new FormData();
 
+    PictureValidator.checkMainTitle(mainData.mainTitle, true);
+    PictureValidator.checkMainDescription(mainData.description, true);
+
     // SETTING MAIN PICTURE CREATING DATA
     for (let key in mainData) {
       if (!mainData[key]) {
@@ -59,21 +64,31 @@ const CreatePictureForm = ({ setModalIsOpen }: ICreatePictureFormProps) => {
       formData.append(key, mainData[key]);
     }
 
-    // SETTING NEW SECTIONS
-    const sectionsToSend = newSections.filter(section => section.title.split(' ').join('') && section.description.split(' ').join(''));
-    const tagsToSend = newTags.filter(tag => tag.text.split(' ').join(''));
+    newSections.forEach(section => {
+      PictureValidator.checkAdditionalTitle(section.title, true);
+      PictureValidator.checkAdditionalDescription(section.description, true);
+    });
 
-    sectionsToSend.length && formData.append('pictureInfos', JSON.stringify(sectionsToSend));
-    tagsToSend.length && formData.append('pictureTags', JSON.stringify(tagsToSend));
+    newTags.forEach(tag => {
+      PictureTagValidator.validateTagText(tag.text, true)
+    })
+
+    // SETTING NEW SECTIONS
+    // const sectionsToSend = newSections.filter(section => section.title.split(' ').join('') && section.description.split(' ').join(''));
+    // const tagsToSend = newTags.filter(tag => tag.text.split(' ').join(''));
+
+    newSections.length && formData.append('pictureInfos', JSON.stringify(newSections));
+    newTags.length && formData.append('pictureTags', JSON.stringify(newTags));
 
     return formData;
   }
 
   async function createPicture() {
     try {
-      const response = await PictureService.createPicture(groupData());
+      const groupedData = groupData()
+      const response = await PictureService.createPicture(groupedData);
       if (!response.data.errors.length) {
-        alert("Picture created succesfully");
+        alert("Picture created successfully");
       } else {
         alert(response.data.errors);
       }
@@ -81,7 +96,12 @@ const CreatePictureForm = ({ setModalIsOpen }: ICreatePictureFormProps) => {
       pictureStore.addPictureLocally(response.data.picture);
       setModalIsOpen(false);
     } catch (e: any) {
-      alert(e.response?.data?.message);
+      if (e.isAxiosError) {
+        alert(e.response?.data?.message);
+      } else {
+        alert(e.message)
+      }
+
     }
 
   }

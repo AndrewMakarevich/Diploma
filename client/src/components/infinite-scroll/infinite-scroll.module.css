@@ -1,9 +1,14 @@
 .container{
-  max-height: 100vh;
+  max-height: 80vh;
   display: flex;
   flex-wrap: wrap;
   grid-gap: 15px;
   justify-content: center;
   overflow-y: auto;
   width: 100%;
+}
+
+.container::-webkit-scrollbar-thumb {
+  background-color: rgb(158, 154, 154);  
+  border-radius:15px;  /* color of the scroll thumb */  /* creates padding around scroll thumb */
 }

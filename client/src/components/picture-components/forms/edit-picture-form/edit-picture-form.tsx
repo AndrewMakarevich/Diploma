@@ -1,5 +1,5 @@
 import formStyles from "./edit-picture-form.module.css";
-import { useEffect, useRef, useState } from "react";
+import { ChangeEvent, useContext, useEffect, useRef, useState } from "react";
 import PictureService from "../../../../services/picture-service";
 import returnPictureLink from "../../../../utils/img-utils/return-picture-link";
 import ArrowIcon from "../../../../assets/img/icons/arrow-icon/arrow-icon";
@@ -15,31 +15,13 @@ import PictureInfoService from "../../../../services/picture-info-service";
 import PictureTagService from "../../../../services/picture-tag-service";
 import DeletePictureBtn from "../../btns/delete-picture-btn";
 import useFetching from "../../../../hooks/useFetching";
-
-
-export interface sectionObj {
-  [key: string]: any,
-  id: number,
-  title: string,
-  description: string,
-  alreadyExists?: boolean,
-  toDelete?: boolean
-}
-
-export interface tagObj {
-  [key: string]: any,
-  id: number,
-  text: string,
-  alreadyExists?: boolean,
-  toDelete?: boolean
-}
-
-interface IEditPictureFormProps {
-  pictureId: number,
-  setModalIsOpen: React.Dispatch<React.SetStateAction<boolean>>
-}
+import { IEditPictureFormProps, sectionObj, tagObj } from "./interfaces";
+import { Context } from "../../../..";
+import { PictureValidator } from "../../../../validator/picture-validator";
+import PictureTagValidator from "../../../../validator/picture-tag-validator";
 
 const EditPictureForm = ({ pictureId, setModalIsOpen }: IEditPictureFormProps) => {
+  const { pictureStore } = useContext(Context)
   const {
     executeCallback: getPictureInfo,
     isLoading: pictureLoading } =
@@ -50,7 +32,7 @@ const EditPictureForm = ({ pictureId, setModalIsOpen }: IEditPictureFormProps) =
     description: "",
     pictureTypeId: null
   });
-  const [editedPictureInfo, setEditedPictureInfo] = useState<IEditedPictureMainDataEditForm>({
+  const [editedMainPictureInfo, setEditedMainPictureInfo] = useState<IEditedPictureMainDataEditForm>({
     img: null,
     mainTitle: "",
     description: "",
@@ -68,127 +50,167 @@ const EditPictureForm = ({ pictureId, setModalIsOpen }: IEditPictureFormProps) =
   const inputImageRef = useRef<HTMLImageElement>(null);
 
   const setCurrentImg = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setEditedPictureInfo({ ...editedPictureInfo, img: e.target.files?.[0] });
+    setEditedMainPictureInfo({ ...editedMainPictureInfo, img: e.target.files?.[0] });
     setFileInputCurrentImg(inputImageRef, e.target.files?.[0], returnPictureLink(mainPictureInfo?.img));
   };
 
-  const groupAndSendData = async () => {
-    const formData = new FormData();
+  interface validationObject {
+    [key: string]: (paramValue: string, throwError: boolean) => boolean
+  }
 
-    const mainInfoToEdit: { [key: string]: any } = {};
+  const validationMainInfoObject: validationObject = {
+    "mainTitle": PictureValidator.checkMainTitle,
+    "description": PictureValidator.checkMainDescription
+  };
 
-    for (let key in editedPictureInfo) {
-      if (editedPictureInfo[key] !== mainPictureInfo[key]) {
-        mainInfoToEdit[key] = editedPictureInfo[key];
-      }
-    }
+  const validationPictureInfoObject: validationObject = {
+    "title": PictureValidator.checkAdditionalTitle,
+    "description": PictureValidator.checkAdditionalDescription
+  }
 
-    for (let key in mainInfoToEdit) {
-      formData.append(key, mainInfoToEdit[key])
-    }
+  const validationPictureTagObject: validationObject = {
+    "text": PictureTagValidator.validateTagText
+  }
 
-    let pictureSectionsToDeleteOnServer: number[] = [];
-    let pictureSectionsToDeleteLocally: number[] = [];
-
-    let pictureSectionsToSend = editedPictureSections.map(section => {
-      if (section.toDelete) {
-        if (section.alreadyExists) {
-          pictureSectionsToDeleteOnServer.push(section.id);
-          return undefined;
-        }
-        pictureSectionsToDeleteLocally.push(section.id);
-        return undefined;
-      }
-
-      const sameSection = pictureSections.find((el) => +el.id === +section.id);
-
-      if (!sameSection) {
-        if (section.title.split(' ').join('') && section.description.split(' ').join('')) {
-          return section;
-        }
-        return undefined;
-      };
-
-      const editSectionObj: { [key: string]: any } = {};
-
-      for (let sectionKey in section) {
-        if (sectionKey === 'alreadyExists' || sectionKey === "toDelete" || sectionKey === "id") {
-          continue;
-        }
-
-        if (section[sectionKey] !== sameSection?.[sectionKey]) {
-          editSectionObj[sectionKey] = section[sectionKey];
-        }
-      }
-
-      if (Object.values(editSectionObj).length) {
-        editSectionObj.id = section.id
-        return editSectionObj;
-      }
-
-      return undefined;
-    });
-
-    pictureSectionsToSend = pictureSectionsToSend.filter(section => section !== undefined)
-    formData.append("pictureInfos", JSON.stringify(pictureSectionsToSend));
-
-    let pictureTagsToDeleteOnServer: number[] = [];
-    let pictureTagsToDeleteLocally: number[] = [];
-
-    let pictureTagsToSend = editedPictureTags.map(tag => {
-      if (tag.toDelete) {
-        if (tag.alreadyExists) {
-          pictureTagsToDeleteOnServer.push(tag.id);
-          return undefined;
-        }
-        pictureTagsToDeleteLocally.push(tag.id);
-        return undefined;
-      }
-      const sameTag = pictureTags.find(tagObj => +tagObj.id === +tag.id);
-
-      if (!sameTag) {
-        if (tag.text.split(" ").join("")) {
-          return tag;
-        }
-        return undefined;
-      }
-
-      const tagObject: { [key: string]: any } = {}
-
-      for (let key in tag) {
-        if (key === 'alreadyExists' || key === 'toDelete' || key === 'id') {
-          continue;
-        }
-
-        if (tag[key] !== sameTag?.[key]) {
-          tagObject[key] = tag[key]
-        }
-      }
-
-      if (Object.values(tagObject).length) {
-        tagObject.id = tag.id;
-        return tagObject;
-      }
-
-      return undefined;
-    });
-
-    pictureTagsToSend = pictureTagsToSend.filter(tag => tag !== undefined);
-    formData.append("pictureTags", JSON.stringify(pictureTagsToSend));
-
-    if (
-      !Object.values(mainInfoToEdit).length &&
-      !pictureSectionsToSend.length &&
-      !pictureTagsToSend.length &&
-      !pictureSectionsToDeleteOnServer.length &&
-      !pictureSectionsToDeleteLocally.length &&
-      !pictureTagsToDeleteOnServer.length &&
-      !pictureTagsToDeleteLocally.length) {
-      alert("Nothing to change");
-      return;
-    }
-
+  const groupAndSendData = async (event: React.MouseEvent<HTMLButtonElement, MouseEvent>) => {
+    event.preventDefault();
     try {
+
+      const formData = new FormData();
+      const mainInfoToEdit: { [key: string]: any } = {};
+
+      for (let key in editedMainPictureInfo) {
+        if (!editedMainPictureInfo.hasOwnProperty(key)) {
+          continue;
+        }
+
+        if (editedMainPictureInfo[key] !== mainPictureInfo[key]) {
+          mainInfoToEdit[key] = editedMainPictureInfo[key];
+        }
+      }
+
+      for (let key in mainInfoToEdit) {
+        //validate value by key using validation object and fullfill formData
+        validationMainInfoObject[key](mainInfoToEdit[key], true);
+        formData.append(key, mainInfoToEdit[key])
+      }
+
+      let pictureSectionsToDeleteOnServer: number[] = [];
+      let pictureSectionsToDeleteLocally: number[] = [];
+
+      // Compairing edited picture sections array with initial picture sections array
+      // if edited picture section have unique value in key which compares, add to the array of sections need to be updated
+      // if section is new, need just to check title and description before adding to the array
+
+      let pictureSectionsToSend = editedPictureSections.map(section => {
+        if (section.toDelete) {
+          if (section.alreadyExists) {
+            pictureSectionsToDeleteOnServer.push(section.id);
+            return undefined;
+          }
+          pictureSectionsToDeleteLocally.push(section.id);
+          return undefined;
+        }
+
+        const sameSection = pictureSections.find((el) => +el.id === +section.id);
+
+        if (!sameSection) {
+          if (
+            validationPictureInfoObject.title(section.title, true) &&
+            validationPictureInfoObject.description(section.description, true)) {
+            return section;
+          }
+          return undefined;
+        };
+
+        const editSectionObj: { [key: string]: any } = {};
+
+        for (let sectionKey in section) {
+          if (!section.hasOwnProperty(sectionKey)) {
+            continue;
+          }
+
+          if (sectionKey === 'alreadyExists' || sectionKey === "toDelete" || sectionKey === "id") {
+            continue;
+          }
+
+          if (section[sectionKey] !== sameSection?.[sectionKey]) {
+            validationPictureInfoObject[sectionKey](section[sectionKey], true);
+            editSectionObj[sectionKey] = section[sectionKey];
+          }
+        }
+
+        if (Object.values(editSectionObj).length) {
+          editSectionObj.id = section.id
+          return editSectionObj;
+        }
+
+        return undefined;
+      });
+
+      pictureSectionsToSend = pictureSectionsToSend.filter(section => section !== undefined)
+      formData.append("pictureInfos", JSON.stringify(pictureSectionsToSend));
+
+      let pictureTagsToDeleteOnServer: number[] = [];
+      let pictureTagsToDeleteLocally: number[] = [];
+
+      // Compairing edited picture tags array with initial picture tags array
+      // if edited picture tag have unique value in key which compares, add to the array of tags need to be updated
+      // if tag is new, need just to check text before adding to the array
+
+      let pictureTagsToSend = editedPictureTags.map(tag => {
+        if (tag.toDelete) {
+          if (tag.alreadyExists) {
+            pictureTagsToDeleteOnServer.push(tag.id);
+            return undefined;
+          }
+          pictureTagsToDeleteLocally.push(tag.id);
+          return undefined;
+        }
+        const sameTag = pictureTags.find(tagObj => +tagObj.id === +tag.id);
+
+        if (!sameTag) {
+          if (validationPictureTagObject.text(tag.text, true)) {
+            return tag;
+          }
+          return undefined;
+        }
+
+        const tagObject: { [key: string]: any } = {}
+
+        for (let key in tag) {
+          if (key === 'alreadyExists' || key === 'toDelete' || key === 'id') {
+            continue;
+          }
+
+          if (tag[key] !== sameTag?.[key]) {
+            validationPictureTagObject[key](tag[key], true);
+            tagObject[key] = tag[key]
+          }
+        }
+
+        if (Object.values(tagObject).length) {
+          tagObject.id = tag.id;
+          return tagObject;
+        }
+
+        return undefined;
+      });
+
+      pictureTagsToSend = pictureTagsToSend.filter(tag => tag !== undefined);
+      formData.append("pictureTags", JSON.stringify(pictureTagsToSend));
+
+      if (
+        !Object.values(mainInfoToEdit).length &&
+        !pictureSectionsToSend.length &&
+        !pictureTagsToSend.length &&
+        !pictureSectionsToDeleteOnServer.length &&
+        !pictureSectionsToDeleteLocally.length &&
+        !pictureTagsToDeleteOnServer.length &&
+        !pictureTagsToDeleteLocally.length) {
+        alert("Nothing to change");
+        return;
+      }
       if (window.confirm("Are you sure you want to submit changes?")) {
         if (Object.values(mainInfoToEdit).length || pictureSectionsToSend.length || pictureTagsToSend.length) {
           if (pictureSectionsToDeleteOnServer.length) {
@@ -199,6 +221,20 @@ const EditPictureForm = ({ pictureId, setModalIsOpen }: IEditPictureFormProps) =
           }
 
           const response = await PictureService.editPicture(pictureId, formData);
+
+          if (response.data.errors.length) {
+            alert(response.data.errors.join("\n"))
+          }
+
+          pictureStore.pictures.rows = pictureStore.pictures.rows.map(picture => {
+            if (picture.id !== response.data.picture.id) {
+              return picture;
+            }
+            Object.keys(picture).forEach(pictureKey => {
+              picture[pictureKey] = response.data.picture[pictureKey]
+            });
+            return picture;
+          });
 
           setPictureParams(response.data.picture);
           return;
@@ -223,7 +259,6 @@ const EditPictureForm = ({ pictureId, setModalIsOpen }: IEditPictureFormProps) =
 
         if (pictureSectionsToDeleteLocally.length) {
           filteredSections = editedPictureSections.filter(section => !pictureSectionsToDeleteLocally.some(sectionToDeleteLocallyId => sectionToDeleteLocallyId === section.id));
-          console.log(filteredSections, pictureSections);
         }
 
         setPictureTags(filteredTags);
@@ -246,14 +281,17 @@ const EditPictureForm = ({ pictureId, setModalIsOpen }: IEditPictureFormProps) =
 
   const clearAllChanges = async () => {
     if (window.confirm("Are you sure you want to clear all changes?")) {
-      setEditedPictureInfo(mainPictureInfo);
+      setEditedMainPictureInfo(mainPictureInfo);
       setEditedPictureSections(pictureSections.map(section => ({ ...section, alreadyExists: true })));
       setEditedPictureTags(pictureTags.map(tag => ({ ...tag, alreadyExists: true })));
     }
   }
 
+  const onSetEditedPictureInfo = (paramName: string) => (e: ChangeEvent<any>) => {
+    setEditedMainPictureInfo({ ...editedMainPictureInfo, [paramName]: e.target.value })
+  }
+
   const setPictureParams = (data: IExtendedPictureObj) => {
-    console.log(data);
     const mainInfo = {
       img: data.img,
       mainTitle: data.mainTitle,
@@ -261,7 +299,7 @@ const EditPictureForm = ({ pictureId, setModalIsOpen }: IEditPictureFormProps) =
       pictureTypeId: data.pictureTypeId
     }
     setMainPictureInfo(mainInfo);
-    setEditedPictureInfo(mainInfo);
+    setEditedMainPictureInfo(mainInfo);
 
     setPictureSections(data.pictureInfos);
     setEditedPictureSections(data.pictureInfos.map(info => ({ ...info, alreadyExists: true })));
@@ -293,8 +331,8 @@ const EditPictureForm = ({ pictureId, setModalIsOpen }: IEditPictureFormProps) =
           <img
             ref={inputImageRef}
             className={formStyles["img"]}
-            alt={editedPictureInfo?.mainTitle}
-            src={returnPictureLink(String(editedPictureInfo?.img))}></img>
+            alt={editedMainPictureInfo?.mainTitle}
+            src={returnPictureLink(String(editedMainPictureInfo?.img))}></img>
           <span className={formStyles["img-span"]}>Choose another image</span>
         </label>
 
@@ -310,17 +348,17 @@ const EditPictureForm = ({ pictureId, setModalIsOpen }: IEditPictureFormProps) =
         </button>
         <div className={formStyles["info-wrapper"]}>
           <PicturesTypesSelect
-            value={editedPictureInfo.pictureTypeId || ""}
-            onChange={(e) => setEditedPictureInfo({ ...editedPictureInfo, pictureTypeId: e.target.value })} />
+            value={editedMainPictureInfo.pictureTypeId || ""}
+            onChange={onSetEditedPictureInfo("pictureTypeId")} />
           <div className={formStyles["main-info"]}>
             <fieldset>
               <legend>Main info</legend>
               <textarea
-                value={editedPictureInfo?.mainTitle}
-                onChange={(e) => setEditedPictureInfo({ ...editedPictureInfo, mainTitle: e.target.value })} />
+                value={editedMainPictureInfo?.mainTitle}
+                onChange={onSetEditedPictureInfo("mainTitle")} />
               <textarea
-                value={editedPictureInfo?.description}
-                onChange={(e) => setEditedPictureInfo({ ...editedPictureInfo, description: e.target.value })} />
+                value={editedMainPictureInfo?.description}
+                onChange={onSetEditedPictureInfo("description")} />
             </fieldset>
 
           </div>
@@ -345,11 +383,7 @@ const EditPictureForm = ({ pictureId, setModalIsOpen }: IEditPictureFormProps) =
 
           <DeleteButton type="button" onClick={clearAllChanges}>Clear changes</DeleteButton>
 
-          <StandartButton type="submit" onClick={(e) => {
-            e.preventDefault();
-            groupAndSendData();
-          }}
-          >Submit changes</StandartButton>
+          <StandartButton type="submit" onClick={groupAndSendData}>Submit changes</StandartButton>
         </div>
       </section>
 

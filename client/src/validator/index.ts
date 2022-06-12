@@ -7,6 +7,7 @@ export function validateText(
   throwError: boolean,
   errorMessage: string) {
   const regEx = new RegExp(regExpString, "gi");
+  console.log(regEx);
 
   if (!paramValue.split(" ").join("")) {
     if (throwError) {

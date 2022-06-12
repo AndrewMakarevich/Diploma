@@ -2,3 +2,8 @@
   position: absolute;
   left:10px;
 }
+
+.edit-picture-modal-content{
+  min-width: 55vw;
+  min-height: 55vh;
+}

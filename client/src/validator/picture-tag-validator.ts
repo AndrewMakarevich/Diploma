@@ -11,7 +11,7 @@ class PictureTagValidator {
       if (!alert) {
         return false;
       }
-      throw Error("Tag text doesn't match to the specified pattern. A-Za-z0-9 symbols availible, with length from 3 to 25 symbols");
+      throw Error(`Tag text "${tagText}" doesn't match to the specified pattern. A-Za-z0-9 symbols availible, with length from 3 to 25 symbols`);
     }
 
     return true;

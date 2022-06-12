@@ -79,7 +79,7 @@ export default class UserValidator {
         return false;
       }
 
-      throw Error('Password does not match the specified pattern');
+      throw Error('Password does not match the specified pattern. Symbols a-zA-Zа-яА-ЯёЁ0-9!@№#$%^:?&*()_+-= allowed, with length from 8 to 32');
     }
 
     return true;

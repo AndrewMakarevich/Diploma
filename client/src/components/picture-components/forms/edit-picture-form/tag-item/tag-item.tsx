@@ -1,9 +1,9 @@
 import { useRef } from "react";
 import itemStyles from "./tag-item.module.css";
 import MatchingTagsList from "../../../matching-tags-list/matching-tags-list";
-import { tagObj } from "../edit-picture-form";
 import DeleteButton from "../../../../../UI/delete-button/delete-button";
 import StandartButton from "../../../../../UI/standart-button/standart-button";
+import { tagObj } from "../interfaces";
 
 interface ITagItemProps {
   tag: tagObj,

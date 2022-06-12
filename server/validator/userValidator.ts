@@ -52,7 +52,7 @@ class UserValidator {
     const max = 32;
     const regEx = new RegExp(`\^\[a-zA-Zа-яА-ЯёЁ0-9!@№#$%^:?&*()_+-=\]\{${min},${max}\}\$`);
     if (!regEx.test(value)) {
-      throw ApiError.badRequest('Password does not match the specified pattern');
+      throw ApiError.badRequest('Password does not match the specified pattern. Symbols a-zA-Zа-яА-ЯёЁ0-9!@№#$%^:?&*()_+-= allowed, with length from 8 to 32');
     }
     return;
   }

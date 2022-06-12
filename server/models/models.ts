@@ -101,6 +101,25 @@ const UserToken = sequelize.define<IUserTokenInstance>('userToken', {
   refreshToken: { type: DataTypes.TEXT }
 });
 
+const Notification = sequelize.define('notification', {
+  id: { type: DataTypes.INTEGER, primaryKey: true, autoIncrement: true },
+  message: {
+    type: DataTypes.TEXT, allowNull: false, validate: {
+      checkNotificationMessage(message: string) {
+        if (!message.split(" ").join("")) {
+          throw Error("Notification message can't be empty or consist of only spaces");
+        }
+
+        if (!/^[a-zA-ZА-Яа-яЁё0-9,."'^#@*()[]:-+=]{25, 450}$/.test(message)) {
+          throw Error("Notification message must consists of only a-zA-ZА-Яа-яЁё letters фтв ,.\"'^#@*()[]:-+= symbols, with length from 25 to 450 symbols");
+        }
+      }
+    }
+  },
+  checked: { type: DataTypes.BOOLEAN, allowNull: false, defaultValue: false }
+}
+);
+
 const ResetPasswordBundle = sequelize.define<IResetPasswordBundleInstance>('resetPasswordBundle', {
   id: { type: DataTypes.INTEGER, primaryKey: true, autoIncrement: true },
   emailApproveKey: { type: DataTypes.STRING, allowNull: false },
@@ -146,7 +165,7 @@ const PictureTag = sequelize.define<IPictureTagInstance>('pictureTag', {
       checkTagText(tagText: string) {
         tagText = tagText.split(" ").join("");
         if (!tagText.split(" ").join("")) {
-          throw Error("Tag that consists of only spaces is not allowed");
+          throw Error("Tag that's empty or consists of only spaces is not allowed");
         }
         if (!/^[a-zA-Z0-9\s]{3,25}$/.test(tagText)) {
           throw Error("Tag text doesn't match to the specified pattern. A-Za-z0-9 symbols availible, with length from 3 to 25 symbols");
@@ -198,6 +217,10 @@ const Role = sequelize.define<IRoleInstance>('role', {
 User.hasMany(UserToken, { onDelete: "cascade" });
 UserToken.belongsTo(User);
 
+User.hasMany(Notification, { onDelete: "cascade" });
+Notification.belongsTo(User, { as: "sender" });
+Notification.belongsTo(User, { as: "reciever" })
+
 Role.hasMany(User);
 User.belongsTo(Role);
 
@@ -242,6 +265,7 @@ PictureType.belongsTo(User);
 
 export default {
   User,
+  Notification,
   UserToken,
   ResetPasswordBundle,
   Picture,

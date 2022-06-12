@@ -1,5 +1,4 @@
 import itemStyles from "./picture-item.module.css";
-import { IShortPictureObj } from "../../../interfaces/http/response/pictureInterfaces";
 import LikeIcon from "../../../assets/img/icons/like-icon/like-icon";
 import { IStoredPicture } from "../../../store/pictureStore";
 

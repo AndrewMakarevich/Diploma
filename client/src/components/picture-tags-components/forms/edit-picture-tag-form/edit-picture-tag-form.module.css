@@ -1,0 +1,12 @@
+.form-wrapper{
+  display: flex;
+  flex-direction: column;
+  gap:2.5px;
+  padding: 5px 10px;
+  background-color: rgba(0, 0, 0, 0.7);
+  border-radius: 10px;
+}
+
+.form-header{
+  color: var(--extra-light)
+}

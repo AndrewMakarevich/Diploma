@@ -67,14 +67,11 @@ class PictureStore {
         queryString,
         limit);
 
-      console.log("unmountFlags", unmountFlag)
-
       if (unmountFlag.current) {
         this.clearPictures();
         this.clearCursor();
         return;
       }
-
 
       const filteredForDuplicatesArr = data.rows.filter(picture => !this.locallyAddedPicturesIds.some(id => id === picture.id));
       runInAction(() => {
@@ -84,6 +81,7 @@ class PictureStore {
       if (data.rows.length) {
         cursor.value = data.rows[data.rows.length - 1][cursor.key]
         cursor.id = data.rows[data.rows.length - 1].id
+        console.log(cursor);
       } else {
         runInAction(() => {
           this.allPicturesRecieved = true;
@@ -115,20 +113,28 @@ class PictureStore {
   };
 
   clearPictures() {
-    this.locallyAddedPicturesIds = [];
-    this.allPicturesRecieved = false;
-    this.pictures = { rows: [] }
+    runInAction(() => {
+      this.locallyAddedPicturesIds = [];
+      this.allPicturesRecieved = false;
+      this.pictures = { rows: [] }
+    })
+
   }
 
   clearCursor() {
-    this.queryParams.cursor.value = 0;
-    this.queryParams.cursor.id = 0;
+    runInAction(() => {
+      this.queryParams.cursor.value = 0;
+      this.queryParams.cursor.id = 0;
+    })
+
   }
 
   clearPictureStore() {
     this.clearPictures();
     this.clearCursor();
-    this.queryParams.userId = 0;
+    runInAction(() => {
+      this.queryParams.userId = 0;
+    })
   }
 };
 

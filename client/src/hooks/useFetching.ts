@@ -15,8 +15,10 @@ const useFetching = <T, K extends Array<unknown>>(callback: (...args: K) => Prom
       if (e.isAxiosError) {
         setError(e.response.data.message)
         alert(e.response.data.message);
+      } else {
+        setError(e.message)
+        alert(e.message)
       }
-      return null;
     } finally {
       setIsLoading(false);
     }

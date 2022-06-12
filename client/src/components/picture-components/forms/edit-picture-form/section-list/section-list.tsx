@@ -1,10 +1,7 @@
 import listStyles from "./section-list.module.css";
-import { AxiosError } from "axios";
-import { useEffect } from "react";
-import PictureInfoService from "../../../../../services/picture-info-service";
 import StandartButton from "../../../../../UI/standart-button/standart-button";
-import { sectionObj } from "../edit-picture-form";
 import SectionItem from "../section-item/section-item";
+import { sectionObj } from "../interfaces";
 
 interface ISectionListProps {
   pictureId: number,
@@ -14,7 +11,7 @@ interface ISectionListProps {
   setInitialSectionsArr: React.Dispatch<React.SetStateAction<sectionObj[]>>
 }
 
-const SectionList = ({ pictureId, sectionsArr, setSectionsArr, initialSectionsArr, setInitialSectionsArr }: ISectionListProps) => {
+const SectionList = ({ sectionsArr, setSectionsArr }: ISectionListProps) => {
   const addNewSection = () => {
     setSectionsArr([...sectionsArr, { id: Date.now(), title: "", description: "" }])
   };

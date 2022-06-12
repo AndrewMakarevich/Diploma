@@ -1,4 +1,3 @@
-import { AxiosError } from "axios"
 import { useContext } from "react"
 import { Context } from "../../.."
 import PictureService from "../../../services/picture-service"
@@ -25,18 +24,18 @@ const DeletePictureBtn = ({ pictureId, pictureMainTitle, setModalIsOpen, classNa
     if (window.prompt(promptString) === pictureMainTitle) {
       try {
         if (isOwnPicture) {
-          const response = await PictureService.deleteOwnPicture(pictureId);
+          const response = await PictureService.deletePictureAsOwner(pictureId);
           pictureStore.deletePictureLocally(pictureId);
           alert(response.data.message);
         } else {
-          const response = await PictureService.deleteElsesPicture(pictureId);
+          const response = await PictureService.deletePictureAsAdmin(pictureId);
           alert(response.data.message);
         }
 
         await pictureStore.getPictures();
         setModalIsOpen(false);
 
-      } catch (e: AxiosError | Error | any) {
+      } catch (e: any) {
         if (e.isAxiosError) {
           alert(e.respons.data.message);
           return;

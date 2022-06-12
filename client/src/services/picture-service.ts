@@ -29,11 +29,11 @@ class PictureService {
     return $authHost.put<IEditPictureResponse>(`/api/picture/edit/${pictureId}`, pictureInfoToEdit);
   }
 
-  static async deleteOwnPicture(pictureId: number): Promise<AxiosResponse<IDeletePictureResponse>> {
+  static async deletePictureAsOwner(pictureId: number): Promise<AxiosResponse<IDeletePictureResponse>> {
     return $authHost.delete<IDeletePictureResponse>(`/api/picture/delete-own/${pictureId}`);
   }
 
-  static async deleteElsesPicture(pictureId: number): Promise<AxiosResponse<IDeletePictureResponse>> {
+  static async deletePictureAsAdmin(pictureId: number): Promise<AxiosResponse<IDeletePictureResponse>> {
     return $authHost.delete<IDeletePictureResponse>(`/api/picture/delete-elses/${pictureId}`);
   }
 }

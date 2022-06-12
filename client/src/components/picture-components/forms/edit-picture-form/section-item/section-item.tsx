@@ -1,7 +1,7 @@
 import itemStyles from "./section-item.module.css";
-import { sectionObj } from "../edit-picture-form";
 import DeleteButton from "../../../../../UI/delete-button/delete-button";
 import StandartButton from "../../../../../UI/standart-button/standart-button";
+import { sectionObj } from "../interfaces";
 
 interface ISectionItemProps {
   section: sectionObj,

@@ -11,6 +11,8 @@ import panelStyles from "./picture-types-panel.module.css";
 import PictureTypesSearchPanel from "../picture-types-search-panel/picture-types-search-panel";
 import { IGetPictureTypesCursor } from "../../../interfaces/services/pictureTypeServiceInterfaces";
 import InfiniteScroll from "../../infinite-scroll/infinite-scroll";
+import ModalWindow from "../../modal-window/modal-window";
+import StandartButton from "../../../UI/standart-button/standart-button";
 
 interface IPaginationParams {
   cursor: IGetPictureTypesCursor,
@@ -25,6 +27,7 @@ const PictureTypesPanel = () => {
   const [locallyAddedPictureTypesIds, setLocallyAddedPictureTypesIds] = useState<number[]>([])
   const [allPictureTypesRecieved, setAllPictureTypesRecieved] = useState<boolean>(false);
   const [editFormOpen, setEditFormOpen] = useState(false);
+  const [createFormOpen, setCreateFormOpen] = useState(false);
   const [queryString, setQueryString] = useState("");
   const [pagination, setPagination] = useState<IPaginationParams>({
     cursor: { key: "createdAt", id: 0, value: 0, order: "ASC" },
@@ -32,7 +35,7 @@ const PictureTypesPanel = () => {
   });
   const [rewriteTypes, setRewriteTypes] = useState(false);
   const [pictureTypeToEditId, setPictureTypeToEditId] = useState<number>(0);
-  const picturetTypeToEdit = useMemo(() => pictureTypes.rows.find(pictureType => +pictureType.id === +pictureTypeToEditId), [pictureTypeToEditId, pictureTypes]);
+  const pictureTypeToEdit = useMemo(() => pictureTypes.rows.find(pictureType => +pictureType.id === +pictureTypeToEditId), [pictureTypeToEditId, pictureTypes]);
 
   const getTypes = useCallback(async (rewrite: boolean, unmountFlag: React.MutableRefObject<boolean>) => {
     const { cursor, limit } = pagination;
@@ -45,7 +48,7 @@ const PictureTypesPanel = () => {
     const { data } = await PictureTypeService.getPicturesTypes(queryString, cursor, limit);
 
     if (unmountFlag.current) {
-      setAllPictureTypesRecieved(true);
+      setAllPictureTypesRecieved(false);
       return
     }
 
@@ -53,7 +56,8 @@ const PictureTypesPanel = () => {
 
     if (!rows.length) {
       setAllPictureTypesRecieved(true);
-      setTimeout(() => { setAllPictureTypesRecieved(false) }, 1000 * 60)
+      setTimeout(() => { setAllPictureTypesRecieved(false) }, 1000 * 60);
+      return;
     }
 
     const filteredFromDulicatesTypesArr = rows.filter(type => !locallyAddedPictureTypesIds.some(localTypeId => localTypeId === type.id));
@@ -89,6 +93,18 @@ const PictureTypesPanel = () => {
     setRewriteTypes(true);
   }, [pagination, setRewriteTypes]);
 
+  const onEditPictureType = useCallback(async (pictureTypeObj: pictureTypeObj) => {
+    const updatedPictureTypesRowsArr = pictureTypes.rows.map(pictureType => {
+      if (+pictureType.id === +pictureTypeObj.id) {
+        return { ...pictureType, name: pictureTypeObj.name }
+      };
+
+      return pictureType
+    });
+
+    setPictureTypes({ ...pictureTypes, rows: updatedPictureTypesRowsArr })
+  }, [pictureTypes])
+
   const onDeletePictureType = useCallback(async (pictureType: pictureTypeObj) => {
     try {
       if (window.confirm("Are you sure you want to delete this picture type?")) {
@@ -107,6 +123,10 @@ const PictureTypesPanel = () => {
     }
   }, [editFormOpen]);
 
+  const openCreatePanel = useCallback(() => {
+    setCreateFormOpen(true)
+  }, [])
+
   const actionsArray = useMemo(() => [
     {
       header: "delete",
@@ -118,28 +138,33 @@ const PictureTypesPanel = () => {
     }
   ], [onDeletePictureType, openEditPanel])
 
-  const actualizeListAfterAddingType = (newPictureType: pictureTypeObj) => {
+  const actualizeListAfterAddingType = useCallback((newPictureType: pictureTypeObj) => {
     setPictureTypes({
       count: pictureTypes.count + 1,
       rows: [...pictureTypes.rows, newPictureType]
     });
     setLocallyAddedPictureTypesIds([...locallyAddedPictureTypesIds, newPictureType.id]);
-  }
+  }, [pictureTypes, locallyAddedPictureTypesIds])
 
   return (
     <>
       <PictureTypesSearchPanel setQueryString={setQueryStringAndGetPictureTypes} setSortParam={setSortParamsAndGetPictureTypes} />
       <div className={panelStyles["forms"]}>
-        <CreatePictureTypeForm actualizeList={actualizeListAfterAddingType} />
+        <StandartButton onClick={openCreatePanel}>Create new type</StandartButton>
+        {
+          Boolean(createFormOpen) &&
+          <ModalWindow isOpen={createFormOpen} setIsOpen={setCreateFormOpen}>
+            <CreatePictureTypeForm actualizeList={actualizeListAfterAddingType} />
+          </ModalWindow>
+        }
         {
           Boolean(editFormOpen) &&
-          Boolean(picturetTypeToEdit) &&
-          <EditPictureTypeForm
-            initialParams={picturetTypeToEdit!}
-            isOpen={editFormOpen}
-            setIsOpen={setEditFormOpen}
-            pictureTypes={pictureTypes}
-            setPictureTypes={setPictureTypes} />
+          Boolean(pictureTypeToEdit) &&
+          <ModalWindow isOpen={editFormOpen} setIsOpen={setEditFormOpen}>
+            <EditPictureTypeForm
+              initialParams={pictureTypeToEdit!}
+              actualizeList={onEditPictureType} />
+          </ModalWindow>
         }
 
       </div>
