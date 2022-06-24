@@ -1,7 +1,7 @@
 # Diploma
 Diploma project
 
-#In addition to the auto generated SQL code should add:
+# In addition to the auto generated SQL code should add:
 ## 1. To the "notifications" table
  ### 1.1 Trigger fuction:
  ```
