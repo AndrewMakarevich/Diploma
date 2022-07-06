@@ -55,6 +55,7 @@ const PictureTypesPanel = () => {
     const { count, rows } = data;
 
     if (!rows.length) {
+      setRewriteTypes(false);
       setAllPictureTypesRecieved(true);
       setTimeout(() => { setAllPictureTypesRecieved(false) }, 1000 * 60);
       return;
@@ -81,6 +82,7 @@ const PictureTypesPanel = () => {
 
   const setQueryStringAndGetPictureTypes = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
     setQueryString(e.target.value);
+    setLocallyAddedPictureTypesIds([]);
     delaySetRewriteState();
   }, [delaySetRewriteState]);
 

@@ -68,6 +68,7 @@ const PictureTagsPanel = () => {
     }
 
     if (tags.length === 0) {
+      setRewriteTags(false);
       setAllTagsRecieved(true);
       setTimeout(() => setAllTagsRecieved(false), 1000 * 60);
       return;
@@ -93,6 +94,7 @@ const PictureTagsPanel = () => {
 
   const onQueryStringChange = useCallback((event: ChangeEvent<HTMLInputElement>) => {
     setQueryString(event.target.value);
+    setLocallyCreatedTagsIds([]);
     delaySetRewriteState();
   }, [delaySetRewriteState])
 

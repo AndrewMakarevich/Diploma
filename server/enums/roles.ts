@@ -5,6 +5,7 @@ export enum rolePermissions {
   addLike = "addLike",
   moderatePictureType = "moderatePictureType",
   moderatePictureTag = "moderatePictureTag",
+  moderateNotifications = "moderateNotifications",
   changeUserRole = "changeUserRole",
   deleteOtherComment = "deleteOtherComment",
   deleteOtherPicture = "deleteOtherPicture",

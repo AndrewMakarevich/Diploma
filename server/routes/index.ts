@@ -7,9 +7,11 @@ import pictureLikeRouter from './pictureLikeRouter';
 import pictureCommentRouter from './pictureCommentRouter';
 import pictureCommentLikeRouter from './pictureCommentLikeRouter';
 import pictureInfoRouter from './pictureInfoRouter';
+import notificationRouter from './notificationRouter';
 const mainRouter = Router();
 
 mainRouter.use('/user', userRouter);
+mainRouter.use('/notification', notificationRouter);
 mainRouter.use('/picture', pictureRouter);
 mainRouter.use('/picture-info', pictureInfoRouter);
 mainRouter.use('/picture-tag', pictureTagRouter);

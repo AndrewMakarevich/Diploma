@@ -35,7 +35,7 @@ class TokenService {
         if (!accessToken) {
             throw ApiError.badRequest('There is no acces-token in request, check your params');
         }
-        return jwt.verify(accessToken, process.env.JWT_ATOKEN_KEY!);
+        return jwt.verify(accessToken, process.env.JWT_ATOKEN_KEY!) as IUserDto;
     }
     static async findToken(userIp: string, refreshToken: string) {
         return await models.UserToken.findOne({ where: { userIp, refreshToken } });

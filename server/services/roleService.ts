@@ -31,6 +31,7 @@ class RoleService {
       ...userPermissionsObj,
       moderatePictureType: true,
       moderatePictureTag: true,
+      moderateNotifications: true,
       deleteOtherComment: true,
       deleteOtherPicture: true,
       blockPicture: true,

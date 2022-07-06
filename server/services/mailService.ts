@@ -28,7 +28,7 @@ class MailService {
       `
       });
     } catch (e) {
-      throw ApiError.badRequest('Mail sending request');
+      throw ApiError.badRequest(JSON.stringify(e));
     }
 
   }

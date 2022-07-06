@@ -55,10 +55,11 @@ const EditPictureForm = ({ pictureId, setModalIsOpen }: IEditPictureFormProps) =
   };
 
   interface validationObject {
-    [key: string]: (paramValue: string, throwError: boolean) => boolean
+    [key: string]: Function
   }
 
   const validationMainInfoObject: validationObject = {
+    "img": PictureValidator.checkLoadedPicture,
     "mainTitle": PictureValidator.checkMainTitle,
     "description": PictureValidator.checkMainDescription
   };
@@ -91,7 +92,7 @@ const EditPictureForm = ({ pictureId, setModalIsOpen }: IEditPictureFormProps) =
 
       for (let key in mainInfoToEdit) {
         //validate value by key using validation object and fullfill formData
-        validationMainInfoObject[key](mainInfoToEdit[key], true);
+        Boolean(validationMainInfoObject[key]) && validationMainInfoObject[key](mainInfoToEdit[key], true);
         formData.append(key, mainInfoToEdit[key])
       }
 
@@ -135,7 +136,7 @@ const EditPictureForm = ({ pictureId, setModalIsOpen }: IEditPictureFormProps) =
           }
 
           if (section[sectionKey] !== sameSection?.[sectionKey]) {
-            validationPictureInfoObject[sectionKey](section[sectionKey], true);
+            Boolean(validationPictureInfoObject[sectionKey]) && validationPictureInfoObject[sectionKey](section[sectionKey], true);
             editSectionObj[sectionKey] = section[sectionKey];
           }
         }
@@ -184,7 +185,7 @@ const EditPictureForm = ({ pictureId, setModalIsOpen }: IEditPictureFormProps) =
           }
 
           if (tag[key] !== sameTag?.[key]) {
-            validationPictureTagObject[key](tag[key], true);
+            Boolean(validationPictureTagObject[key]) && validationPictureTagObject[key](tag[key], true);
             tagObject[key] = tag[key]
           }
         }

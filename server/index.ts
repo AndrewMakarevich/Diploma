@@ -1,5 +1,6 @@
 require('dotenv').config();
 import express from 'express';
+import ws from "ws";
 import cors from 'cors';
 import cookieParser from 'cookie-parser';
 import fileUpload from 'express-fileupload'
@@ -10,11 +11,11 @@ import mainRouter from './routes';
 import errorMiddleware from './middlewares/errorMiddleware';
 import RoleService from './services/roleService';
 import dbCleaner from './cleaner';
+import webSocketServer from './websocket';
 
 const app = express();
-// const pgModels = models;
 
-const PORT = process.env.PORT || 5000;
+const mainPort = process.env.MAIN_PORT || 5000;
 
 app.use(cors(
     {
@@ -33,10 +34,11 @@ app.use(errorMiddleware);
 const start = async () => {
     try {
         await sequelize.authenticate();
-        await sequelize.sync({ alter: true });
+        await sequelize.sync();
         RoleService.checkBaseRoles();
         dbCleaner();
-        app.listen(PORT, () => console.log(`Server started at port ${PORT}`));
+        const mainServer = app.listen(mainPort, () => console.log(`Server started at port ${mainPort}`));
+        webSocketServer(mainServer);
     } catch (e) {
         console.log(e);
     }

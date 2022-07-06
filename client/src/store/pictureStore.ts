@@ -41,7 +41,7 @@ class PictureStore {
         value: 0,
         order: "DESC"
       },
-      limit: 2
+      limit: 10
     }
     makeAutoObservable(this);
   }

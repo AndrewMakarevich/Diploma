@@ -31,6 +31,16 @@ export interface IUserToken {
 export interface IUserTokenInstance extends IUserToken, Model {
 }
 
+export interface INotification {
+    id: number;
+    senderId: number;
+    message: string;
+    checked: boolean
+}
+export interface INotificationInstance extends INotification, Model {
+
+}
+
 export interface IResetEmailBundle {
     id: number,
     oldEmailApproveKey: string,
@@ -60,6 +70,7 @@ export interface IRole {
     addLike: boolean,
     moderatePictureType: boolean,
     moderatePictureTag: boolean,
+    moderateNotifications: boolean,
     changeUserRole: boolean,
     deleteOtherComment: boolean,
     deleteOtherPicture: boolean,

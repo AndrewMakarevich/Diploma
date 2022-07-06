@@ -39,7 +39,7 @@ const AppRouter = () => {
                 userStore.isAdmin ?
                   <Route path={routePaths.personalCabinet.adminPanel.main} element={<AdminPanel />}>
                     {Boolean(userStore.userData.role?.moderatePictureType) &&
-                      <Route path={routePaths.personalCabinet.adminPanel.pictureType} element={<PictureTypesModerationPanel />}></Route>}
+                      <Route index element={<PictureTypesModerationPanel />}></Route>}
                     {Boolean(userStore.userData.role?.moderatePictureTag) &&
                       <Route path={routePaths.personalCabinet.adminPanel.pictureTag} element={<PictureTagsModerationPanel />}></Route>}
                   </Route>

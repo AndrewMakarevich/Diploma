@@ -1,7 +1,6 @@
 import { DataTypes } from 'sequelize';
-import ApiError from '../apiError/apiError';
 import sequelize from '../db';
-import { ICommentInstance, IResetPasswordBundleInstance, IRoleInstance, IUserInstance, IUserTokenInstance } from '../interfaces/modelInterfaces';
+import { ICommentInstance, INotificationInstance, IResetPasswordBundleInstance, IRoleInstance, IUserInstance, IUserTokenInstance } from '../interfaces/modelInterfaces';
 import { IPictureInfoInstance, IPictureInstance } from '../interfaces/pictureInterfaces';
 import { IPicturesTagsInstance, IPictureTagInstance } from '../interfaces/tagInterfaces';
 
@@ -101,7 +100,7 @@ const UserToken = sequelize.define<IUserTokenInstance>('userToken', {
   refreshToken: { type: DataTypes.TEXT }
 });
 
-const Notification = sequelize.define('notification', {
+const Notification = sequelize.define<INotificationInstance>('notification', {
   id: { type: DataTypes.INTEGER, primaryKey: true, autoIncrement: true },
   message: {
     type: DataTypes.TEXT, allowNull: false, validate: {
@@ -110,15 +109,18 @@ const Notification = sequelize.define('notification', {
           throw Error("Notification message can't be empty or consist of only spaces");
         }
 
-        if (!/^[a-zA-ZА-Яа-яЁё0-9,."'^#@*()[]:-+=]{25, 450}$/.test(message)) {
-          throw Error("Notification message must consists of only a-zA-ZА-Яа-яЁё letters фтв ,.\"'^#@*()[]:-+= symbols, with length from 25 to 450 symbols");
+        if (!/^[a-zA-ZА-Яа-яЁё0-9,."'^#@*()\[\]:\-\+=\s]{15,450}$/.test(message)) {
+          throw Error("Notification message must consists of only a-zA-ZА-Яа-яЁё letters and ,.\"'^#@*()[]:-+= symbols, with length from 15 to 450 symbols");
         }
       }
     }
   },
-  checked: { type: DataTypes.BOOLEAN, allowNull: false, defaultValue: false }
-}
-);
+  checked: { type: DataTypes.BOOLEAN, allowNull: false, defaultValue: false },
+});
+
+const UsersNotifications = sequelize.define('usersNotifications', {
+  id: { type: DataTypes.INTEGER, primaryKey: true, autoIncrement: true }
+});
 
 const ResetPasswordBundle = sequelize.define<IResetPasswordBundleInstance>('resetPasswordBundle', {
   id: { type: DataTypes.INTEGER, primaryKey: true, autoIncrement: true },
@@ -205,6 +207,7 @@ const Role = sequelize.define<IRoleInstance>('role', {
   // Admin permissions
   moderatePictureType: { type: DataTypes.BOOLEAN, allowNull: false, defaultValue: false },
   moderatePictureTag: { type: DataTypes.BOOLEAN, allowNull: false, defaultValue: false },
+  moderateNotifications: { type: DataTypes.BOOLEAN, allowNull: false, defaultValue: false },
   changeUserRole: { type: DataTypes.BOOLEAN, allowNull: false, defaultValue: false },
   deleteOtherComment: { type: DataTypes.BOOLEAN, allowNull: false, defaultValue: false },
   deleteOtherPicture: { type: DataTypes.BOOLEAN, allowNull: false, defaultValue: false },
@@ -217,9 +220,14 @@ const Role = sequelize.define<IRoleInstance>('role', {
 User.hasMany(UserToken, { onDelete: "cascade" });
 UserToken.belongsTo(User);
 
-User.hasMany(Notification, { onDelete: "cascade" });
-Notification.belongsTo(User, { as: "sender" });
-Notification.belongsTo(User, { as: "reciever" })
+User.hasMany(UsersNotifications, { foreignKey: "recieverId", onDelete: "cascade" });
+UsersNotifications.belongsTo(User, { foreignKey: "recieverId" });
+
+User.hasMany(Notification, { foreignKey: "senderId" });
+Notification.belongsTo(User, { foreignKey: "senderId" });
+
+Notification.hasMany(UsersNotifications, { onDelete: "cascade" });
+UsersNotifications.belongsTo(Notification);
 
 Role.hasMany(User);
 User.belongsTo(Role);
@@ -266,6 +274,7 @@ PictureType.belongsTo(User);
 export default {
   User,
   Notification,
+  UsersNotifications,
   UserToken,
   ResetPasswordBundle,
   Picture,

@@ -1,11 +1,12 @@
 import { NextFunction, Request, Response } from "express";
 import { JwtPayload } from "jsonwebtoken";
 import ApiError from "../apiError/apiError";
+import { IUserDto } from "../dtos/userDto";
 import { IUserToken } from "../interfaces/modelInterfaces";
 import TokenService from "../services/tokenService";
 
-interface IUserDataRequestExtended extends Request {
-    user: IUserToken
+export interface IThroughAuthMiddlewareRequest extends Request {
+    user?: IUserDto
 }
 
 export default async (req: Request, res: Response, next: NextFunction) => {
@@ -22,6 +23,8 @@ export default async (req: Request, res: Response, next: NextFunction) => {
         if (!validationResult) {
             return next(ApiError.unauthorized('Access token is invalid'));
         }
+
+        console.log(validationResult);
         (req as any).user = validationResult;
         next();
     } catch (e) {
