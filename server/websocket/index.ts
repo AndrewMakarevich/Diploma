@@ -1,8 +1,8 @@
 import { Server } from "ws";
 import { Server as expressServer } from "http"
-import messageRoutes from "./routes";
-import { ISocketQueryParams } from "../interfaces/webSocket/message";
+import messageRoutes from "./routes/routes";
 import ParseUrl from "./helpers/parseUrl";
+
 const webSocketServer = (expressServer: expressServer) => {
   try {
     const wss = new Server({ noServer: true, path: "/sockets" });
@@ -10,7 +10,6 @@ const webSocketServer = (expressServer: expressServer) => {
     expressServer.on("upgrade", function upgradeFunction(req, socket, head) {
       wss.handleUpgrade(req, socket, head, (ws) => {
         wss.emit("connection", ws, req);
-        console.log(1);
       });
     });
 
@@ -18,7 +17,7 @@ const webSocketServer = (expressServer: expressServer) => {
       const queryParamsObj = ParseUrl.getQueryParams(req.url);
 
       ws.on("message", ((data: string) => {
-        messageRoutes(ws, queryParamsObj, data,);
+        messageRoutes(wss, ws, queryParamsObj, data,);
       }))
     });
 
