@@ -1,11 +1,31 @@
-import sequelize, { OrderItem } from "sequelize";
-import { Op } from "sequelize";
+import sequelize, { OrderItem, QueryTypes } from "sequelize";
+import Sequelize from "../db";
 import ApiError from "../apiError/apiError";
+import { INotificationInstance } from "../interfaces/modelInterfaces";
 import { IGetNotificationsCursor } from "../interfaces/services/notificationsServiceInterfaces";
 import models from "../models/models";
 import { getCursorStatement } from "../utils/services/keysetPaginationHelpers";
 
+interface INotificationInstanceWithUsersIds extends INotificationInstance {
+  users?: { id: number }[]
+}
+
 class NotificationService {
+  static async getRecievedNotificationsAmount(recieverId: number) {
+    const notificationsAmount = await models.Notification.count({
+      include: {
+        model: models.User,
+        where: {
+          id: recieverId
+        },
+        required: true,
+        attributes: []
+      }
+    });
+
+    return notificationsAmount;
+  };
+
   static async getRecievedNotifications(recieverId: number, cursor: IGetNotificationsCursor, limit: number = 5) {
     if (!recieverId) {
       throw ApiError.badRequest("Can't find id of reciever");
@@ -25,9 +45,9 @@ class NotificationService {
     const notifications = await models.Notification.findAll({
       where: whereParams,
       include: {
-        model: models.UsersNotifications,
+        model: models.User,
         attributes: [],
-        where: { recieverId },
+        where: { id: recieverId },
         required: true
       },
       limit,
@@ -81,6 +101,85 @@ class NotificationService {
 
     await Promise.all(createUsersNotificationsPromises);
     return { notification, errors, correctRecieverIds }
+  };
+
+  static async editNotification(notificationId: number, message: string, recieversIdsToDisconnect: number[] = [], recieverIdsToConnect: number[] = []) {
+    const idsToDisconnect = recieversIdsToDisconnect.filter(disconnectId => !recieverIdsToConnect.some(connectId => +connectId === +disconnectId));
+    let idsToConnect = recieverIdsToConnect.filter(connectId => !recieversIdsToDisconnect.some(disconnectId => +disconnectId === +connectId));
+
+    const errors: Object[] = [];
+
+    const editNotificationResult = await models.Notification.update({
+      message,
+    }, {
+      where: {
+        id: notificationId
+      }
+    }).catch(e => {
+      throw ApiError.badRequest(e.message)
+    });
+
+    for (const recieverId of idsToConnect) {
+      await models.UsersNotifications.create({
+        recieverId,
+        notificationId
+      }).catch(e => {
+        if (e.name === "SequelizeUniqueConstraintError" || e.name === "SequelizeForeignKeyConstraintError") {
+          errors.push(e.parent.detail);
+        } else {
+          errors.push(e.message);
+        }
+
+        idsToConnect = idsToConnect.filter(id => id !== recieverId)
+      });
+    };
+
+    for (const recieverId of idsToDisconnect) {
+      const deleteResult = await models.UsersNotifications.destroy({
+        where: {
+          recieverId,
+          notificationId
+        }
+      }).catch(e => {
+        errors.push(e);
+      });
+
+      if (deleteResult === 0) {
+        errors.push(`Connection between User with id=${recieverId} and notification with id=${notificationId} doesn't exists`);
+      }
+    };
+
+    let notification: INotificationInstanceWithUsersIds | null = null;
+    const oldRecieversIdsToNotify: number[] = [];
+
+    if (idsToConnect.length || editNotificationResult[0]) {
+      notification = await models.Notification.findOne({
+        where: {
+          id: notificationId
+        }
+      });
+
+      if (editNotificationResult[0]) {
+        //If at least one field was affected in notification record, get all related to the notification usersIds, to notify them later
+        const users: { id: number }[] = await Sequelize.query(`
+        SELECT id FROM users 
+          INNER JOIN "usersNotifications" 
+            ON "usersNotifications"."recieverId"=users.id 
+            AND "usersNotifications"."notificationId"=${notificationId}`, { type: QueryTypes.SELECT })
+
+        users.forEach(user => {
+          if (!idsToConnect.some(id => +id === +user.id)) {
+            oldRecieversIdsToNotify.push(user.id);
+          }
+        });
+      }
+    }
+
+    return { notification, newRecieversIdsToNotify: idsToConnect, oldRecieversIdsToNotify, errors }
+  };
+
+  static async deleteNotification(notificationId: number) {
+
   };
 };
 

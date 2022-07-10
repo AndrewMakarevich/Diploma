@@ -7,7 +7,14 @@ import { NotificationRoutes } from "../routes/consts";
 
 class NotificationController {
   static async getRecievedNotificationsAmount(wss: Server<IUnifiedWebSocket>, ws: IUnifiedWebSocket, data: IOnMessageData, queryParams: ISocketQueryParams): Promise<void | IRejectObj> {
+    try {
+      const { id: recieverId } = data.user;
+      const response = await NotificationService.getRecievedNotificationsAmount(recieverId);
 
+      ws.send(JSON.stringify({ event: NotificationRoutes.getRecievedNotificationsAmount, count: response }));
+    } catch (e: any) {
+      return e as IRejectObj;
+    }
   };
 
   static async getRecievedNotifications(wss: Server<IUnifiedWebSocket>, ws: IUnifiedWebSocket, data: IOnMessageData, queryParams: ISocketQueryParams): Promise<void | IRejectObj> {
@@ -33,8 +40,12 @@ class NotificationController {
 
       response.correctRecieverIds.forEach(recieverId => {
         for (let client of wss.clients) {
-          if (client.userId === recieverId && client.isNotificationBarOpened) {
-            client.send(JSON.stringify({ event: NotificationRoutes.getRecievedNotifications, notifications: response.notification }));
+          if (client.userId === recieverId) {
+            if (client.isNotificationBarOpened) {
+              client.send(JSON.stringify({ event: NotificationRoutes.getRecievedNotifications, notifications: response.notification }));
+            };
+
+            client.send(JSON.stringify({ event: NotificationRoutes.getRecievedNotificationsAmount, count: "plus" }))
             break;
           }
         }
@@ -43,6 +54,38 @@ class NotificationController {
       ws.send(JSON.stringify({ event: NotificationRoutes.addNotifications, notification: response.notification, errors: response.errors }));
 
       return;
+    } catch (e) {
+      return e as IRejectObj;
+    }
+  };
+
+  static async editNotification(wss: Server<IUnifiedWebSocket>, ws: IUnifiedWebSocket, data: IOnMessageData, queryParams: ISocketQueryParams): Promise<void | IRejectObj> {
+    try {
+      const { notificationId, message, recieversIdsToDisconnect, recieversIdsToConnect } = data.payload;
+      const response = await NotificationService.editNotification(notificationId, message, recieversIdsToDisconnect, recieversIdsToConnect);
+
+      response.newRecieversIdsToNotify.forEach(recieverId => {
+        wss.clients.forEach(client => {
+          if (client.userId == recieverId) {
+            client.send(JSON.stringify({ event: NotificationRoutes.getRecievedNotificationsAmount, count: "plus" }));
+
+            if (client.isNotificationBarOpened) {
+              client.send(JSON.stringify({ event: NotificationRoutes.getRecievedNotifications, notifications: response.notification }))
+            }
+          };
+        })
+      });
+
+      response.oldRecieversIdsToNotify.forEach(recieverId => {
+        wss.clients.forEach(client => {
+          if (client.userId == recieverId && client.isNotificationBarOpened) {
+            client.send(JSON.stringify({ event: NotificationRoutes.getRecievedNotifications, notifications: [response.notification] }))
+          }
+        });
+
+      })
+
+      ws.send(JSON.stringify(response))
     } catch (e) {
       return e as IRejectObj;
     }

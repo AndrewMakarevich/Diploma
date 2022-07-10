@@ -119,7 +119,7 @@ const Notification = sequelize.define<INotificationInstance>('notification', {
 });
 
 const UsersNotifications = sequelize.define('usersNotifications', {
-  id: { type: DataTypes.INTEGER, primaryKey: true, autoIncrement: true }
+  // id: { type: DataTypes.INTEGER, primaryKey: true, autoIncrement: true }
 });
 
 const ResetPasswordBundle = sequelize.define<IResetPasswordBundleInstance>('resetPasswordBundle', {
@@ -220,14 +220,14 @@ const Role = sequelize.define<IRoleInstance>('role', {
 User.hasMany(UserToken, { onDelete: "cascade" });
 UserToken.belongsTo(User);
 
-User.hasMany(UsersNotifications, { foreignKey: "recieverId", onDelete: "cascade" });
-UsersNotifications.belongsTo(User, { foreignKey: "recieverId" });
+User.belongsToMany(Notification, { through: UsersNotifications, foreignKey: "recieverId", onDelete: "cascade" });
+Notification.belongsToMany(User, { through: UsersNotifications, onDelete: "cascade" });
 
 User.hasMany(Notification, { foreignKey: "senderId" });
 Notification.belongsTo(User, { foreignKey: "senderId" });
 
-Notification.hasMany(UsersNotifications, { onDelete: "cascade" });
-UsersNotifications.belongsTo(Notification);
+// Notification.hasMany(UsersNotifications, { onDelete: "cascade" });
+// UsersNotifications.belongsTo(Notification);
 
 Role.hasMany(User);
 User.belongsTo(Role);

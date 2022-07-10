@@ -8,14 +8,19 @@ import { rolePermissions } from "../../enums/roles";
 import { NotificationRoutes } from "./consts";
 
 async function messageRoutes(wss: Server<IUnifiedWebSocket>, ws: IUnifiedWebSocket, queryParams: ISocketQueryParams, message: string) {
-  const data: IOnMessageData = JSON.parse(message)
+  const data: IOnMessageData = JSON.parse(message);
   switch (data.event) {
     case NotificationRoutes.getRecievedNotifications:
       await socketMiddleware(wss, ws, data, queryParams, authSocketMiddleware, NotificationController.getRecievedNotifications);
       break;
+    case NotificationRoutes.getRecievedNotificationsAmount:
+      await socketMiddleware(wss, ws, data, queryParams, authSocketMiddleware, NotificationController.getRecievedNotificationsAmount);
+      break;
     case NotificationRoutes.addNotifications:
       await socketMiddleware(wss, ws, data, queryParams, authSocketMiddleware, roleSocketMiddleware(rolePermissions.moderateNotifications), NotificationController.createNotification);
       break;
+    case NotificationRoutes.editNotification:
+      await socketMiddleware(wss, ws, data, queryParams, authSocketMiddleware, NotificationController.editNotification);
     default:
       break;
   }
