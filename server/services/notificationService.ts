@@ -161,11 +161,11 @@ class NotificationService {
 
       if (editNotificationResult[0]) {
         //If at least one field was affected in notification record, get all related to the notification usersIds, to notify them later
-        const users: { id: number }[] = await Sequelize.query(`
+        const users = await Sequelize.query(`
         SELECT id FROM users 
           INNER JOIN "usersNotifications" 
             ON "usersNotifications"."recieverId"=users.id 
-            AND "usersNotifications"."notificationId"=${notificationId}`, { type: QueryTypes.SELECT })
+            AND "usersNotifications"."notificationId"=${notificationId}`, { type: QueryTypes.SELECT, mapToModel: true, model: models.User })
 
         users.forEach(user => {
           if (!idsToConnect.some(id => +id === +user.id)) {
