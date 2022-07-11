@@ -21,6 +21,10 @@ async function messageRoutes(wss: Server<IUnifiedWebSocket>, ws: IUnifiedWebSock
       break;
     case NotificationRoutes.editNotification:
       await socketMiddleware(wss, ws, data, queryParams, authSocketMiddleware, NotificationController.editNotification);
+      break;
+    case NotificationRoutes.deleteNotification:
+      await socketMiddleware(wss, ws, data, queryParams, authSocketMiddleware, NotificationController.deleteNotification);
+      break;
     default:
       break;
   }

@@ -5,6 +5,7 @@ import { INotificationInstance } from "../interfaces/modelInterfaces";
 import { IGetNotificationsCursor } from "../interfaces/services/notificationsServiceInterfaces";
 import models from "../models/models";
 import { getCursorStatement } from "../utils/services/keysetPaginationHelpers";
+import { IRejectObj } from "../websocket/middlewares";
 
 interface INotificationInstanceWithUsersIds extends INotificationInstance {
   users?: { id: number }[]
@@ -104,7 +105,7 @@ class NotificationService {
   };
 
   static async editNotification(notificationId: number, message: string, recieversIdsToDisconnect: number[] = [], recieverIdsToConnect: number[] = []) {
-    const idsToDisconnect = recieversIdsToDisconnect.filter(disconnectId => !recieverIdsToConnect.some(connectId => +connectId === +disconnectId));
+    let idsToDisconnect = recieversIdsToDisconnect.filter(disconnectId => !recieverIdsToConnect.some(connectId => +connectId === +disconnectId));
     let idsToConnect = recieverIdsToConnect.filter(connectId => !recieversIdsToDisconnect.some(disconnectId => +disconnectId === +connectId));
 
     const errors: Object[] = [];
@@ -130,7 +131,7 @@ class NotificationService {
           errors.push(e.message);
         }
 
-        idsToConnect = idsToConnect.filter(id => id !== recieverId)
+        idsToConnect = idsToConnect.filter(id => id !== recieverId);
       });
     };
 
@@ -141,7 +142,9 @@ class NotificationService {
           notificationId
         }
       }).catch(e => {
-        errors.push(e);
+        errors.push(e.message);
+
+        idsToDisconnect = idsToDisconnect.filter(id => +id !== recieverId);
       });
 
       if (deleteResult === 0) {
@@ -175,11 +178,34 @@ class NotificationService {
       }
     }
 
-    return { notification, newRecieversIdsToNotify: idsToConnect, oldRecieversIdsToNotify, errors }
+    return { notification, newRecieversIdsToNotify: idsToConnect, oldRecieversIdsToNotify, disconnectedRecieversToNotify: idsToDisconnect, errors }
   };
 
   static async deleteNotification(notificationId: number) {
+    const notificationToDelete: INotificationInstanceWithUsersIds | null = await models.Notification.findOne({
+      where: {
+        id: notificationId
+      },
+      include: [
+        { model: models.User, attributes: ["id"] }
+      ]
+    }).catch(error => {
+      throw ApiError.badRequest(error);
+    });
 
+    if (!notificationToDelete) {
+      throw ApiError.badRequest("Notification with such id doesnt exists");
+    }
+
+    const deletionResult = await models.Notification.destroy({
+      where: {
+        id: notificationId
+      }
+    }).catch(error => {
+      throw ApiError.badRequest(error);
+    });
+
+    return { deletedNotification: notificationToDelete }
   };
 };
 

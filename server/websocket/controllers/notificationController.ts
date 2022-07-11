@@ -42,16 +42,16 @@ class NotificationController {
         for (let client of wss.clients) {
           if (client.userId === recieverId) {
             if (client.isNotificationBarOpened) {
-              client.send(JSON.stringify({ event: NotificationRoutes.getRecievedNotifications, notifications: response.notification }));
+              client.send(JSON.stringify({ event: NotificationRoutes.getRecievedNotifications, data: [response.notification] }));
             };
 
-            client.send(JSON.stringify({ event: NotificationRoutes.getRecievedNotificationsAmount, count: "plus" }))
+            client.send(JSON.stringify({ event: NotificationRoutes.getRecievedNotificationsAmount, data: "plus" }))
             break;
           }
         }
       });
 
-      ws.send(JSON.stringify({ event: NotificationRoutes.addNotifications, notification: response.notification, errors: response.errors }));
+      ws.send(JSON.stringify({ event: NotificationRoutes.addNotifications, data: response.errors, forSender: true }));
 
       return;
     } catch (e) {
@@ -67,28 +67,50 @@ class NotificationController {
       response.newRecieversIdsToNotify.forEach(recieverId => {
         wss.clients.forEach(client => {
           if (client.userId == recieverId) {
-            client.send(JSON.stringify({ event: NotificationRoutes.getRecievedNotificationsAmount, count: "plus" }));
+            client.send(JSON.stringify({ event: NotificationRoutes.getRecievedNotificationsAmount, data: "plus" }));
 
             if (client.isNotificationBarOpened) {
-              client.send(JSON.stringify({ event: NotificationRoutes.getRecievedNotifications, notifications: response.notification }))
-            }
+              client.send(JSON.stringify({ event: NotificationRoutes.getRecievedNotifications, data: [response.notification] }))
+            };
           };
-        })
+        });
       });
 
       response.oldRecieversIdsToNotify.forEach(recieverId => {
         wss.clients.forEach(client => {
           if (client.userId == recieverId && client.isNotificationBarOpened) {
-            client.send(JSON.stringify({ event: NotificationRoutes.getRecievedNotifications, notifications: [response.notification] }))
-          }
+            client.send(JSON.stringify({ event: NotificationRoutes.getRecievedNotifications, data: [response.notification] }))
+          };
         });
+      });
 
-      })
+      response.disconnectedRecieversToNotify.forEach(recieverId => {
+        wss.clients.forEach(client => {
+          if (client.userId == recieverId && client.isNotificationBarOpened) {
+            client.send(JSON.stringify({ event: NotificationRoutes.deleteNotification, data: notificationId }))
+          };
+        });
+      });
 
-      ws.send(JSON.stringify(response))
+      ws.send(JSON.stringify({ event: NotificationRoutes.editNotification, data: response.errors, forSender: true }))
     } catch (e) {
       return e as IRejectObj;
     }
+  };
+
+  static async deleteNotification(wss: Server<IUnifiedWebSocket>, ws: IUnifiedWebSocket, data: IOnMessageData, queryParams: ISocketQueryParams): Promise<void | IRejectObj> {
+    const { notificationId } = data.payload;
+    const response = await NotificationService.deleteNotification(notificationId);
+
+    response.deletedNotification.users?.forEach(user => {
+      wss.clients.forEach(client => {
+        if (client.userId === user.id && client.isNotificationBarOpened) {
+          client.send(JSON.stringify({ event: NotificationRoutes.deleteNotification, data: response.deletedNotification.id }))
+        }
+      })
+    });
+
+    ws.send(JSON.stringify({ event: NotificationRoutes.deleteNotification, data: "Notification deleted successfully", forSender: true }))
   };
 };
 
