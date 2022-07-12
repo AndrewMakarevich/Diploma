@@ -4,7 +4,7 @@ Diploma project
 # In addition to the auto generated SQL code should add:
 ## 1. To the "notifications" table
  ### 1.1 Trigger fuction:
- ```
+ ```sql
    CREATE OR REPLACE FUNCTION public.bef_upd_notifications_to_del()
       RETURNS trigger
       LANGUAGE 'plpgsql'
@@ -22,7 +22,7 @@ Diploma project
     $BODY$;
   ```
  ### 1.2 Trigger:
- ```
+ ```sql
      CREATE TRIGGER bef_upd_to_del
       BEFORE UPDATE OF "senderId"
       ON public.notifications
@@ -32,7 +32,7 @@ Diploma project
  ```
  ## 2. To the "usersNotifications" table
   ### 2.1 Trigger function:
-  ```
+  ```sql
    CREATE OR REPLACE FUNCTION public.after_del_usersnotifs_trigger_func()
     RETURNS trigger
     LANGUAGE 'plpgsql'
@@ -49,7 +49,7 @@ Diploma project
     $BODY$;
    ```
    ### 2.2 Trigger
-   ```
+   ```sql
     CREATE TRIGGER aft_del
     AFTER DELETE
     ON public."usersNotifications"
