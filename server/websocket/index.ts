@@ -14,10 +14,8 @@ const webSocketServer = (expressServer: expressServer) => {
     });
 
     wss.on("connection", (ws, req) => {
-      const queryParamsObj = ParseUrl.getQueryParams(req.url);
-
       ws.on("message", ((data: string) => {
-        messageRoutes(wss, ws, queryParamsObj, data,);
+        messageRoutes(wss, ws, data,);
       }))
     });
 

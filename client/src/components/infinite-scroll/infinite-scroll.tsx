@@ -9,9 +9,10 @@ interface IInfiniteScrollProps {
   stopValue: boolean;
   children: any;
   rewrite: boolean;
+  maxHeight?: string;
 }
 
-const InfiniteScroll = ({ callback, children, stopValue, rewrite }: IInfiniteScrollProps) => {
+const InfiniteScroll = ({ callback, children, stopValue, rewrite, maxHeight = "80vh" }: IInfiniteScrollProps) => {
   const unmountFlag = useRef(false);
   const { executeCallback, isLoading } = useFetching(callback);
   const infiniteScrollContainerRef = useRef<HTMLDivElement>(null);
@@ -29,7 +30,6 @@ const InfiniteScroll = ({ callback, children, stopValue, rewrite }: IInfiniteScr
 
   useEffect(() => {
     if (!isLoading && (!stopValue || rewrite)) {
-      console.log("GOO")
       infiniteScroll();
     }
   }, [isLoading, stopValue, rewrite]);
@@ -43,7 +43,7 @@ const InfiniteScroll = ({ callback, children, stopValue, rewrite }: IInfiniteScr
   useWindowResize(infiniteScroll);
 
   return (
-    <div ref={infiniteScrollContainerRef} className={scrollStyles["container"]} onScroll={infiniteScroll}>
+    <div ref={infiniteScrollContainerRef} className={scrollStyles["container"]} onScroll={infiniteScroll} style={{ maxHeight: maxHeight }}>
       {children}
     </div>
   )

@@ -1,0 +1,45 @@
+.aside-popup{
+  position: absolute;
+  top:10px;
+  right: 10px;
+  background-color: var(--extra-dark);
+  padding:10px;
+  padding-top: 5px;
+  border-radius: 10px;
+  box-shadow: 0 10px 10px black;
+  animation: smooth-appear .3s forwards;
+  min-width: 280px;
+  max-width: 320px;
+  max-height: 450px;
+  overflow:hidden;
+}
+
+.aside-popup-disabled{
+  animation: smooth-disappear .3s forwards;
+}
+
+.closed-popup{
+  visibility: hidden;
+  pointer-events: none;
+  padding: 0;
+  margin: 0;
+}
+
+@keyframes smooth-appear {
+  0%{
+    transform: translateY(20%);
+    opacity: 0;
+  }
+  100%{
+    transform: translateY(0%);
+    opacity: 1;  
+  }
+}
+
+@keyframes smooth-disappear {
+  100%{
+    transform: translateY(-10%);
+    opacity: 0;
+    pointer-events: none;
+  }
+}

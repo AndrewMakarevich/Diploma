@@ -1,0 +1,22 @@
+.notif-icon{
+  position: relative;
+  cursor: pointer;
+}
+.notif-amount-span{
+  position: absolute;
+  width: 15px;
+  height: 15px;
+  border-radius: 50%;
+  background-color: rgb(255, 13, 13);
+  top:0;
+  left:-5px;
+  font-size: .7rem;
+}
+
+.notif-amount-span p{
+  display: flex;
+  justify-content: center;
+  align-items:center;
+  padding-top: 3px;
+  color: var(--extra-light);
+}

@@ -3,9 +3,9 @@ import ApiError from "../../apiError/apiError";
 import { IOnMessageData, ISocketQueryParams, IUnifiedWebSocket } from "../../interfaces/webSocket/message";
 import TokenService from "../../services/tokenService";
 
-export default async function authSocketMiddleware(wss: Server<IUnifiedWebSocket>, ws: IUnifiedWebSocket, data: IOnMessageData, queryParams: ISocketQueryParams) {
+export default async function authSocketMiddleware(wss: Server<IUnifiedWebSocket>, ws: IUnifiedWebSocket, data: IOnMessageData) {
   try {
-    const token = queryParams.token;
+    const token = data.payload?.token;
     if (!token) {
       return ApiError.unauthorized("Can't find token");
     }

@@ -8,7 +8,7 @@ const Slider = () => {
       <div>
         {
           header.map(word => (
-            <p>{word}</p>
+            <p key={word}>{word}</p>
           ))
         }
       </div>

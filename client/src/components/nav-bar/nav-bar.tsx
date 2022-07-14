@@ -6,6 +6,9 @@ import { Context } from "../..";
 import { getParams, getParamsEnums } from "../../consts/popup-routes";
 import { routePaths } from "../routes/paths";
 import LogoutBtn from '../btns/logout-btn/logout-btn';
+import BellIcon from '../../assets/img/icons/bell-icon/bell-icon';
+import InvisibleButton from '../../UI/invisible-button/invisible-button';
+import NotificationIcon from '../notifications-components/notification-icon/notification-icon';
 
 const NavBar = () => {
   const { userStore } = useContext(Context);
@@ -64,6 +67,11 @@ const NavBar = () => {
         }
       </ul>
       <ul className={navBarStyles["nav-bar__list"]}>
+        {
+          userStore.isAuth && <li className={navBarStyles["nav-bar__list-item"]}>
+            <NotificationIcon />
+          </li>
+        }
         <li className={navBarStyles["nav-bar__list-item"]}>
           {
             userStore.isAuth ?

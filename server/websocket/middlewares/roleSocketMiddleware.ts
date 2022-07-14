@@ -5,7 +5,7 @@ import { IOnMessageData, ISocketQueryParams, IUnifiedWebSocket } from "../../int
 import models from "../../models/models";
 
 const roleSocketMiddleware = (permissionToCheck: rolePermissions) =>
-  async (wss: Server<IUnifiedWebSocket>, ws: IUnifiedWebSocket, data: IOnMessageData, queryParams: ISocketQueryParams) => {
+  async (wss: Server<IUnifiedWebSocket>, ws: IUnifiedWebSocket, data: IOnMessageData) => {
     try {
       const role = await models.Role.findOne({ where: { id: data.user.roleId } });
 
