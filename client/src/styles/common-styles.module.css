@@ -1,0 +1,24 @@
+.smooth-appeared{
+  animation: smoothAppearence .3s forwards;
+}
+
+.smooth-disappeared{
+  animation: smoothDisappearence .3s forwards;
+}
+
+@keyframes smoothAppearence{
+  0%{
+    opacity: 0;
+    transform: translateY(25%);
+  }100%{
+    opacity: 1;
+    transform: translateY(0%);
+  }
+}
+
+@keyframes smoothDisappearence {
+100%{
+    opacity: 0;
+    transform: translateY(-25%);
+  }
+}

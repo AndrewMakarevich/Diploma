@@ -13,6 +13,9 @@ import ModalWindow from "../../modal-window/modal-window";
 import StandartButton from "../../../UI/standart-button/standart-button";
 
 import panelStyles from "./picture-tags-panel.module.css";
+import useFetching from "../../../hooks/useFetching";
+import LoadingNotificator from "../../lodaing-notificator/loading-notificator";
+import NoResultsNotificator from "../../../UI/no-results-notificator/no-results-notificator";
 
 interface ITagsPaginationParams {
   limit: number,
@@ -67,13 +70,6 @@ const PictureTagsPanel = () => {
       return;
     }
 
-    if (tags.length === 0) {
-      setRewriteTags(false);
-      setAllTagsRecieved(true);
-      setTimeout(() => setAllTagsRecieved(false), 1000 * 60);
-      return;
-    }
-
     if (rewriteTags) {
       setPictureTags(tags);
       setRewriteTags(false);
@@ -81,10 +77,19 @@ const PictureTagsPanel = () => {
       setPictureTags([...pictureTags, ...tags])
     }
 
+    if (tags.length === 0) {
+      setRewriteTags(false);
+      setAllTagsRecieved(true);
+      setTimeout(() => setAllTagsRecieved(false), 1000 * 60);
+      return;
+    }
+
     const lastRecievedTag = tags[tags.length - 1]
     setPaginationParams({ ...paginationParams, cursor: { ...cursor, id: lastRecievedTag.id, value: lastRecievedTag[cursor.key] } })
 
   }, [queryString, paginationParams, pictureTags, sendRequestToGetTags, rewriteTags]);
+
+  const { executeCallback: fetchTags, isLoading: tagsLoading } = useFetching(getTags);
 
   const setRewriteStateToTrue = useCallback(async () => {
     setRewriteTags(true);
@@ -149,7 +154,7 @@ const PictureTagsPanel = () => {
 
   return (
     <>
-      <PictureTagsSearchPanel onQueryStringChange={onQueryStringChange} onOrderParamChange={onOrderParamChange} />
+      <PictureTagsSearchPanel onQueryStringChange={onQueryStringChange} onOrderParamChange={onOrderParamChange} isLoading={tagsLoading} />
       <div className={panelStyles["forms"]}>
         <StandartButton onClick={openCreatePanel}>Create new tag</StandartButton>
         {
@@ -165,9 +170,13 @@ const PictureTagsPanel = () => {
           </ModalWindow>
         }
       </div>
-      <InfiniteScroll callback={getTags} stopValue={allTagsRecieved} rewrite={rewriteTags}>
+      <InfiniteScroll callback={fetchTags} stopValue={allTagsRecieved} rewrite={rewriteTags}>
         <Table tableHeaders={["ID", "Text", "Attached pictures amount"]} paramsToShow={["id", "text", "attachedPicturesAmount"]} entities={pictureTags} actions={actionsArr} />
       </InfiniteScroll>
+      {
+        Boolean(!tagsLoading && !pictureTags.length) && <NoResultsNotificator />
+      }
+      <LoadingNotificator isLoading={tagsLoading} />
     </>
   )
 };

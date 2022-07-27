@@ -3,7 +3,7 @@ import { WebSocket } from "ws"
 export interface IOnMessageData {
   [key: string]: any,
   event: string,
-  payload: { [key: string]: any }
+  payload: { [key: string]: any },
 }
 
 export interface ISocketQueryParams {
@@ -13,5 +13,12 @@ export interface ISocketQueryParams {
 export interface IUnifiedWebSocket extends WebSocket {
   userId?: number,
   isNotificationBarOpened?: boolean,
+}
+
+export interface IReturnedMessageObj<T> {
+  event: string,
+  data: T,
+  forSender?: boolean,
+  autoSend?: boolean
 }
 

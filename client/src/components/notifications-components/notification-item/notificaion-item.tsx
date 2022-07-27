@@ -1,14 +1,16 @@
-import { IRecievedNotificationObj } from "../../../interfaces/websockets";
+import { IRecievedNotificationObj, IRecievedSenderObj } from "../../../interfaces/websockets/notifications";
 import itemStyles from "./notification-item.module.css";
 
 interface IItemProps {
-  notification: IRecievedNotificationObj
+  notification: IRecievedNotificationObj,
 }
 
 const NotificationItem = ({ notification }: IItemProps) => {
   return (
     <li className={itemStyles["notification-item"]}>
-      <p>{notification.checked}</p>
+      {
+        notification.sender ? <p>{notification.sender.nickname}</p> : null
+      }
       {notification.message}
     </li>
   )

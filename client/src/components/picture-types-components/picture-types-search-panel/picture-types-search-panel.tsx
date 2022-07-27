@@ -6,13 +6,14 @@ import panelStyles from "./picture-types-search-panel.module.css"
 interface IPictureTypesSearchPanelProps {
   setQueryString: (e: React.ChangeEvent<HTMLInputElement>) => void,
   setSortParam: (e: React.ChangeEvent<HTMLSelectElement>) => void,
+  isLoading: boolean
 }
 
-const PictureTypesSearchPanel = ({ setQueryString, setSortParam }: IPictureTypesSearchPanelProps) => {
+const PictureTypesSearchPanel = ({ setQueryString, setSortParam, isLoading }: IPictureTypesSearchPanelProps) => {
   return (
     <div className={panelStyles["search-panel"]}>
-      <SearchInput onChange={setQueryString} />
-      <PictureTypeSortSelect onChange={setSortParam} />
+      <SearchInput disabled={isLoading} onChange={setQueryString} />
+      <PictureTypeSortSelect disabled={isLoading} onChange={setSortParam} />
     </div>
   )
 };

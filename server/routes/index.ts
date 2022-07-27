@@ -8,6 +8,7 @@ import pictureCommentRouter from './pictureCommentRouter';
 import pictureCommentLikeRouter from './pictureCommentLikeRouter';
 import pictureInfoRouter from './pictureInfoRouter';
 import notificationRouter from './notificationRouter';
+import notificationTypeRouter from './notificationTypeRouter';
 const mainRouter = Router();
 
 mainRouter.use('/user', userRouter);
@@ -19,5 +20,6 @@ mainRouter.use('/picture-type', pictureTypeRouter);
 mainRouter.use('/picture-like', pictureLikeRouter);
 mainRouter.use('/picture-comment', pictureCommentRouter);
 mainRouter.use('/picture-comment-like', pictureCommentLikeRouter);
+mainRouter.use('/notification-type', notificationTypeRouter);
 
 export default mainRouter;

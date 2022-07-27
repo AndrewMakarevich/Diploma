@@ -110,7 +110,7 @@ const Panel = <T extends IEssence,>({ searchPanelFields, createEssenceFormFields
 
   return (
     <>
-      <SearchPanel fields={searchPanelFields} />
+      {/* <SearchPanel fields={searchPanelFields} /> */}
       <div className={panelStyles["forms"]}>
         {/* <StandartOneColumnForm fields={createEssenceFormFields} disabled={ } onClearChanges={ } onSubmit={ } submitButtonText="Create" />
         <StandartOneColumnForm fields={editEssenceFormFields} disabled={ } onClearChanges={ } onSubmit={ } submitButtonText="Create" /> */}

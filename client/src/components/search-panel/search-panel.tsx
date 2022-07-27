@@ -16,18 +16,24 @@ export interface ISearchPanelSelectField {
 }
 
 interface ISearchPanelProps {
-  fields: ISearchPanelInputField[] | ISearchPanelSelectField[];
+  fieldsColumns: (ISearchPanelInputField[] | ISearchPanelSelectField[])[];
 }
 
-const SearchPanel = ({ fields }: ISearchPanelProps) => {
+const SearchPanel = ({ fieldsColumns }: ISearchPanelProps) => {
   return (
     <section>
       {
-        fields.map(field => (
-          field.hightOrderType === "input" ?
-            <SearchInput />
-            :
-            <MySelect fields={field.values} />
+        fieldsColumns.map(column => (
+          <div>
+            {
+              column.map(field => (
+                field.hightOrderType === "input" ?
+                  <SearchInput />
+                  :
+                  <MySelect fields={field.values} />
+              ))
+            }
+          </div>
         ))
       }
     </section>

@@ -1,9 +1,10 @@
 import sequelize, { LogicType, OrderItem, Sequelize, SequelizeScopeError } from "sequelize";
 import { Op } from "sequelize";
 import ApiError from "../apiError/apiError";
+import { ICursor } from "../interfaces/cursor";
 import { IGetCommentsCursor } from "../interfaces/services/pictureCommentServiceInterfaces";
 import models from "../models/models";
-import { getCursorStatement } from "../utils/services/keysetPaginationHelpers";
+import { getCursorStatement, objectIsCursor } from "../utils/services/keysetPaginationHelpers";
 
 class PictureCommentService {
   static async getCommentById(commentId: number) {
@@ -37,7 +38,7 @@ class PictureCommentService {
     return comment;
   };
 
-  static async getComments(pictureId: number, commentId: number, cursor: IGetCommentsCursor, limit: number = 10) {
+  static async getComments(pictureId: number, commentId: number, cursor: ICursor, limit: number = 10) {
     if (!limit) {
       limit = 10
     }
@@ -53,18 +54,17 @@ class PictureCommentService {
       },
     ]
 
+    const { id, key, order, value } = objectIsCursor(cursor);
     let cursorStatement = {};
 
-    if (cursor.value && cursor.id) {
-      const { id, key, order, value } = cursor;
-      if (key === literals[0].name) {
-        cursorStatement = getCursorStatement(key, id, value, order, literals[0].string);
-      } else if (key === literals[1].name) {
-        cursorStatement = getCursorStatement(key, id, value, order, literals[1].string);
-      } else {
-        cursorStatement = getCursorStatement(key, id, value, order);
-      }
+    if (key === literals[0].name) {
+      cursorStatement = getCursorStatement(key, id, value, order, literals[0].string);
+    } else if (key === literals[1].name) {
+      cursorStatement = getCursorStatement(key, id, value, order, literals[1].string);
+    } else {
+      cursorStatement = getCursorStatement(key, id, value, order);
     }
+
     const orderParams = [[sequelize.col(cursor.key), cursor.order], [sequelize.col("id"), cursor.order]];
 
     const comments = await models.Comment.findAll({

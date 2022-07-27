@@ -9,6 +9,7 @@ import { observer } from "mobx-react-lite";
 import { runInAction } from "mobx";
 import InfiniteScroll from "../../infinite-scroll/infinite-scroll";
 import useDelayFetching from "../../../hooks/useDelayFetching";
+import useFetching from "../../../hooks/useFetching";
 
 interface IPictureListProps {
   userId: number,
@@ -30,6 +31,8 @@ const PictureList = ({ userId, isPersonalGallery }: IPictureListProps) => {
     }
 
   }, [pictureStore]);
+
+  const { executeCallback: fetchPictures, isLoading: picturesLoading } = useFetching(getPictures);
 
   const setRewriteStateTrue = useCallback(async () => {
     setRewriteState(true);
@@ -91,8 +94,8 @@ const PictureList = ({ userId, isPersonalGallery }: IPictureListProps) => {
           :
           <ViewPictureModal isOpen={viewPictureModalIsOpen} setIsOpen={setViewPictureModalIsOpen} currentPictureId={currentPictureId} setRewriteListStateToTrue={setRewriteStateTrue} />
       }
-      <PictureSearchPanel onQueryStringChange={onQueryStringChange} onPictureTypeChange={onPictureTypeChange} onOrderParamChange={onOrderParamChange} />
-      <InfiniteScroll callback={getPictures} stopValue={pictureStore.allPicturesRecieved} rewrite={rewriteState}>
+      <PictureSearchPanel onQueryStringChange={onQueryStringChange} onPictureTypeChange={onPictureTypeChange} onOrderParamChange={onOrderParamChange} isLoading={picturesLoading} />
+      <InfiniteScroll callback={fetchPictures} stopValue={pictureStore.allPicturesRecieved} rewrite={rewriteState}>
         {
           pictureStore.pictures.rows.map(pictureItem =>
             <PictureItem key={pictureItem.id} pictureItem={pictureItem} setCurrentPictureId={setCurrentPictureId} setIsOpen={setViewPictureModalIsOpen} />

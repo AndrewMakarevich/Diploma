@@ -22,7 +22,7 @@ async function socketMiddleware(wss: Server<IUnifiedWebSocket>, ws: IUnifiedWebS
     const result = await middleware(wss, currentConnection, currentData);
 
     if (resultIsReject(result)) {
-      ws.send(JSON.stringify({ event: "error", code: result.code || 500, error: result.message }))
+      ws.send(JSON.stringify({ event: "error", code: result.code || 500, error: `${result.message}` }))
       ws.close(1011);
       break;
     }

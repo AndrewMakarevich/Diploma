@@ -6,12 +6,13 @@ import ImageService from "./imageService";
 import { IPictureInfo, IPictureInstance } from "../interfaces/pictureInterfaces";
 import ApiError from "../apiError/apiError";
 import { IPictureTag } from "../interfaces/tagInterfaces";
+import { ICursor } from "../interfaces/cursor"
 import PictureTagService from "./pictureTagService";
 import PictureInfoService from "./pictureInfoService";
 import sequelize, { OrderItem } from "sequelize";
 import { Op } from "sequelize";
 import { ICreatePictureService, IGetPicturesCursor } from "../interfaces/services/pictureServicesInterfaces";
-import { getCursorStatement } from "../utils/services/keysetPaginationHelpers";
+import { getCursorStatement, objectIsCursor } from "../utils/services/keysetPaginationHelpers";
 
 
 
@@ -57,11 +58,14 @@ class PictureService {
     return picture;
   }
 
-  static async getPictures(userId: number, pictureTypeId: number, query: string | undefined, cursor: IGetPicturesCursor, limit: number = 10) {
+  static async getPictures(userId: number, pictureTypeId: number, query: string | undefined, cursorStr: string, limit: number = 10) {
     if (!limit) {
       limit = 10
     }
-    let orderParam = [[sequelize.col(cursor.key), cursor.order], [sequelize.col("id"), cursor.order]];
+
+    const { id, key, value, order } = objectIsCursor(cursorStr);
+
+    let orderParam = [[sequelize.col(key), order], [sequelize.col("id"), order]];
 
     let whereStatement: { [key: string]: any } = {};
 
@@ -137,15 +141,12 @@ class PictureService {
     ]
     let cursorStatement: { [key: string]: any } = {};
 
-    if (cursor.value && cursor.id) {
-      const { id, key, value, order } = cursor;
-      if (cursor.key === literals[0].name) {
-        cursorStatement = getCursorStatement(key, id, value, order, literals[0].string);
-      } else if (cursor.key === literals[1].name) {
-        cursorStatement = getCursorStatement(key, id, value, order, literals[1].string);
-      } else {
-        cursorStatement = getCursorStatement(key, id, value, order)
-      }
+    if (key === literals[0].name) {
+      cursorStatement = getCursorStatement(key, id, value, order, literals[0].string);
+    } else if (key === literals[1].name) {
+      cursorStatement = getCursorStatement(key, id, value, order, literals[1].string);
+    } else {
+      cursorStatement = getCursorStatement(key, id, value, order)
     }
 
     const includeStatement = [

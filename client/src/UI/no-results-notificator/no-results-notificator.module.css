@@ -1,0 +1,7 @@
+.notificator-container{
+  color: var(--extra-light);
+  border-radius: 15px;
+  background-color:var(--medium-brown);
+  padding: 5px 10px;
+  width: fit-content;
+}

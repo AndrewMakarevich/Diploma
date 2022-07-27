@@ -2,13 +2,13 @@ import selectStyles from "./my-select.module.css";
 import { ComponentProps } from "react";
 
 export interface MySelectOptionField {
-  value: string | number | string[] | number[],
+  value: string | number | string[] | number[] | null | undefined,
   name: string
 }
 
 export interface MySelectOptGroupField {
   name: string,
-  options: MySelectOptionField[]
+  orderByKey: string
 }
 
 interface IMySelectProps extends ComponentProps<"select"> {
@@ -17,10 +17,7 @@ interface IMySelectProps extends ComponentProps<"select"> {
 
 const MySelect = ({ className, fields, ...restProps }: IMySelectProps) => {
   const isOptGroupField = (field: any): field is MySelectOptGroupField => {
-    return Boolean(field.options);
-  }
-  const optionValue = (option: MySelectOptionField) => {
-    return Array.isArray(option.value) ? JSON.stringify(option.value) : option.value
+    return Boolean(field.orderByKey);
   }
 
   return (
@@ -30,16 +27,16 @@ const MySelect = ({ className, fields, ...restProps }: IMySelectProps) => {
           isOptGroupField(field) ?
             <optgroup key={field.name} label={field.name}>
               {
-                field.options.map(option => (
+                ["ASC", "DESC"].map(option => (
                   <option
-                    key={option.name}
-                    value={optionValue(option)}
-                    label={option.name}></option>
+                    key={option}
+                    value={JSON.stringify([field.orderByKey, option])}
+                    label={option === "ASC" ? "Ascending" : "Descending"}></option>
                 ))
               }
             </optgroup>
             :
-            <option key={field.name} value={optionValue(field)} label={field.name}></option>
+            <option key={field.name} value={JSON.stringify(field.value)} label={field.name}></option>
         ))
       }
     </select>

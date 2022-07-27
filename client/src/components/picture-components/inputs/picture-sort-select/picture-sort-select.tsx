@@ -1,58 +1,23 @@
 import { ComponentProps } from "react";
+import { MySelectOptGroupField } from "../../../../UI/my-select/my-select";
 import SortSelect from "../../../inputs/sort-select/sort-select";
 
-const selectOptions = [
+const selectOptions: MySelectOptGroupField[] = [
   {
     name: "Sort by creation date",
-    options: [
-      {
-        value: ["createdAt", "DESC"],
-        name: "Descending"
-      },
-      {
-        value: ["createdAt", "ASC"],
-        name: "Ascending"
-      },
-    ]
+    orderByKey: "createdAt"
   },
   {
     name: "Sort by last update date",
-    options: [
-      {
-        value: ["updatedAt", "DESC"],
-        name: "Descending"
-      },
-      {
-        value: ["updatedAt", "ASC"],
-        name: "Ascending"
-      },
-    ]
+    orderByKey: "updatedAt"
   },
   {
     name: "Sort by likes",
-    options: [
-      {
-        value: ["likesAmount", "DESC"],
-        name: "Descending"
-      },
-      {
-        value: ["likesAmount", "ASC"],
-        name: "Ascending"
-      },
-    ]
+    orderByKey: "likesAmount"
   },
   {
     name: "Sort by comments amount",
-    options: [
-      {
-        value: ["commentsAmount", "DESC"],
-        name: "Descending"
-      },
-      {
-        value: ["commentsAmount", "ASC"],
-        name: "Ascending"
-      },
-    ]
+    orderByKey: "commentsAmount"
   },
 ]
 

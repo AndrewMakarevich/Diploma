@@ -1,46 +1,20 @@
 import { ComponentProps } from "react";
+import { MySelectOptGroupField } from "../../../../UI/my-select/my-select";
 import SortSelect from "../../../inputs/sort-select/sort-select"
 
 const PictureTagsSortSelect = (props: ComponentProps<"select">) => {
-  const selectOptions = [
+  const selectOptions: MySelectOptGroupField[] = [
     {
       name: "Select by creation date",
-      options: [
-        {
-          name: "Ascending",
-          value: ["createdAt", "ASC"]
-        },
-        {
-          name: "Descending",
-          value: ["createdAt", "DESC"]
-        }
-      ]
+      orderByKey: "createdAt"
     },
     {
       name: "Select by last update date",
-      options: [
-        {
-          name: "Ascending",
-          value: ["updatedAt", "ASC"]
-        },
-        {
-          name: "Descending",
-          value: ["updatedAt", "DESC"]
-        }
-      ]
+      orderByKey: "updatedAt"
     },
     {
       name: "Select by amount of pictures",
-      options: [
-        {
-          name: "Ascending",
-          value: ["attachedPicturesAmount", "ASC"]
-        },
-        {
-          name: "Descending",
-          value: ["attachedPicturesAmount", "DESC"]
-        }
-      ]
+      orderByKey: "attachedPicturesAmount"
     },
   ]
   return (

@@ -4,7 +4,7 @@ import { Op } from "sequelize";
 import ApiError from "../apiError/apiError";
 import { IGetTagsCursor } from "../interfaces/services/pictureTagsServiceInterfaces";
 import models from "../models/models";
-import { getCursorStatement } from "../utils/services/keysetPaginationHelpers";
+import { getCursorStatement, objectIsCursor } from "../utils/services/keysetPaginationHelpers";
 
 const baseCursorValue: IGetTagsCursor = {
   id: 0,
@@ -37,14 +37,10 @@ class PictureTagService {
   }
 
   static async getTags(queryString: string = "", cursor: string = "", limit = 5) {
-    let parsedCursor: IGetTagsCursor;
-    try {
-      parsedCursor = JSON.parse(cursor)
-    } catch (e) {
-      parsedCursor = baseCursorValue
-    }
+    let { id, key, order, value } = objectIsCursor(cursor);
+
     const whereStatement = { text: { [Op.iRegexp]: queryString } };
-    const orderParams = [[sequelize.col(parsedCursor.key), parsedCursor.order], [sequelize.col("id"), parsedCursor.order]];
+    const orderParams = [[sequelize.col(key), order], [sequelize.col("id"), order]];
 
     const literals = [
       {
@@ -55,14 +51,10 @@ class PictureTagService {
 
     let cursorStatement = {};
 
-    if (parsedCursor.value && parsedCursor.id) {
-      const { id, key, order, value } = parsedCursor;
-      if (key === literals[0].name) {
-        cursorStatement = getCursorStatement(key, id, value, order, literals[0].string);
-      } else {
-        cursorStatement = getCursorStatement(key, id, value, order);
-      }
-
+    if (key === literals[0].name) {
+      cursorStatement = getCursorStatement(key, id, value, order, literals[0].string);
+    } else {
+      cursorStatement = getCursorStatement(key, id, value, order);
     }
 
     const tags = await models.PictureTag.findAll({
@@ -109,8 +101,6 @@ class PictureTagService {
 
       throw ApiError.badRequest(error.message);
     });
-
-    console.log(editedTag);
 
     if (editedTag[0] === 0) {
       throw ApiError.badRequest("Tag with such id doesnt exists");

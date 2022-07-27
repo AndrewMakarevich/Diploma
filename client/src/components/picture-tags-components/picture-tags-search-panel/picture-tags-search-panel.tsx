@@ -6,14 +6,15 @@ import panelStyles from "./picture-tags-search-panel.module.css";
 
 interface IPictureTagsSearchPanelProps {
   onQueryStringChange: (e: ChangeEvent<HTMLInputElement>) => void,
-  onOrderParamChange: (e: ChangeEvent<HTMLSelectElement>) => void
+  onOrderParamChange: (e: ChangeEvent<HTMLSelectElement>) => void,
+  isLoading: boolean
 }
 
-const PictureTagsSearchPanel = ({ onQueryStringChange, onOrderParamChange }: IPictureTagsSearchPanelProps) => {
+const PictureTagsSearchPanel = ({ onQueryStringChange, onOrderParamChange, isLoading }: IPictureTagsSearchPanelProps) => {
   return (
     <div className={panelStyles["container"]}>
-      <SearchInput onChange={onQueryStringChange} />
-      <PictureTagsSortSelect onChange={onOrderParamChange} />
+      <SearchInput disabled={isLoading} onChange={onQueryStringChange} />
+      <PictureTagsSortSelect disabled={isLoading} onChange={onOrderParamChange} />
     </div>
   )
 }

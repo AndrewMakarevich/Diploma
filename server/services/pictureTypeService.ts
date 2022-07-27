@@ -1,9 +1,10 @@
 import sequelize, { OrderItem, Sequelize } from "sequelize";
 import { Op } from "sequelize";
 import ApiError from "../apiError/apiError";
+import { ICursor } from "../interfaces/cursor";
 import { IGetPictureTypesCursor } from "../interfaces/services/pictureTypesServiceInterfaces";
 import models from "../models/models";
-import { getCursorStatement } from "../utils/services/keysetPaginationHelpers";
+import { getCursorStatement, objectIsCursor } from "../utils/services/keysetPaginationHelpers";
 import PictureValidator from "../validator/pictureValidator";
 
 class PictureTypeService {
@@ -18,10 +19,12 @@ class PictureTypeService {
     return;
   }
 
-  static async getPictureTypes(queryString: string = "", cursor: IGetPictureTypesCursor, limit?: number) {
+  static async getPictureTypes(queryString: string = "", cursor: ICursor, limit?: number) {
     if (!limit) {
       limit = undefined
     }
+
+    const { id, key, value, order } = objectIsCursor(cursor);
 
     const literals = [
       {
@@ -33,16 +36,11 @@ class PictureTypeService {
     let cursorStatement = {};
     const whereStatement = { name: { [Op.iRegexp]: queryString } };
 
-    if (cursor.id && cursor.value) {
-      const { id, key, value, order } = cursor;
-      if (cursor.key === literals[0].name) {
-        cursorStatement = getCursorStatement(key, id, value, order, literals[0].string)
-      } else {
-        cursorStatement = getCursorStatement(key, id, value, order)
-      }
+    if (cursor.key === literals[0].name) {
+      cursorStatement = getCursorStatement(key, id, value, order, literals[0].string)
+    } else {
+      cursorStatement = getCursorStatement(key, id, value, order)
     }
-
-    console.log({ ...whereStatement, ...cursorStatement });
 
     const orderParams = [[sequelize.col(cursor.key), cursor.order], [sequelize.col("id"), cursor.order]]
 

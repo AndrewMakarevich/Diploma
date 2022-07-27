@@ -1,10 +1,10 @@
 import { useEffect, useState } from "react";
 import BellIcon from "../../../assets/img/icons/bell-icon/bell-icon";
-import { IErrorMessage, IGetNotifAmountData } from "../../../interfaces/websockets";
+import { IErrorMessage } from "../../../interfaces/websockets";
+import { IGetNotifAmountData } from "../../../interfaces/websockets/notifications";
 import InvisibleButton from "../../../UI/invisible-button/invisible-button";
 import websocket from "../../../websockets";
 import { ErrorRoutes, NotificationRoutes } from "../../../websockets/consts";
-import SidePopup from "../../side-popup/side-popup";
 import RecievedNotificationsPopup from "../recieved-notifications-popup/recieved-notifications-popup";
 
 import iconStyles from "./notification-icon.module.css";
@@ -31,6 +31,8 @@ const NotificationIcon = () => {
 
             if (payload === "plus") {
               setUnreadNotifAmount((prevVal) => prevVal + 1)
+            } else if (payload === "minus") {
+              setUnreadNotifAmount((prevVal) => prevVal - 1)
             } else {
               setUnreadNotifAmount(payload);
             }
@@ -53,6 +55,8 @@ const NotificationIcon = () => {
     } else if (websocket.readyState === 1) {
       onOpen();
     }
+
+    websocket.addEventListener("close", (message) => alert(message))
 
     return () => {
       websocket.removeEventListener("message", onMessage);

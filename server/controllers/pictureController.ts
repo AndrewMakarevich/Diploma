@@ -1,7 +1,6 @@
 import { NextFunction, Request, Response } from "express";
 import fileUpload from "express-fileupload";
 import { IPictureInfo } from "../interfaces/pictureInterfaces";
-import { IGetPicturesCursor } from "../interfaces/services/pictureServicesInterfaces";
 import { IPictureTag } from "../interfaces/tagInterfaces";
 import PictureService from "../services/pictureService";
 
@@ -27,7 +26,7 @@ class PictureController {
         Number(userId),
         Number(pictureTypeId),
         queryString,
-        JSON.parse(String(cursor)) as IGetPicturesCursor,
+        String(cursor),
         Number(limit));
 
       return res.json(response);

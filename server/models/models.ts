@@ -114,12 +114,28 @@ const Notification = sequelize.define<INotificationInstance>('notification', {
         }
       }
     }
-  },
-  checked: { type: DataTypes.BOOLEAN, allowNull: false, defaultValue: false },
+  }
+});
+
+const NotificationType = sequelize.define("notificationType", {
+  id: { type: DataTypes.INTEGER, primaryKey: true, autoIncrement: true },
+  name: {
+    type: DataTypes.STRING, unique: true, allowNull: false, validate: {
+      checkTypeName(value: string) {
+        if (!value.split(" ").join("")) {
+          throw Error("Notification type name can't be empty or consist of only spaces");
+        }
+
+        if (!/^[a-zA-Z0-9\s]{5,45}$/.test(value)) {
+          throw Error("Notification type name must consists of a-zA-Z0-9 and spaces, in length range from 5 to 45 symbols. Name can't consists of only spaces")
+        }
+      }
+    }
+  }
 });
 
 const UsersNotifications = sequelize.define('usersNotifications', {
-  // id: { type: DataTypes.INTEGER, primaryKey: true, autoIncrement: true }
+  checked: { type: DataTypes.BOOLEAN, allowNull: false, defaultValue: false },
 });
 
 const ResetPasswordBundle = sequelize.define<IResetPasswordBundleInstance>('resetPasswordBundle', {
@@ -223,11 +239,11 @@ UserToken.belongsTo(User);
 User.belongsToMany(Notification, { through: UsersNotifications, foreignKey: "recieverId", onDelete: "cascade" });
 Notification.belongsToMany(User, { through: UsersNotifications, onDelete: "cascade" });
 
-User.hasMany(Notification, { foreignKey: "senderId" });
+User.hasMany(Notification, { foreignKey: "senderId", as: "sender" });
 Notification.belongsTo(User, { foreignKey: "senderId" });
 
-// Notification.hasMany(UsersNotifications, { onDelete: "cascade" });
-// UsersNotifications.belongsTo(Notification);
+NotificationType.hasMany(Notification);
+Notification.belongsTo(NotificationType);
 
 Role.hasMany(User);
 User.belongsTo(Role);
@@ -275,6 +291,7 @@ export default {
   User,
   Notification,
   UsersNotifications,
+  NotificationType,
   UserToken,
   ResetPasswordBundle,
   Picture,

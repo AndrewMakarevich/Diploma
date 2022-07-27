@@ -29,10 +29,16 @@ const InfiniteScroll = ({ callback, children, stopValue, rewrite, maxHeight = "8
   }, [isLoading, executeCallback, rewrite, infiniteScrollContainerRef, stopValue])
 
   useEffect(() => {
-    if (!isLoading && (!stopValue || rewrite)) {
+    if (!isLoading && !stopValue) {
       infiniteScroll();
     }
-  }, [isLoading, stopValue, rewrite]);
+  }, [isLoading, stopValue]);
+
+  useEffect(() => {
+    if (rewrite) {
+      infiniteScroll();
+    }
+  }, [rewrite])
 
   useEffect(() => {
     return () => {

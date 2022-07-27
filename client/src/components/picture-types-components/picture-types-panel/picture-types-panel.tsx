@@ -13,6 +13,9 @@ import { IGetPictureTypesCursor } from "../../../interfaces/services/pictureType
 import InfiniteScroll from "../../infinite-scroll/infinite-scroll";
 import ModalWindow from "../../modal-window/modal-window";
 import StandartButton from "../../../UI/standart-button/standart-button";
+import useFetching from "../../../hooks/useFetching";
+import LoadingNotificator from "../../lodaing-notificator/loading-notificator";
+import NoResultsNotificator from "../../../UI/no-results-notificator/no-results-notificator";
 
 interface IPaginationParams {
   cursor: IGetPictureTypesCursor,
@@ -54,13 +57,6 @@ const PictureTypesPanel = () => {
 
     const { count, rows } = data;
 
-    if (!rows.length) {
-      setRewriteTypes(false);
-      setAllPictureTypesRecieved(true);
-      setTimeout(() => { setAllPictureTypesRecieved(false) }, 1000 * 60);
-      return;
-    }
-
     const filteredFromDulicatesTypesArr = rows.filter(type => !locallyAddedPictureTypesIds.some(localTypeId => localTypeId === type.id));
 
     if (rewrite) {
@@ -70,9 +66,18 @@ const PictureTypesPanel = () => {
       setPictureTypes({ ...pictureTypes, rows: [...pictureTypes.rows, ...filteredFromDulicatesTypesArr] });
     }
 
+    if (!rows.length) {
+      setRewriteTypes(false);
+      setAllPictureTypesRecieved(true);
+      setTimeout(() => { setAllPictureTypesRecieved(false) }, 1000 * 60);
+      return;
+    }
+
     const lastResponseItem = rows[rows.length - 1]
     setPagination({ ...pagination, cursor: { ...cursor, id: lastResponseItem.id, value: lastResponseItem[cursor.key] } });
   }, [pagination, queryString, locallyAddedPictureTypesIds, pictureTypes]);
+
+  const { executeCallback: fetchTypes, isLoading: typesLoading } = useFetching(getTypes);
 
   const setRewriteStateToTrue = useCallback(async () => {
     setRewriteTypes(true);
@@ -150,7 +155,7 @@ const PictureTypesPanel = () => {
 
   return (
     <>
-      <PictureTypesSearchPanel setQueryString={setQueryStringAndGetPictureTypes} setSortParam={setSortParamsAndGetPictureTypes} />
+      <PictureTypesSearchPanel setQueryString={setQueryStringAndGetPictureTypes} setSortParam={setSortParamsAndGetPictureTypes} isLoading={typesLoading} />
       <div className={panelStyles["forms"]}>
         <StandartButton onClick={openCreatePanel}>Create new type</StandartButton>
         {
@@ -170,13 +175,17 @@ const PictureTypesPanel = () => {
         }
 
       </div>
-      <InfiniteScroll callback={getTypes} stopValue={allPictureTypesRecieved} rewrite={rewriteTypes}>
+      <InfiniteScroll callback={fetchTypes} stopValue={allPictureTypesRecieved} rewrite={rewriteTypes}>
         <Table<pictureTypeObj>
           tableHeaders={["ID", "Name", "Pictures amount"]}
           entities={pictureTypes.rows}
           paramsToShow={["id", "name", "picturesAmount"]}
           actions={actionsArray} />
       </InfiniteScroll>
+      {
+        Boolean(!typesLoading && !pictureTypes.rows.length) && <NoResultsNotificator />
+      }
+      <LoadingNotificator isLoading={typesLoading} />
     </>
   )
 };
